@@ -562,7 +562,7 @@
       }, {passive: true});
       swipeZone.addEventListener('touchmove', e => {
         let currentY = e.changedTouches[0].screenY;
-        if (Math.abs(currentY - touchStartY) > 50) isDragging = true;
+        if (Math.abs(currentY - touchStartY) > 60) isDragging = true;
       }, {passive: true});
       swipeZone.addEventListener('touchend', e => {
         touchEndX = e.changedTouches[0].screenX; touchEndY = e.changedTouches[0].screenY;
