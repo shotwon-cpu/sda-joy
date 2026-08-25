@@ -555,14 +555,14 @@
       const swipeZone = document.getElementById('swipeZone');
       let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
       let isDragging = false; 
-      const minSwipeDistance = 40; 
+      const minSwipeDistance = 15; 
 
       swipeZone.addEventListener('touchstart', e => {
         touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; isDragging = false;
       }, {passive: true});
       swipeZone.addEventListener('touchmove', e => {
         let currentY = e.changedTouches[0].screenY;
-        if (Math.abs(currentY - touchStartY) > 20) isDragging = true;
+        if (Math.abs(currentY - touchStartY) > 40) isDragging = true;
       }, {passive: true});
       swipeZone.addEventListener('touchend', e => {
         touchEndX = e.changedTouches[0].screenX; touchEndY = e.changedTouches[0].screenY;
