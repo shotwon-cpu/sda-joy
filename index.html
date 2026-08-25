@@ -16,22 +16,22 @@
 </head>
 <body>
 
-  <!-- 🌟 상단 네비게이션: 모바일과 PC 모두 한 줄로 깔끔하게 오른쪽 배치 -->
-  <header class="nav-header text-white px-3 py-2.5 md:px-5 md:py-3.5 flex justify-between items-center shadow-md gap-2">
+  <!-- 🌟 상단 네비게이션: 글씨 및 버튼 크기 대폭 확대 -->
+  <header class="nav-header text-white px-4 py-3 md:px-6 md:py-4 flex justify-between items-center shadow-lg gap-3">
     <div class="min-w-0 flex-shrink">
-      <h1 class="text-xs sm:text-base md:text-xl font-bold truncate flex items-center">
-        <i class="fa-solid fa-book-bible mr-1.5 text-xs sm:text-sm md:text-base"></i>세종행복교회 안식일학교
+      <h1 class="text-base sm:text-lg md:text-2xl font-black flex items-center tracking-tight">
+        <i class="fa-solid fa-book-bible mr-2 text-sm sm:text-base md:text-xl text-yellow-300"></i>세종행복교회 안식일학교
       </h1>
-      <p class="text-[9px] sm:text-[11px] md:text-xs text-indigo-200 mt-0.5 truncate">기억절&교과방송 from 고은아빠</p>
+      <p class="text-[10px] sm:text-[12px] md:text-sm text-indigo-200 mt-1 truncate">기억절 & 교과방송 from 고은아빠</p>
     </div>
-    <div class="flex items-center space-x-1 sm:space-x-1.5 md:space-x-2 flex-shrink-0">
-      <button onclick="goToCurrentWeek()" class="whitespace-nowrap bg-indigo-800 hover:bg-indigo-700 px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] sm:text-xs md:text-sm font-semibold transition">
+    <div class="flex items-center space-x-2 sm:space-x-3 md:space-x-4 flex-shrink-0">
+      <button onclick="goToCurrentWeek()" class="whitespace-nowrap bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-[11px] sm:text-sm md:text-base font-bold transition shadow-md">
         <i class="fa-solid fa-calendar-check mr-1 hidden sm:inline"></i>이번 주
       </button>
-      <button onclick="openListModal('quarter')" class="whitespace-nowrap bg-emerald-600 hover:bg-emerald-500 px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] sm:text-xs md:text-sm font-semibold transition">
+      <button onclick="openListModal('quarter')" class="whitespace-nowrap bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-[11px] sm:text-sm md:text-base font-bold transition shadow-md">
         <i class="fa-solid fa-layer-group mr-1 hidden sm:inline"></i>13기억절
       </button>
-      <button onclick="openListModal('year')" class="whitespace-nowrap bg-amber-600 hover:bg-amber-500 px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] sm:text-xs md:text-sm font-semibold transition">
+      <button onclick="openListModal('year')" class="whitespace-nowrap bg-amber-600 hover:bg-amber-500 px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-[11px] sm:text-sm md:text-base font-bold transition shadow-md">
         <i class="fa-solid fa-list-ol mr-1 hidden sm:inline"></i>52기억절
       </button>
     </div>
@@ -248,7 +248,13 @@
       const data = sheetData[currentIndex];
       document.getElementById('displayQuarter').innerText = data.quarter || '정보 없음';
       let dObj = data.date ? new Date(data.date) : null;
-      document.getElementById('displayDate').innerText = dObj && !isNaN(dObj) ? `${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일` : (data.date||'');
+      let dateObjString = '';
+      if(dObj && !isNaN(dObj)){
+        const month = dObj.getMonth()+1;
+        const date = dObj.getDate();
+        dateObjString = `${dObj.getFullYear()}년 ${month}월 ${date}일`;
+      }
+      document.getElementById('displayDate').innerText = dateObjString || (data.date||'');
       document.getElementById('displayTitleKo').innerText = data.title_ko || '제목 없음';
       document.getElementById('displayTitleEn').innerText = data.title_en || '';
       document.getElementById('displayBibleKo').innerText = data.bible_ko || '';
@@ -282,7 +288,7 @@
     function updateVideoPlayer() {
       const data = sheetData[currentIndex];
       const player = document.getElementById('videoPlayer');
-      let targetUrl = (currentTab === 'a') ? data.youtube_a : (currentTab === 'b') ? data.youtube_b : data.youtube_c;
+      let targetUrl = (currentTab === 'a') ? data.youtube_jang : (currentTab === 'b') ? data.youtube_a : data.youtube_b;
       const videoId = extractYouTubeId(targetUrl);
       if (videoId) {
         player.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
@@ -412,7 +418,12 @@
         div.className = `p-3 md:p-4 border rounded-xl cursor-pointer transition ${isCurrent ? 'bg-indigo-50 border-indigo-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200'}`;
         div.onclick = () => { selectWeek(item.originalIndex); closeListModal(); };
         let dObj = item.date ? new Date(item.date) : null;
-        let dateStr = dObj && !isNaN(dObj) ? `${dObj.getMonth()+1}월 ${dateObj.getDate()}일` : '';
+        let dateStr = '';
+        if(dObj && !isNaN(dObj)){
+          const month = dObj.getMonth()+1;
+          const date = dObj.getDate();
+          dateStr = `${month}월 ${date}일`;
+        }
         div.innerHTML = `
           <div class="flex justify-between items-center mb-1">
             <span class="text-[11px] font-bold ${isCurrent ? 'text-indigo-700' : 'text-indigo-500'}">${item.quarter || ((item.originalIndex + 1) + '주차')}</span>
