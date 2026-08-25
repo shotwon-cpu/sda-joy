@@ -22,9 +22,14 @@
       <h1 class="text-xl font-bold"><i class="fa-solid fa-book-bible mr-2"></i>안식일학교 기억절 대시보드</h1>
       <p class="text-xs text-indigo-200 mt-1">52주 기억절 & 3인 교과방송 멀티 뷰어</p>
     </div>
-    <button onclick="openSettings()" class="bg-indigo-700 hover:bg-indigo-600 px-3 py-2 rounded-lg text-sm font-semibold transition">
-      <i class="fa-solid fa-gear mr-1"></i> 연동 설정
-    </button>
+    <div class="flex items-center space-x-2">
+      <button onclick="goToCurrentWeek()" class="bg-indigo-800 hover:bg-indigo-700 px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition">
+        <i class="fa-solid fa-calendar-check mr-1"></i> 이번 주
+      </button>
+      <button onclick="openSettings()" class="bg-indigo-700 hover:bg-indigo-600 px-3 py-2 rounded-lg text-xs md:text-sm font-semibold transition">
+        <i class="fa-solid fa-gear mr-1"></i> 연동 설정
+      </button>
+    </div>
   </header>
 
   <main class="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
@@ -61,9 +66,19 @@
           <p id="displayBible" class="text-indigo-600 font-semibold text-lg mb-6">성경절 위치</p>
           
           <div class="verse-box text-white p-6 rounded-xl relative shadow-inner">
-            <p id="displayVerse" class="text-lg md:text-xl leading-relaxed font-medium tracking-wide">
+            <p id="displayVerse" class="text-lg md:text-xl leading-relaxed font-medium tracking-wide mb-4">
               "기억절 내용이 이곳에 표시됩니다."
             </p>
+            
+            <!-- 복사 & 읽기 편의 기능 버튼 -->
+            <div class="flex justify-end space-x-2 pt-2 border-t border-indigo-900/50">
+              <button onclick="speakVerse()" class="px-3 py-1.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs text-indigo-200 transition flex items-center">
+                <i class="fa-solid fa-volume-high mr-1.5"></i> 듣기
+              </button>
+              <button onclick="copyVerse()" class="px-3 py-1.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs text-indigo-200 transition flex items-center">
+                <i class="fa-solid fa-copy mr-1.5"></i> 복사
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -111,9 +126,8 @@
   <script>
     let sheetData = [];
     let currentIndex = 0;
-    let currentTab = 'jang'; // 'jang', 'a', 'b'
+    let currentTab = 'jang';
 
-    // 시작 시 URL 확인 및 데이터 로드
     window.onload = () => {
       const savedUrl = localStorage.getItem('sabbathApiUrl');
       if (savedUrl) {
@@ -123,7 +137,6 @@
       }
     };
 
-    // 데이터 가져오기
     async function fetchData(url) {
       document.getElementById('loading').classList.remove('hidden');
       document.getElementById('contentArea').classList.add('hidden');
@@ -135,6 +148,7 @@
         if (json.status === 'success' && json.data.length > 0) {
           sheetData = json.data;
           buildWeekSelector();
+          autoSelectCurrentWeek();
           updateUI();
           document.getElementById('loading').classList.add('hidden');
           document.getElementById('contentArea').classList.remove('hidden');
@@ -148,28 +162,49 @@
       }
     }
 
-    // 주차 선택기 만들기
+    // 오늘 날짜와 가장 가까운 주차 자동 탐색
+    function autoSelectCurrentWeek() {
+      const today = new Date();
+      let closestIndex = 0;
+      let minDiff = Infinity;
+
+      sheetData.forEach((item, index) => {
+        if (item.date) {
+          const d = new Date(item.date);
+          if (!isNaN(d)) {
+            const diff = Math.abs(today - d);
+            if (diff < minDiff) {
+              minDiff = diff;
+              closestIndex = index;
+            }
+          }
+        }
+      });
+      currentIndex = closestIndex;
+    }
+
+    function goToCurrentWeek() {
+      autoSelectCurrentWeek();
+      updateUI();
+    }
+
     function buildWeekSelector() {
       const selector = document.getElementById('weekSelector');
       selector.innerHTML = '';
       sheetData.forEach((item, index) => {
         let option = document.createElement('option');
         option.value = index;
-        option.text = `${item.week || index+1}주차 (${item.quarter})`;
+        option.text = `${item.week || index+1}주차 (${item.quarter || ''})`;
         selector.appendChild(option);
       });
-      selector.value = 0;
     }
 
-    // 화면 업데이트 (기억절 + 영상)
     function updateUI() {
       if (sheetData.length === 0) return;
       const data = sheetData[currentIndex];
 
-      // 텍스트 매핑 (선생님 시트 헤더명 적용)
       document.getElementById('displayQuarter').innerText = data.quarter || '주차 정보 없음';
       
-      // 날짜 포맷 (선택사항)
       let dateObj = data.date ? new Date(data.date) : null;
       document.getElementById('displayDate').innerText = dateObj && !isNaN(dateObj) ? 
         `${dateObj.getFullYear()}년 ${dateObj.getMonth()+1}월 ${dateObj.getDate()}일` : (data.date || '');
@@ -179,11 +214,9 @@
       document.getElementById('displayVerse').innerText = data.verse_ko ? `"${data.verse_ko}"` : '기억절 내용이 없습니다.';
       
       document.getElementById('weekSelector').value = currentIndex;
-      
       updateVideoPlayer();
     }
 
-    // 좌우 버튼 이동
     function changeWeek(step) {
       let newIndex = currentIndex + step;
       if (newIndex >= 0 && newIndex < sheetData.length) {
@@ -197,11 +230,8 @@
       updateUI();
     }
 
-    // 영상 탭 변경 함수
     function changeVideoTab(tabName) {
       currentTab = tabName;
-      
-      // 탭 디자인 변경
       ['jang', 'a', 'b'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         if(t === tabName) {
@@ -210,37 +240,61 @@
           btn.className = "tab-inactive border px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition";
         }
       });
-
       updateVideoPlayer();
     }
 
-    // 영상 화면 갱신
+    // 유튜브 URL에서 비디오 ID 추출 (일반 링크, 모바일 단축 링크, 쇼츠 등 대응)
+    function extractYouTubeId(url) {
+      if (!url) return null;
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    }
+
     function updateVideoPlayer() {
       const data = sheetData[currentIndex];
       const player = document.getElementById('videoPlayer');
       const noVideoMsg = document.getElementById('noVideoMsg');
 
-      // 선택된 탭에 따라 시트에서 가져올 열(Column) 이름 결정
       let targetUrl = '';
       if (currentTab === 'jang') targetUrl = data.youtube_jang;
       else if (currentTab === 'a') targetUrl = data.youtube_a;
       else if (currentTab === 'b') targetUrl = data.youtube_b;
 
-      if (targetUrl && targetUrl.includes('v=')) {
-        // 유튜브 주소에서 ID만 추출하여 퍼가기(embed) 주소로 변환
-        const videoId = targetUrl.split('v=')[1].split('&')[0];
+      const videoId = extractYouTubeId(targetUrl);
+
+      if (videoId) {
         player.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
         player.classList.remove('hidden');
         noVideoMsg.classList.add('hidden');
       } else {
-        // 영상 링크가 비어있을 경우
         player.src = "";
         player.classList.add('hidden');
         noVideoMsg.classList.remove('hidden');
       }
     }
 
-    // 설정 모달 기능
+    // 기억절 클립보드 복사
+    function copyVerse() {
+      const data = sheetData[currentIndex];
+      if (!data) return;
+      const textToCopy = `[${data.quarter || ''}] ${data.title_ko || ''}\n📖 ${data.bible_ko || ''}\n\n"${data.verse_ko || ''}"`;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        alert('기억절이 클립보드에 복사되었습니다.');
+      });
+    }
+
+    // 브라우저 TTS(음성 읽기)
+    function speakVerse() {
+      const data = sheetData[currentIndex];
+      if (!data || !data.verse_ko) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(data.verse_ko);
+      utterance.lang = 'ko-KR';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+
     function openSettings() {
       document.getElementById('apiUrlInput').value = localStorage.getItem('sabbathApiUrl') || '';
       document.getElementById('settingsModal').classList.remove('hidden');
