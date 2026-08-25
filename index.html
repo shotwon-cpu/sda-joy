@@ -37,7 +37,7 @@
 
   <main class="max-w-4xl mx-auto p-3 md:p-5 space-y-3 md:space-y-5">
     
-    <!-- 주차 선택 컨트롤러 (여백 축소) -->
+    <!-- 주차 선택 컨트롤러 -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-2 md:p-4 flex flex-col md:flex-row justify-between items-center gap-2">
       <div class="flex items-center space-x-2 w-full md:w-auto">
         <button onclick="changeWeek(-1)" class="w-9 h-9 md:w-10 md:h-10 rounded-full border hover:bg-slate-50 flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
@@ -57,7 +57,7 @@
     <!-- 콘텐츠 영역 -->
     <div id="contentArea" class="hidden space-y-3 md:space-y-5">
       
-      <!-- 기억절 카드 (패딩 축소) -->
+      <!-- 기억절 카드 -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
         <div class="absolute top-0 right-0 w-24 h-24 bg-yellow-50 rounded-bl-full -z-10"></div>
         <div class="p-4 md:p-6 relative z-10">
@@ -75,16 +75,13 @@
           </p>
           
           <div class="verse-box text-white p-4 md:p-5 rounded-xl relative shadow-inner">
-            <!-- 한글 기억절 -->
             <p id="displayVerseKo" class="text-base md:text-lg leading-snug font-medium tracking-wide mb-2">
               "기억절 내용이 이곳에 표시됩니다."
             </p>
-            <!-- 영어 기억절 -->
             <p id="displayVerseEn" class="text-sm md:text-base leading-snug font-light text-indigo-200 italic mb-4">
               "English verse will be displayed here."
             </p>
             
-            <!-- 복사 & 읽기 버튼 (크기 약간 축소) -->
             <div class="flex justify-end space-x-1.5 pt-2 border-t border-indigo-900/50">
               <button onclick="speakVerse('ko')" class="px-2.5 py-1.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-md text-[11px] md:text-xs text-indigo-200 transition flex items-center">
                 <i class="fa-solid fa-volume-high mr-1"></i> 한글
@@ -100,7 +97,7 @@
         </div>
       </div>
 
-      <!-- 🆕 교과토의 자료 링크 카드 -->
+      <!-- 교과토의 자료 링크 카드 -->
       <div onclick="openDiscussionModal()" class="bg-white rounded-xl shadow-sm border border-slate-200 p-3 md:p-4 flex justify-between items-center cursor-pointer hover:bg-slate-50 transition active:bg-slate-100">
         <div class="flex items-center">
           <div class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 mr-3">
@@ -141,7 +138,7 @@
     </div>
   </main>
 
-  <!-- 🆕 교과토의 자료 팝업(모달) -->
+  <!-- 교과토의 자료 팝업(모달) -->
   <div id="discussionModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 md:p-4">
     <div class="bg-white rounded-xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       
@@ -156,10 +153,6 @@
       <!-- 팝업 본문 (iframe) -->
       <div class="flex-1 w-full bg-slate-50 relative">
         <iframe id="discussionIframe" class="w-full h-full border-0 hidden" src=""></iframe>
-        <div id="noDiscussionMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white">
-          <i class="fa-regular fa-folder-open text-4xl mb-3 text-slate-300"></i>
-          <p class="text-sm">등록된 토의 자료 링크가 없습니다.</p>
-        </div>
       </div>
     </div>
   </div>
@@ -358,30 +351,15 @@
       }
     }
 
-    // 🆕 교과토의 자료 팝업 열기 함수
+    // 🆕 교과토의 자료 팝업 열기 함수 (구글 문서 링크 영구 고정)
     function openDiscussionModal() {
-      const data = sheetData[currentIndex];
       const iframe = document.getElementById('discussionIframe');
-      const noMsg = document.getElementById('noDiscussionMsg');
       
-      // 시트 헤더 이름이 discussion_link 라고 가정
-      if (data && data.discussion_link && data.discussion_link.trim() !== '') {
-        let link = data.discussion_link.trim();
-        
-        // 구글 문서(Docs, Sheets 등) 링크일 경우, 
-        // /edit 모드를 /preview 모드로 치환하여 상단 툴바(메뉴)를 숨김 처리합니다.
-        if (link.includes('docs.google.com') && link.includes('/edit')) {
-          link = link.replace(/\/edit.*$/, '/preview');
-        }
-        
-        iframe.src = link;
-        iframe.classList.remove('hidden');
-        noMsg.classList.add('hidden');
-      } else {
-        iframe.src = "";
-        iframe.classList.add('hidden');
-        noMsg.classList.remove('hidden');
-      }
+      // 고정된 구글 문서 미리보기(preview) 링크
+      const link = "https://docs.google.com/document/d/1O-Ddxg9J9-FeAVn5CvFn_EFpzz92AJxjXv7tdcg-ya0/preview";
+      
+      iframe.src = link;
+      iframe.classList.remove('hidden');
       
       document.getElementById('discussionModal').classList.remove('hidden');
     }
@@ -389,7 +367,6 @@
     // 🆕 교과토의 자료 팝업 닫기 함수
     function closeDiscussionModal() {
       document.getElementById('discussionModal').classList.add('hidden');
-      // 팝업 닫을 때 메모리 반환 및 혹시 모를 소리 차단을 위해 iframe 비우기
       document.getElementById('discussionIframe').src = "";
     }
 
