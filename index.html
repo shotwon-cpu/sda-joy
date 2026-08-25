@@ -313,7 +313,7 @@
     function updateVideoPlayer() {
       const data = sheetData[currentIndex];
       const player = document.getElementById('videoPlayer');
-      let targetUrl = (currentTab === 'a') ? data.youtube_jang : (currentTab === 'b') ? data.youtube_a : data.youtube_b;
+      let targetUrl = (currentTab === 'a') ? data.youtube_a : (currentTab === 'b') ? data.youtube_b : data.youtube_c;
       const videoId = extractYouTubeId(targetUrl);
       if (videoId) {
         player.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
