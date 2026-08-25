@@ -133,12 +133,16 @@
         </div>
       </div>
 
-      <!-- 영상 카드 -->
+      <!-- 영상 카드 (새창 열기 버튼 추가) -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-6 md:pb-8">
-        <div class="flex justify-between items-center mb-5">
+        <div class="flex justify-between items-center mb-5 flex-wrap gap-2">
           <h3 class="text-xl md:text-2xl font-bold flex items-center text-slate-800">
             <i class="fa-brands fa-youtube text-red-500 mr-2 text-2xl"></i> 이번 주 교과 해설 영상
           </h3>
+          <!-- 🚀 새로 추가된 새창/앱으로 열기 버튼 -->
+          <button onclick="openVideoNewTab()" class="text-sm md:text-base bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg font-bold transition flex items-center border border-red-200 shadow-sm">
+            <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> 앱으로 열기
+          </button>
         </div>
 
         <div class="flex space-x-2 mb-5 overflow-x-auto pb-2 custom-scrollbar">
@@ -399,6 +403,18 @@
         window.open(data.discussion_link.trim(), '_blank');
       } else {
         alert("등록된 교과토의 자료 링크가 없습니다.");
+      }
+    }
+
+    // 🚀 유튜브 새창(앱)으로 열기 기능 추가
+    function openVideoNewTab() {
+      const data = sheetData[currentIndex];
+      let targetUrl = (currentTab === 'a') ? data.youtube_a : (currentTab === 'b') ? data.youtube_b : data.youtube_c;
+      
+      if (targetUrl && targetUrl.trim() !== '') {
+        window.open(targetUrl.trim(), '_blank');
+      } else {
+        alert("현재 선택된 강사의 영상 링크가 없습니다.");
       }
     }
 
