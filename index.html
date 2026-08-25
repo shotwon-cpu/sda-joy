@@ -48,12 +48,6 @@
       </div>
     </div>
 
-    <!-- 로딩 화면 -->
-    <div id="loading" class="text-center py-10 text-slate-500">
-      <i class="fa-solid fa-spinner fa-spin text-3xl mb-2"></i>
-      <p class="text-sm">데이터를 불러오고 있습니다...</p>
-    </div>
-
     <!-- 콘텐츠 영역 -->
     <div id="contentArea" class="hidden space-y-3 md:space-y-5">
       
@@ -65,7 +59,7 @@
             <span id="displayQuarter" class="bg-yellow-100 text-yellow-800 text-[11px] md:text-xs font-bold px-2.5 py-1 rounded-full">제 ?기 ?과</span>
             <span id="displayDate" class="text-slate-400 text-xs md:text-sm"></span>
           </div>
-          <h2 class="text-xl md:text-2xl font-bold text-slate-800 mt-2 leading-tight" id="displayTitleContainer">
+          <h2 class="text-xl md:text-2xl font-bold text-slate-800 mt-2 leading-tight">
             <span id="displayTitleKo">제목을 불러오는 중</span><br>
             <span id="displayTitleEn" class="text-sm md:text-lg text-slate-400 font-medium mt-0.5 inline-block"></span>
           </h2>
@@ -125,16 +119,12 @@
 
         <div class="aspect-video bg-slate-900 rounded-lg overflow-hidden relative shadow-inner border border-slate-800">
           <iframe id="videoPlayer" class="w-full h-full hidden" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-          <div id="noVideoMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
-            <i class="fa-regular fa-face-frown-open text-3xl mb-2"></i>
-            <p class="text-xs md:text-sm">영상이 아직 준비되지 않았습니다.</p>
-          </div>
         </div>
       </div>
     </div>
   </main>
 
-  <!-- 교과토의 자료 자동 크롤링 팝업(모달) -->
+  <!-- 🆕 교과토의 자료 2중 크롤링 팝업(모달) -->
   <div id="discussionModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 md:p-4">
     <div class="bg-white rounded-xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       
@@ -146,19 +136,13 @@
         </button>
       </div>
       
-      <!-- 팝업 본문 (iframe 대신 직접 HTML 삽입) -->
       <div class="flex-1 w-full bg-white relative overflow-y-auto p-4 md:p-6 custom-scrollbar">
         
         <!-- 로딩 애니메이션 -->
         <div id="loadingDiscussion" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white z-10 hidden">
           <i class="fa-solid fa-spinner fa-spin text-4xl mb-3 text-indigo-500"></i>
           <p class="text-sm font-medium">자동으로 본문만 추출하고 있습니다...</p>
-        </div>
-
-        <!-- 내용 없음 메시지 -->
-        <div id="noDiscussionMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white z-10 hidden">
-          <i class="fa-regular fa-folder-open text-4xl mb-3 text-slate-300"></i>
-          <p class="text-sm">등록된 토의 자료 링크가 없습니다.</p>
+          <p class="text-xs mt-2 text-slate-400">(최대 3~5초 소요될 수 있습니다)</p>
         </div>
 
         <!-- 크롤링된 본문이 들어갈 공간 -->
@@ -169,252 +153,172 @@
     </div>
   </div>
 
-  <!-- 목록 보기 모달 -->
-  <div id="verseListModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-3 md:p-4">
-    <div class="bg-white rounded-xl p-4 md:p-5 w-full max-w-2xl shadow-2xl flex flex-col max-h-[85vh]">
-      <div class="flex justify-between items-center mb-3">
-        <h3 id="modalTitle" class="text-lg font-bold text-slate-800">목록</h3>
-        <button onclick="closeListModal()" class="text-slate-400 hover:text-slate-700 transition">
-          <i class="fa-solid fa-xmark text-xl"></i>
-        </button>
-      </div>
-      
-      <div id="quarterSelectorContainer" class="mb-3 hidden">
-        <select id="modalQuarterSelector" onchange="renderList('quarter', this.value)" class="w-full border-slate-300 rounded-lg p-2 bg-slate-50 text-sm font-semibold focus:ring-indigo-500">
-        </select>
-      </div>
-
-      <div id="verseListContainer" class="overflow-y-auto flex-1 space-y-2.5 pr-1 custom-scrollbar">
-      </div>
-    </div>
-  </div>
-
-  <!-- 자동화 크롤링을 위해 적용된 디자인 -->
   <style>
     .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     .animate-fade-in { animation: fadeIn 0.2s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-    
-    /* 크롤링된 본문을 깔끔하게 정돈하는 디자인 */
     #discussionContent p { margin-bottom: 1em; }
     #discussionContent img { max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 1em; }
-    #discussionContent strong { color: #1e293b; font-weight: bold; }
   </style>
 
   <script>
-    // 📢 [설정 구역] 강사 이름 설정
-    const TEACHER_NAMES = {
-      a: "장석원 목사",
-      b: "A 목사 해설",
-      c: "B 목사 해설"
-    };
-
+    const TEACHER_NAMES = { a: "장석원 목사", b: "A 목사 해설", c: "B 목사 해설" };
     const API_URL = "https://script.google.com/macros/s/AKfycbyQTYzIeLdgZBizwLS2cgRAGbgRsko9KjpIBfc5vzp5r_2OPGa0t1nA8nKHcngonIWE/exec";
     
     let sheetData = [];
     let currentIndex = 0;
     let currentTab = 'a';
 
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
-    }
-
     window.onload = () => {
       document.getElementById('tab-a').innerText = TEACHER_NAMES.a;
       document.getElementById('tab-b').innerText = TEACHER_NAMES.b;
       document.getElementById('tab-c').innerText = TEACHER_NAMES.c;
-      
       fetchData(API_URL);
     };
 
     async function fetchData(url) {
-      document.getElementById('loading').classList.remove('hidden');
       document.getElementById('contentArea').classList.add('hidden');
-      
       try {
         const response = await fetch(url);
         const json = await response.json();
-        
         if (json.status === 'success' && json.data.length > 0) {
           sheetData = json.data;
           buildWeekSelector();
           autoSelectCurrentWeek();
           updateUI();
-          document.getElementById('loading').classList.add('hidden');
           document.getElementById('contentArea').classList.remove('hidden');
-        } else {
-          alert("데이터를 찾을 수 없습니다. 시트 내용을 확인해주세요.");
         }
       } catch (e) {
-        document.getElementById('loading').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-500 text-3xl mb-2"></i><p class="text-sm">데이터 로딩 오류</p>`;
+        alert("데이터 로딩 오류");
       }
     }
 
     function autoSelectCurrentWeek() {
       const today = new Date();
-      let closestIndex = 0;
-      let minDiff = Infinity;
-
+      let closestIndex = 0, minDiff = Infinity;
       sheetData.forEach((item, index) => {
         if (item.date) {
           const d = new Date(item.date);
           if (!isNaN(d)) {
             const diff = Math.abs(today - d);
-            if (diff < minDiff) {
-              minDiff = diff;
-              closestIndex = index;
-            }
+            if (diff < minDiff) { minDiff = diff; closestIndex = index; }
           }
         }
       });
       currentIndex = closestIndex;
     }
 
-    function goToCurrentWeek() {
-      autoSelectCurrentWeek();
-      updateUI();
-    }
-
     function buildWeekSelector() {
       const selector = document.getElementById('weekSelector');
       selector.innerHTML = '';
       sheetData.forEach((item, index) => {
-        let option = document.createElement('option');
-        option.value = index;
-        option.text = `${item.week || index+1}주차 (${item.quarter || ''})`;
-        selector.appendChild(option);
+        let opt = document.createElement('option');
+        opt.value = index; opt.text = `${item.week || index+1}주차 (${item.quarter || ''})`;
+        selector.appendChild(opt);
       });
     }
 
     function updateUI() {
       if (sheetData.length === 0) return;
       const data = sheetData[currentIndex];
-
-      document.getElementById('displayQuarter').innerText = data.quarter || '주차 정보 없음';
-      
-      let dateObj = data.date ? new Date(data.date) : null;
-      document.getElementById('displayDate').innerText = dateObj && !isNaN(dateObj) ? 
-        `${dateObj.getFullYear()}년 ${dateObj.getMonth()+1}월 ${dateObj.getDate()}일` : (data.date || '');
-
+      document.getElementById('displayQuarter').innerText = data.quarter || '정보 없음';
+      let dObj = data.date ? new Date(data.date) : null;
+      document.getElementById('displayDate').innerText = dObj && !isNaN(dObj) ? `${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일` : (data.date||'');
       document.getElementById('displayTitleKo').innerText = data.title_ko || '제목 없음';
       document.getElementById('displayTitleEn').innerText = data.title_en || '';
-      
       document.getElementById('displayBibleKo').innerText = data.bible_ko || '';
       document.getElementById('displayBibleEn').innerText = data.bible_en || '';
-      
-      document.getElementById('displayVerseKo').innerText = data.verse_ko ? `"${data.verse_ko}"` : '기억절 내용이 없습니다.';
+      document.getElementById('displayVerseKo').innerText = data.verse_ko ? `"${data.verse_ko}"` : '';
       document.getElementById('displayVerseEn').innerText = data.verse_en ? `"${data.verse_en}"` : '';
-      
       document.getElementById('weekSelector').value = currentIndex;
       updateVideoPlayer();
     }
 
     function changeWeek(step) {
       let newIndex = currentIndex + step;
-      if (newIndex >= 0 && newIndex < sheetData.length) {
-        currentIndex = newIndex;
-        updateUI();
-      }
+      if (newIndex >= 0 && newIndex < sheetData.length) { currentIndex = newIndex; updateUI(); }
     }
+    function selectWeek(index) { currentIndex = parseInt(index); updateUI(); }
 
-    function selectWeek(index) {
-      currentIndex = parseInt(index);
-      updateUI();
+    function extractYouTubeId(url) {
+      if (!url) return null;
+      const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+      return (match && match[2].length === 11) ? match[2] : null;
     }
 
     function changeVideoTab(tabName) {
       currentTab = tabName;
       ['a', 'b', 'c'].forEach(t => {
-        const btn = document.getElementById(`tab-${t}`);
-        if(t === tabName) {
-          btn.className = "tab-active border px-3 py-1.5 rounded-lg font-bold text-[11px] md:text-sm whitespace-nowrap transition";
-        } else {
-          btn.className = "tab-inactive border px-3 py-1.5 rounded-lg font-bold text-[11px] md:text-sm whitespace-nowrap transition";
-        }
+        document.getElementById(`tab-${t}`).className = (t === tabName) ? "tab-active border px-3 py-1.5 rounded-lg font-bold text-[11px] md:text-sm whitespace-nowrap transition" : "tab-inactive border px-3 py-1.5 rounded-lg font-bold text-[11px] md:text-sm whitespace-nowrap transition";
       });
       updateVideoPlayer();
-    }
-
-    function extractYouTubeId(url) {
-      if (!url) return null;
-      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-      const match = url.match(regExp);
-      return (match && match[2].length === 11) ? match[2] : null;
     }
 
     function updateVideoPlayer() {
       const data = sheetData[currentIndex];
       const player = document.getElementById('videoPlayer');
-      const noVideoMsg = document.getElementById('noVideoMsg');
-
-      let targetUrl = '';
-      if (currentTab === 'a') targetUrl = data.youtube_a;
-      else if (currentTab === 'b') targetUrl = data.youtube_b;
-      else if (currentTab === 'c') targetUrl = data.youtube_c;
-
+      let targetUrl = (currentTab === 'a') ? data.youtube_a : (currentTab === 'b') ? data.youtube_b : data.youtube_c;
       const videoId = extractYouTubeId(targetUrl);
-
       if (videoId) {
         player.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
         player.classList.remove('hidden');
-        noVideoMsg.classList.add('hidden');
       } else {
         player.src = "";
         player.classList.add('hidden');
-        noVideoMsg.classList.remove('hidden');
       }
     }
 
-    // 🌟 완전 자동화 크롤링 함수 (구글 시트에 링크만 넣으면 작동)
+    // 🌟 2중 보안 프록시 자동 크롤링 로직
     async function openDiscussionModal() {
       const data = sheetData[currentIndex];
       const modal = document.getElementById('discussionModal');
       const contentDiv = document.getElementById('discussionContent');
       const loading = document.getElementById('loadingDiscussion');
-      const noMsg = document.getElementById('noDiscussionMsg');
       
       modal.classList.remove('hidden');
       
-      // 시트 헤더 이름이 discussion_link 라고 가정
       if (data && data.discussion_link && data.discussion_link.trim() !== '') {
         const url = data.discussion_link.trim();
         
-        // 구글 문서일 경우 기존처럼 iframe 처리
+        // 구글 문서 링크면 iframe 처리
         if (url.includes('docs.google.com')) {
           contentDiv.innerHTML = `<iframe class="w-full h-full min-h-[70vh] border-0" src="${url.replace(/\/edit.*$/, '/preview')}"></iframe>`;
           contentDiv.classList.remove('hidden');
           loading.classList.add('hidden');
-          noMsg.classList.add('hidden');
           return;
         }
 
-        // sspm.or.kr 같은 외부 웹사이트일 경우 자동 크롤링 시작
         loading.classList.remove('hidden');
         contentDiv.classList.add('hidden');
-        noMsg.classList.add('hidden');
 
         try {
-          // 무료 프록시를 통해 CORS 보안을 우회하여 해당 웹사이트의 코드 가져오기
-          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-          const response = await fetch(proxyUrl);
-          const result = await response.json();
+          let htmlContent = "";
           
-          // 가져온 글자를 HTML 문서로 변환
+          try {
+            // Plan A: corsproxy.io 시도
+            const res1 = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+            if (!res1.ok) throw new Error('Proxy 1 failed');
+            htmlContent = await res1.text();
+          } catch (err1) {
+            // Plan B: allorigins.win (raw) 시도
+            const res2 = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+            if (!res2.ok) throw new Error('Proxy 2 failed');
+            htmlContent = await res2.text();
+          }
+          
           const parser = new DOMParser();
-          const doc = parser.parseFromString(result.contents, 'text/html');
+          const doc = parser.parseFromString(htmlContent, 'text/html');
           
-          // sspm.or.kr 게시판의 본문 영역(id="bo_v_con")만 딱 잘라내기
+          // sspm.or.kr 본문 영역 추출
           let extracted = doc.getElementById('bo_v_con');
           
           if (extracted) {
-            // 이미지 주소 깨짐 방지
-            let htmlContent = extracted.innerHTML.replace(/src="\//g, 'src="https://sspm.or.kr/');
-            contentDiv.innerHTML = htmlContent;
+            let finalHtml = extracted.innerHTML.replace(/src="\//g, 'src="https://sspm.or.kr/');
+            contentDiv.innerHTML = finalHtml;
           } else {
-            contentDiv.innerHTML = `<div class="text-center py-10"><p class="text-red-500 mb-3">해당 링크에서 본문을 찾을 수 없습니다.</p><a href="${url}" target="_blank" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg">원본 사이트 새 창에서 열기</a></div>`;
+            contentDiv.innerHTML = `<div class="text-center py-10"><p class="text-red-500 mb-3 font-bold">본문 추출 실패</p><p class="text-sm text-slate-500 mb-4">해당 링크의 구조가 달라서 본문만 뽑아올 수 없습니다.</p><a href="${url}" target="_blank" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-bold shadow">원본 사이트 새 창에서 열기</a></div>`;
           }
           
           loading.classList.add('hidden');
@@ -422,168 +326,19 @@
           
         } catch (error) {
           loading.classList.add('hidden');
-          contentDiv.innerHTML = `<div class="text-center py-10"><p class="text-red-500 mb-3">데이터를 불러오는 중 오류가 발생했습니다.</p><a href="${url}" target="_blank" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg">원본 사이트 새 창에서 열기</a></div>`;
+          contentDiv.innerHTML = `<div class="text-center py-10"><p class="text-red-500 mb-2 font-bold">자동 불러오기에 실패했습니다.</p><p class="text-slate-500 text-xs mb-5">보안 정책이나 광고 차단기 때문일 수 있습니다.</p><a href="${url}" target="_blank" class="px-5 py-3 bg-indigo-600 text-white rounded-lg text-sm font-bold shadow-lg hover:bg-indigo-700">여기를 눌러 원본 사이트로 이동하기</a></div>`;
           contentDiv.classList.remove('hidden');
         }
       } else {
-        // 링크가 아예 없는 경우
         loading.classList.add('hidden');
-        contentDiv.classList.add('hidden');
-        noMsg.classList.remove('hidden');
+        contentDiv.innerHTML = `<div class="text-center py-10 text-slate-400"><i class="fa-regular fa-folder-open text-4xl mb-3 text-slate-300"></i><p class="text-sm">등록된 토의 자료 링크가 없습니다.</p></div>`;
+        contentDiv.classList.remove('hidden');
       }
     }
 
     function closeDiscussionModal() {
       document.getElementById('discussionModal').classList.add('hidden');
-      document.getElementById('discussionContent').innerHTML = ""; // 닫을 때 내용 비우기
-    }
-
-    function copyVerse() {
-      const data = sheetData[currentIndex];
-      if (!data) return;
-      
-      const textToCopy = `[${data.quarter || ''}]\n` +
-        `KR: ${data.title_ko || ''}\n` +
-        `EN: ${data.title_en || ''}\n\n` +
-        `📖 ${data.bible_ko || ''} / ${data.bible_en || ''}\n` +
-        `"${data.verse_ko || ''}"\n` +
-        `"${data.verse_en || ''}"`;
-        
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        alert('기억절이 클립보드에 복사되었습니다.');
-      });
-    }
-
-    function speakVerse(lang) {
-      if (!('speechSynthesis' in window)) {
-        alert("현재 브라우저에서는 듣기 기능을 지원하지 않습니다.\n크롬이나 사파리로 열어주세요.");
-        return;
-      }
-
-      const data = sheetData[currentIndex];
-      if (!data) return;
-      
-      const textToSpeak = lang === 'en' ? data.verse_en : data.verse_ko;
-      if (!textToSpeak) {
-        alert(lang === 'en' ? "영어 기억절이 없습니다." : "한글 기억절이 없습니다.");
-        return;
-      }
-      
-      window.speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      utterance.rate = 0.85; 
-      utterance.pitch = 1.0;
-
-      const voices = window.speechSynthesis.getVoices();
-      
-      if (lang === 'en') {
-        utterance.lang = 'en-US';
-        const englishVoices = voices.filter(voice => voice.lang.startsWith('en'));
-        const googleVoice = englishVoices.find(voice => voice.name.toLowerCase().includes('google'));
-        if (googleVoice) {
-          utterance.voice = googleVoice;
-        } else if (englishVoices.length > 0) {
-          utterance.voice = englishVoices[0];
-        }
-      } else {
-        utterance.lang = 'ko-KR';
-        const koreanVoices = voices.filter(voice => voice.lang.includes('ko'));
-        const googleVoice = koreanVoices.find(voice => voice.name.toLowerCase().includes('google') || voice.name.includes('구글'));
-        if (googleVoice) {
-          utterance.voice = googleVoice;
-        } else if (koreanVoices.length > 0) {
-          utterance.voice = koreanVoices[0];
-        }
-      }
-
-      window.speechSynthesis.speak(utterance);
-    }
-
-    function openListModal(mode) {
-      if (sheetData.length === 0) return;
-      
-      const modal = document.getElementById('verseListModal');
-      const title = document.getElementById('modalTitle');
-      const qSelectorContainer = document.getElementById('quarterSelectorContainer');
-      const qSelector = document.getElementById('modalQuarterSelector');
-      
-      modal.classList.remove('hidden');
-      
-      if (mode === 'quarter') {
-        title.innerText = '13기억절 (분기별 보기)';
-        qSelectorContainer.classList.remove('hidden');
-        
-        const currentQuarter = Math.floor(currentIndex / 13) + 1;
-        const maxQuarter = Math.ceil(sheetData.length / 13) || 1;
-        
-        qSelector.innerHTML = '';
-        for (let i = 1; i <= maxQuarter; i++) {
-          const opt = document.createElement('option');
-          opt.value = i;
-          opt.text = `제 ${i}기 (${(i - 1) * 13 + 1}~${Math.min(i * 13, sheetData.length)}주차)`;
-          if (i === currentQuarter) opt.selected = true;
-          qSelector.appendChild(opt);
-        }
-        
-        renderList('quarter', currentQuarter);
-      } else {
-        title.innerText = '52기억절 (1년 보기)';
-        qSelectorContainer.classList.add('hidden');
-        renderList('year');
-      }
-    }
-
-    function closeListModal() {
-      document.getElementById('verseListModal').classList.add('hidden');
-    }
-
-    function renderList(mode, quarter = 1) {
-      const container = document.getElementById('verseListContainer');
-      container.innerHTML = '';
-      
-      let filteredData = [];
-      if (mode === 'quarter') {
-        const startIdx = (parseInt(quarter) - 1) * 13;
-        const endIdx = startIdx + 13;
-        filteredData = sheetData.slice(startIdx, endIdx).map((item, idx) => ({...item, originalIndex: startIdx + idx}));
-      } else {
-        filteredData = sheetData.map((item, idx) => ({...item, originalIndex: idx}));
-      }
-      
-      if (filteredData.length === 0) {
-        container.innerHTML = '<p class="text-center text-slate-500 py-5 text-sm">해당하는 데이터가 없습니다.</p>';
-        return;
-      }
-
-      filteredData.forEach(item => {
-        const div = document.createElement('div');
-        const isCurrent = (item.originalIndex === currentIndex);
-        div.className = `p-3 md:p-4 border rounded-xl cursor-pointer transition ${isCurrent ? 'bg-indigo-50 border-indigo-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200'}`;
-        
-        div.onclick = () => {
-          selectWeek(item.originalIndex);
-          closeListModal();
-        };
-        
-        let dateObj = item.date ? new Date(item.date) : null;
-        let dateStr = dateObj && !isNaN(dateObj) ? `${dateObj.getMonth()+1}월 ${dateObj.getDate()}일` : '';
-
-        div.innerHTML = `
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-[11px] font-bold ${isCurrent ? 'text-indigo-700' : 'text-indigo-500'}">
-              ${item.quarter || ((item.originalIndex + 1) + '주차')}
-            </span>
-            <span class="text-[11px] text-slate-400">${dateStr}</span>
-          </div>
-          <h4 class="font-bold text-slate-800 text-sm">${item.title_ko || '제목 없음'}</h4>
-          <p class="text-[11px] text-slate-400 mb-1.5 italic">${item.title_en || ''}</p>
-          <p class="text-[11px] font-semibold text-slate-500 mb-1"><i class="fa-solid fa-book-open text-[9px] mr-1"></i>${item.bible_ko || ''} <span class="font-normal text-slate-400">/ ${item.bible_en || ''}</span></p>
-          <p class="text-xs md:text-sm text-slate-700 leading-snug font-medium mt-1">"${item.verse_ko || ''}"</p>
-          <p class="text-[11px] md:text-xs text-slate-500 leading-snug font-light italic mt-1">"${item.verse_en || ''}"</p>
-        `;
-        container.appendChild(div);
-      });
+      document.getElementById('discussionContent').innerHTML = "";
     }
   </script>
 </body>
