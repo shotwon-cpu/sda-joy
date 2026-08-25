@@ -7,11 +7,13 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    body { background-color: #f8fafc; font-family: 'Pretendard', sans-serif; }
+    body { background-color: #f8fafc; font-family: 'Pretendard', sans-serif; overflow-x: hidden; }
     .nav-header { background-color: #312e81; }
     .verse-box { background-color: #1e1b4b; }
     .tab-active { background-color: #ef4444; color: white; border-color: #ef4444; }
     .tab-inactive { background-color: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+    /* 스와이프 시 텍스트 드래그 방지 */
+    .swipe-area { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
   </style>
 </head>
 <body>
@@ -53,16 +55,15 @@
     <!-- 콘텐츠 영역 -->
     <div id="contentArea" class="hidden space-y-3 md:space-y-5">
       
-      <!-- 기억절 카드 -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
+      <!-- 기억절 카드 (스와이프 영역) -->
+      <div id="swipeZone" class="swipe-area bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative transition-transform duration-300">
         <div class="absolute top-0 right-0 w-24 h-24 bg-yellow-50 rounded-bl-full -z-10"></div>
-        <div class="p-4 md:p-6 relative z-10">
+        <div class="p-4 md:p-6 relative z-10 pointer-events-none"> <!-- 자식 요소의 터치 간섭 방지 -->
           <div class="flex justify-between items-center mb-3">
             <span id="displayQuarter" class="bg-yellow-100 text-yellow-800 text-xs md:text-sm font-bold px-3 py-1 rounded-full">제 ?기 ?과</span>
             <span id="displayDate" class="text-slate-500 text-xs md:text-sm font-medium"></span>
           </div>
           
-          <!-- 제목 영역 개선: 크기 축소 및 영어 병기 -->
           <div class="mb-3">
             <h2 class="text-xl md:text-2xl font-bold text-slate-800 leading-tight inline-block mr-2">
               <span id="displayTitleKo">제목을 불러오는 중</span>
@@ -70,25 +71,24 @@
             <span id="displayTitleEn" class="text-sm md:text-base text-slate-400 font-medium inline-block align-bottom pb-0.5"></span>
           </div>
           
-          <!-- 성경절 위치 -->
           <p class="text-indigo-600 font-semibold text-base md:text-lg mb-4">
             <span id="displayBibleKo"></span>
             <span id="displayBibleEn" class="text-xs md:text-sm text-indigo-400 ml-1.5 font-normal"></span>
           </p>
           
           <div class="verse-box text-white p-5 md:p-7 rounded-xl relative shadow-inner">
-            <!-- 메인 홈 화면 기억절 크기 확대 및 줄간격 조절 -->
             <p id="displayVerseKo" class="text-xl md:text-2xl leading-relaxed font-semibold tracking-wide mb-3"></p>
             <p id="displayVerseEn" class="text-base md:text-lg leading-relaxed font-light text-indigo-200 italic mb-5"></p>
             
-            <div class="flex justify-end space-x-1.5 pt-3 border-t border-indigo-900/50">
-              <button onclick="speakVerse('ko')" class="px-3 py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-md text-xs md:text-sm text-indigo-200 transition flex items-center">
+            <!-- 버튼 그룹은 다시 터치 이벤트를 받도록 설정 -->
+            <div class="flex justify-end space-x-1.5 pt-3 border-t border-indigo-900/50 pointer-events-auto relative z-20">
+              <button onclick="speakVerse('ko'); event.stopPropagation();" class="px-3 py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-md text-xs md:text-sm text-indigo-200 transition flex items-center">
                 <i class="fa-solid fa-volume-high mr-1"></i> 한글
               </button>
-              <button onclick="speakVerse('en')" class="px-3 py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-md text-xs md:text-sm text-indigo-200 transition flex items-center">
+              <button onclick="speakVerse('en'); event.stopPropagation();" class="px-3 py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-md text-xs md:text-sm text-indigo-200 transition flex items-center">
                 <i class="fa-solid fa-volume-high mr-1 text-blue-400"></i> 영어
               </button>
-              <button onclick="copyVerse()" class="px-3 py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-md text-xs md:text-sm text-indigo-200 transition flex items-center">
+              <button onclick="copyVerse(); event.stopPropagation();" class="px-3 py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-md text-xs md:text-sm text-indigo-200 transition flex items-center">
                 <i class="fa-solid fa-copy mr-1"></i> 복사
               </button>
             </div>
@@ -166,6 +166,10 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     .animate-fade-in { animation: fadeIn 0.2s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    
+    /* 스와이프 애니메이션용 클래스 */
+    .slide-left { transform: translateX(-100%); opacity: 0; }
+    .slide-right { transform: translateX(100%); opacity: 0; }
   </style>
 
   <!-- 목록 보기 모달 -->
@@ -201,6 +205,7 @@
       document.getElementById('tab-b').innerText = TEACHER_NAMES.b;
       document.getElementById('tab-c').innerText = TEACHER_NAMES.c;
       fetchData(API_URL);
+      setupSwipeEvents(); // 스와이프 이벤트 등록
     };
 
     async function fetchData(url) {
@@ -272,9 +277,36 @@
       updateVideoPlayer();
     }
 
+    // 애니메이션을 동반한 주차 변경
     function changeWeek(step) {
       let newIndex = currentIndex + step;
-      if (newIndex >= 0 && newIndex < sheetData.length) { currentIndex = newIndex; updateUI(); }
+      if (newIndex >= 0 && newIndex < sheetData.length) { 
+        const swipeZone = document.getElementById('swipeZone');
+        
+        // 방향에 따른 애니메이션 클래스 추가
+        if(step > 0) swipeZone.classList.add('slide-left');
+        else swipeZone.classList.add('slide-right');
+
+        // 데이터 갱신을 잠시 지연시켜 애니메이션 효과를 줌
+        setTimeout(() => {
+          currentIndex = newIndex; 
+          updateUI();
+          
+          // 애니메이션 클래스 제거 및 원위치
+          swipeZone.classList.remove('slide-left', 'slide-right');
+          swipeZone.style.transition = 'none'; // 잠시 트랜지션 끄고 위치 리셋
+          
+          if(step > 0) swipeZone.style.transform = 'translateX(100%)';
+          else swipeZone.style.transform = 'translateX(-100%)';
+          
+          setTimeout(() => {
+            swipeZone.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+            swipeZone.style.transform = 'translateX(0)';
+            swipeZone.style.opacity = '1';
+          }, 10);
+
+        }, 200); // 0.2초 대기
+      }
     }
     function selectWeek(index) { currentIndex = parseInt(index); updateUI(); }
 
@@ -432,7 +464,6 @@
           dateStr = `${month}월 ${date}일`;
         }
         
-        // 목록창(모달)의 글씨 크기 대폭 확대
         div.innerHTML = `
           <div class="flex justify-between items-center mb-1.5">
             <span class="text-xs md:text-sm font-bold ${isCurrent ? 'text-indigo-700' : 'text-indigo-500'}">${item.quarter || ((item.originalIndex + 1) + '주차')}</span>
@@ -446,6 +477,54 @@
         `;
         container.appendChild(div);
       });
+    }
+
+    // --- 스와이프(슬라이드) 기능 구현 ---
+    function setupSwipeEvents() {
+      const swipeZone = document.getElementById('swipeZone');
+      let touchStartX = 0;
+      let touchEndX = 0;
+      const minSwipeDistance = 50; // 이 픽셀 이상 움직여야 스와이프로 인정
+
+      swipeZone.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, {passive: true});
+
+      swipeZone.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      }, {passive: true});
+
+      // 마우스 드래그도 지원 (PC 테스트용)
+      let isMouseDown = false;
+      swipeZone.addEventListener('mousedown', e => {
+        isMouseDown = true;
+        touchStartX = e.screenX;
+      });
+      
+      swipeZone.addEventListener('mouseup', e => {
+        if(isMouseDown) {
+          touchEndX = e.screenX;
+          isMouseDown = false;
+          handleSwipe();
+        }
+      });
+
+      swipeZone.addEventListener('mouseleave', () => {
+        isMouseDown = false;
+      });
+
+      function handleSwipe() {
+        const swipeDistance = touchEndX - touchStartX;
+        
+        if (swipeDistance > minSwipeDistance) {
+          // 오른쪽으로 스와이프 -> 이전 주차
+          changeWeek(-1);
+        } else if (swipeDistance < -minSwipeDistance) {
+          // 왼쪽으로 스와이프 -> 다음 주차
+          changeWeek(1);
+        }
+      }
     }
   </script>
 </body>
