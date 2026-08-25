@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDA 안식일학교 52주 기억절 & 교과 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-bible text-2xl text-amber-400"></i>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">안식일학교 기억절 대시보드</h1>
+                    <p class="text-xs text-indigo-200">제칠일안식일예수재림교회 52주 기억절 & 교과방송</p>
+                </div>
+            </div>
+            <button id="openConfigBtn" class="p-2 rounded-lg bg-indigo-800 hover:bg-indigo-700 transition text-sm flex items-center space-x-1">
+                <i class="fa-solid fa-gear"></i>
+                <span class="hidden sm:inline">연동 설정</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-4xl mx-auto w-full p-4 space-y-6">
+
+        <!-- Controls: Quarter & Week Selector -->
+        <section class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-wrap gap-3 justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <button id="prevWeekBtn" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <select id="weekSelect" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <!-- Dynamic Options 1~52 Weeks -->
+                </select>
+                <button id="nextWeekBtn" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button id="currentWeekBtn" class="px-3 py-2 bg-indigo-50 text-indigo-700 font-medium text-sm rounded-xl hover:bg-indigo-100 transition flex items-center space-x-1">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>이번 주 보기</span>
+                </button>
+                <button id="openSearchBtn" class="px-3 py-2 bg-slate-100 text-slate-700 font-medium text-sm rounded-xl hover:bg-slate-200 transition flex items-center space-x-1">
+                    <i class="fa-solid fa-list-ul"></i>
+                    <span>전체 목록</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Loading Spinner -->
+        <div id="loadingView" class="hidden text-center py-12">
+            <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-600 mb-3"></i>
+            <p class="text-slate-500 font-medium">구글 시트에서 기억절 데이터를 가져오는 중...</p>
+        </div>
+
+        <!-- Verse Card Section -->
+        <section id="contentView" class="space-y-6">
+            
+            <!-- Card: Memory Verse -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-slate-200/80 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-amber-100 rounded-bl-full -z-0 opacity-50"></div>
+                
+                <div class="relative z-10 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <span id="quarterTag" class="px-3 py-1 bg-amber-100 text-amber-800 font-semibold text-xs rounded-full">
+                            제 1기 1과
+                        </span>
+                        <span id="dateTag" class="text-xs text-slate-400 font-medium">
+                            <i class="fa-regular fa-clock mr-1"></i>2026.01.03
+                        </span>
+                    </div>
+
+                    <div>
+                        <h2 id="lessonTitle" class="text-xl sm:text-2xl font-bold text-slate-900 leading-snug mb-1">
+                            교과 제목이 표시됩니다
+                        </h2>
+                        <p id="bibleRef" class="text-indigo-600 font-semibold text-sm sm:text-base">
+                            성경구절
+                        </p>
+                    </div>
+
+                    <!-- Verse Text Box -->
+                    <div class="bg-indigo-950 text-white p-6 rounded-2xl shadow-inner relative group">
+                        <p id="verseText" class="text-lg sm:text-xl font-medium leading-relaxed tracking-wide text-indigo-50">
+                            "여기에 기억절 본문이 표시됩니다."
+                        </p>
+                        
+                        <div class="mt-4 pt-3 border-t border-indigo-800/60 flex justify-between items-center text-xs text-indigo-300">
+                            <span><i class="fa-solid fa-lightbulb text-amber-400 mr-1"></i>매일 아침 반복해서 암송해 보세요!</span>
+                            <button id="copyVerseBtn" class="px-3 py-1.5 bg-indigo-800 hover:bg-indigo-700 text-white rounded-lg transition flex items-center space-x-1">
+                                <i class="fa-regular fa-copy"></i>
+                                <span>복사</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YouTube Broadcast Section -->
+            <div class="bg-white rounded-3xl p-6 shadow-md border border-slate-200/80 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-lg text-slate-800 flex items-center space-x-2">
+                        <i class="fa-brands fa-youtube text-red-600 text-xl"></i>
+                        <span>이번 주 안식일학교 교과 방송</span>
+                    </h3>
+                    <a id="sspmLinkBtn" href="https://sspm.or.kr/bbs/board.php?bo_table=sa_04_01" target="_blank" class="text-xs text-indigo-600 hover:underline flex items-center space-x-1">
+                        <span>안교비전두처 바로가기</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+
+                <!-- Video Embed Container -->
+                <div id="videoContainer" class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-inner flex items-center justify-center">
+                    <iframe id="youtubeIframe" class="w-full h-full border-0 hidden" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                    <div id="noVideoState" class="text-center p-6 text-slate-400">
+                        <i class="fa-brands fa-youtube text-5xl mb-2 text-slate-600"></i>
+                        <p class="text-sm">등록된 유튜브 방송 영상이 없습니다.</p>
+                        <a id="searchYoutubeBtn" target="_blank" href="#" class="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-semibold hover:bg-red-700 transition">
+                            YouTube에서 검색하여 보기
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Modal: Search & All List -->
+    <div id="listModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4 glass">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="p-5 bg-indigo-900 text-white flex justify-between items-center">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-book-open mr-2"></i>52주 기억절 전체 목록</h3>
+                <button id="closeListModalBtn" class="text-slate-300 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-4 border-b border-slate-100 bg-slate-50">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i>
+                    <input type="text" id="searchInput" placeholder="교과 제목, 기억절, 성경구절 검색..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                </div>
+            </div>
+
+            <div id="modalListContainer" class="p-4 overflow-y-auto space-y-2 flex-1">
+                <!-- Item List Rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Config (Google Sheet Web App URL) -->
+    <div id="configModal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4 glass">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-lg text-slate-800"><i class="fa-solid fa-plug mr-2 text-indigo-600"></i>구글 시트 연동 설정</h3>
+                <button id="closeConfigModalBtn" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Google Apps Script를 통해 웹앱으로 배포한 URL을 입력해 주세요.<br>
+                입력하지 않을 경우 기본 데모 데이터가 로드됩니다.
+            </p>
+
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-700">Google Apps Script Web App URL</label>
+                <input type="url" id="webAppUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full p-3 border rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 border-slate-300">
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">
+                <p class="font-bold text-slate-700">구글 시트 헤더(1행) 구조 참고:</p>
+                <p class="font-mono bg-white p-1 rounded border">week | quarter | date | title | bible | verse | youtube</p>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2">
+                <button id="resetConfigBtn" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">초기화</button>
+                <button id="saveConfigBtn" class="px-4 py-2 text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl">저장 및 동기화</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Application Logic -->
+    <script>
+        // Sample Mock Data (Fallback when Google Sheet is not connected)
+        const MOCK_DATA = Array.from({ length: 52 }, (_, i) => {
+            const weekNum = i + 1;
+            const quarter = Math.ceil(weekNum / 13);
+            const lessonInQuarter = ((weekNum - 1) % 13) + 1;
+            return {
+                week: weekNum,
+                quarter: `제 ${quarter}기 ${lessonInQuarter}과`,
+                date: `2026주차 ${weekNum}일`,
+                title: `${weekNum}주차 교과 제목 (안교비전두처 연동 가능)`,
+                bible: `요한복음 3장 ${weekNum}절`,
+                verse: `하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 그를 믿는 자마다 멸망하지 않고 영생을 얻게 하려 하심이라. (${weekNum}주차 기억절)`,
+                youtube: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            };
+        });
+
+        let currentWeek = 1;
+        let verseDataList = MOCK_DATA;
+        let webAppUrl = localStorage.getItem("sda_sheet_webapp_url") || "";
+
+        // Elements
+        const weekSelect = document.getElementById("weekSelect");
+        const prevWeekBtn = document.getElementById("prevWeekBtn");
+        const nextWeekBtn = document.getElementById("nextWeekBtn");
+        const currentWeekBtn = document.getElementById("currentWeekBtn");
+        const openSearchBtn = document.getElementById("openSearchBtn");
+        
+        const quarterTag = document.getElementById("quarterTag");
+        const dateTag = document.getElementById("dateTag");
+        const lessonTitle = document.getElementById("lessonTitle");
+        const bibleRef = document.getElementById("bibleRef");
+        const verseText = document.getElementById("verseText");
+        
+        const youtubeIframe = document.getElementById("youtubeIframe");
+        const noVideoState = document.getElementById("noVideoState");
+        const searchYoutubeBtn = document.getElementById("searchYoutubeBtn");
+        
+        const listModal = document.getElementById("listModal");
+        const modalListContainer = document.getElementById("modalListContainer");
+        const searchInput = document.getElementById("searchInput");
+        
+        const configModal = document.getElementById("configModal");
+        const webAppUrlInput = document.getElementById("webAppUrlInput");
+
+        // Initialize App
+        async function init() {
+            setupWeekDropdown();
+            calculateCurrentWeek();
+            if (webAppUrl) {
+                await fetchSheetData();
+            } else {
+                renderCurrentWeekData();
+            }
+            bindEvents();
+        }
+
+        function setupWeekDropdown() {
+            weekSelect.innerHTML = "";
+            for (let i = 1; i <= 52; i++) {
+                const opt = document.createElement("option");
+                opt.value = i;
+                opt.textContent = `${i}주차 (제 ${Math.ceil(i/13)}기 ${((i-1)%13)+1}과)`;
+                weekSelect.appendChild(opt);
+            }
+        }
+
+        function calculateCurrentWeek() {
+            const now = new Date();
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+            const pastDaysOfYear = (now - startOfYear) / 86400000;
+            let calculatedWeek = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
+            if (calculatedWeek < 1) calculatedWeek = 1;
+            if (calculatedWeek > 52) calculatedWeek = 52;
+            currentWeek = calculatedWeek;
+            weekSelect.value = currentWeek;
+        }
+
+        async function fetchSheetData() {
+            document.getElementById("loadingView").classList.remove("hidden");
+            document.getElementById("contentView").classList.add("hidden");
+
+            try {
+                const res = await fetch(webAppUrl);
+                const json = await res.json();
+                if (Array.isArray(json) && json.length > 0) {
+                    verseDataList = json.map((item, index) => ({
+                        week: parseInt(item.week) || (index + 1),
+                        quarter: item.quarter || `제 ${Math.ceil((index+1)/13)}기 ${((index)%13)+1}과`,
+                        date: item.date || "",
+                        title: item.title || "제목 없음",
+                        bible: item.bible || "",
+                        verse: item.verse || "기억절 내용이 없습니다.",
+                        youtube: item.youtube || ""
+                    }));
+                }
+            } catch (err) {
+                console.error("Sheet Fetch Error:", err);
+                alert("구글 시트 연동 실패. 데모 데이터로 표시합니다.");
+                verseDataList = MOCK_DATA;
+            } finally {
+                document.getElementById("loadingView").classList.add("hidden");
+                document.getElementById("contentView").classList.remove("hidden");
+                renderCurrentWeekData();
+            }
+        }
+
+        function renderCurrentWeekData() {
+            const data = verseDataList.find(d => d.week === parseInt(currentWeek)) || verseDataList[0];
+
+            quarterTag.textContent = data.quarter;
+            dateTag.innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${data.date || '날짜 미정'}`;
+            lessonTitle.textContent = data.title;
+            bibleRef.textContent = data.bible;
+            verseText.textContent = `"${data.verse}"`;
+
+            // YouTube Video Embed Handling
+            const ytId = extractYouTubeId(data.youtube);
+            if (ytId) {
+                youtubeIframe.src = `https://www.youtube.com/embed/${ytId}`;
+                youtubeIframe.classList.remove("hidden");
+                noVideoState.classList.add("hidden");
+            } else {
+                youtubeIframe.src = "";
+                youtubeIframe.classList.add("hidden");
+                noVideoState.classList.remove("hidden");
+                searchYoutubeBtn.href = `https://www.youtube.com/results?search_query=${encodeURIComponent("SDA 안식일학교 " + data.title)}`;
+            }
+
+            weekSelect.value = currentWeek;
+        }
+
+        function extractYouTubeId(url) {
+            if (!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function renderModalList(filter = "") {
+            modalListContainer.innerHTML = "";
+            const filtered = verseDataList.filter(d => 
+                d.title.includes(filter) || 
+                d.verse.includes(filter) || 
+                d.bible.includes(filter) ||
+                String(d.week).includes(filter)
+            );
+
+            if (filtered.length === 0) {
+                modalListContainer.innerHTML = `<p class="text-center py-8 text-slate-400 text-sm">검색 결과가 없습니다.</p>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "p-4 bg-slate-50 hover:bg-indigo-50 border border-slate-200 rounded-2xl cursor-pointer transition flex flex-col space-y-1";
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-indigo-700 text-xs">${item.week}주차 | ${item.quarter}</span>
+                        <span class="text-slate-400 text-xs">${item.bible}</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-sm">${item.title}</h4>
+                    <p class="text-xs text-slate-600 line-clamp-2">${item.verse}</p>
+                `;
+                div.addEventListener("click", () => {
+                    currentWeek = item.week;
+                    renderCurrentWeekData();
+                    listModal.classList.add("hidden");
+                });
+                modalListContainer.appendChild(div);
+            });
+        }
+
+        function bindEvents() {
+            weekSelect.addEventListener("change", (e) => {
+                currentWeek = parseInt(e.target.value);
+                renderCurrentWeekData();
+            });
+
+            prevWeekBtn.addEventListener("click", () => {
+                if (currentWeek > 1) {
+                    currentWeek--;
+                    renderCurrentWeekData();
+                }
+            });
+
+            nextWeekBtn.addEventListener("click", () => {
+                if (currentWeek < 52) {
+                    currentWeek++;
+                    renderCurrentWeekData();
+                }
+            });
+
+            currentWeekBtn.addEventListener("click", () => {
+                calculateCurrentWeek();
+                renderCurrentWeekData();
+            });
+
+            openSearchBtn.addEventListener("click", () => {
+                renderModalList();
+                listModal.classList.remove("hidden");
+            });
+
+            document.getElementById("closeListModalBtn").addEventListener("click", () => {
+                listModal.classList.add("hidden");
+            });
+
+            searchInput.addEventListener("input", (e) => {
+                renderModalList(e.target.value.trim());
+            });
+
+            // Copy Verse
+            document.getElementById("copyVerseBtn").addEventListener("click", () => {
+                const textToCopy = `[${quarterTag.textContent}] ${lessonTitle.textContent}\n${bibleRef.textContent}\n"${verseText.textContent}"`;
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    alert("기억절이 클립보드에 복사되었습니다!");
+                });
+            });
+
+            // Config Modal
+            document.getElementById("openConfigBtn").addEventListener("click", () => {
+                webAppUrlInput.value = webAppUrl;
+                configModal.classList.remove("hidden");
+            });
+
+            document.getElementById("closeConfigModalBtn").addEventListener("click", () => {
+                configModal.classList.add("hidden");
+            });
+
+            document.getElementById("saveConfigBtn").addEventListener("click", async () => {
+                webAppUrl = webAppUrlInput.value.trim();
+                localStorage.setItem("sda_sheet_webapp_url", webAppUrl);
+                configModal.classList.add("hidden");
+                if (webAppUrl) {
+                    await fetchSheetData();
+                } else {
+                    verseDataList = MOCK_DATA;
+                    renderCurrentWeekData();
+                }
+            });
+
+            document.getElementById("resetConfigBtn").addEventListener("click", () => {
+                webAppUrlInput.value = "";
+                localStorage.removeItem("sda_sheet_webapp_url");
+                webAppUrl = "";
+                configModal.classList.add("hidden");
+                verseDataList = MOCK_DATA;
+                renderCurrentWeekData();
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", init);
+    </script>
+</body>
+</html>
