@@ -75,12 +75,8 @@
           </p>
           
           <div class="verse-box text-white p-4 md:p-5 rounded-xl relative shadow-inner">
-            <p id="displayVerseKo" class="text-base md:text-lg leading-snug font-medium tracking-wide mb-2">
-              "기억절 내용이 이곳에 표시됩니다."
-            </p>
-            <p id="displayVerseEn" class="text-sm md:text-base leading-snug font-light text-indigo-200 italic mb-4">
-              "English verse will be displayed here."
-            </p>
+            <p id="displayVerseKo" class="text-base md:text-lg leading-snug font-medium tracking-wide mb-2"></p>
+            <p id="displayVerseEn" class="text-sm md:text-base leading-snug font-light text-indigo-200 italic mb-4"></p>
             
             <div class="flex justify-end space-x-1.5 pt-2 border-t border-indigo-900/50">
               <button onclick="speakVerse('ko')" class="px-2.5 py-1.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-md text-[11px] md:text-xs text-indigo-200 transition flex items-center">
@@ -101,11 +97,11 @@
       <div onclick="openDiscussionModal()" class="bg-white rounded-xl shadow-sm border border-slate-200 p-3 md:p-4 flex justify-between items-center cursor-pointer hover:bg-slate-50 transition active:bg-slate-100">
         <div class="flex items-center">
           <div class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 mr-3">
-            <i class="fa-solid fa-comments text-lg"></i>
+            <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
           </div>
           <div>
-            <h3 class="font-bold text-slate-800 text-sm md:text-base">교과토의 자료</h3>
-            <p class="text-[11px] md:text-xs text-slate-500 mt-0.5">이번 주 토의 자료를 확인하세요</p>
+            <h3 class="font-bold text-slate-800 text-sm md:text-base">교과토의 자료 보기</h3>
+            <p class="text-[11px] md:text-xs text-slate-500 mt-0.5">본문만 깔끔하게 자동으로 불러옵니다</p>
           </div>
         </div>
         <div class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50">
@@ -138,7 +134,7 @@
     </div>
   </main>
 
-  <!-- 교과토의 자료 팝업(모달) -->
+  <!-- 교과토의 자료 자동 크롤링 팝업(모달) -->
   <div id="discussionModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 md:p-4">
     <div class="bg-white rounded-xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       
@@ -150,9 +146,25 @@
         </button>
       </div>
       
-      <!-- 팝업 본문 (iframe) -->
-      <div class="flex-1 w-full bg-slate-50 relative">
-        <iframe id="discussionIframe" class="w-full h-full border-0 hidden" src=""></iframe>
+      <!-- 팝업 본문 (iframe 대신 직접 HTML 삽입) -->
+      <div class="flex-1 w-full bg-white relative overflow-y-auto p-4 md:p-6 custom-scrollbar">
+        
+        <!-- 로딩 애니메이션 -->
+        <div id="loadingDiscussion" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white z-10 hidden">
+          <i class="fa-solid fa-spinner fa-spin text-4xl mb-3 text-indigo-500"></i>
+          <p class="text-sm font-medium">자동으로 본문만 추출하고 있습니다...</p>
+        </div>
+
+        <!-- 내용 없음 메시지 -->
+        <div id="noDiscussionMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white z-10 hidden">
+          <i class="fa-regular fa-folder-open text-4xl mb-3 text-slate-300"></i>
+          <p class="text-sm">등록된 토의 자료 링크가 없습니다.</p>
+        </div>
+
+        <!-- 크롤링된 본문이 들어갈 공간 -->
+        <div id="discussionContent" class="text-slate-800 text-sm md:text-base leading-relaxed break-keep">
+        </div>
+
       </div>
     </div>
   </div>
@@ -177,6 +189,7 @@
     </div>
   </div>
 
+  <!-- 자동화 크롤링을 위해 적용된 디자인 -->
   <style>
     .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
@@ -184,6 +197,11 @@
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     .animate-fade-in { animation: fadeIn 0.2s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    
+    /* 크롤링된 본문을 깔끔하게 정돈하는 디자인 */
+    #discussionContent p { margin-bottom: 1em; }
+    #discussionContent img { max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 1em; }
+    #discussionContent strong { color: #1e293b; font-weight: bold; }
   </style>
 
   <script>
@@ -231,7 +249,6 @@
           alert("데이터를 찾을 수 없습니다. 시트 내용을 확인해주세요.");
         }
       } catch (e) {
-        alert("데이터를 불러오는데 실패했습니다.");
         document.getElementById('loading').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-500 text-3xl mb-2"></i><p class="text-sm">데이터 로딩 오류</p>`;
       }
     }
@@ -351,23 +368,74 @@
       }
     }
 
-    // 🆕 교과토의 자료 팝업 열기 함수 (구글 문서 링크 영구 고정)
-    function openDiscussionModal() {
-      const iframe = document.getElementById('discussionIframe');
+    // 🌟 완전 자동화 크롤링 함수 (구글 시트에 링크만 넣으면 작동)
+    async function openDiscussionModal() {
+      const data = sheetData[currentIndex];
+      const modal = document.getElementById('discussionModal');
+      const contentDiv = document.getElementById('discussionContent');
+      const loading = document.getElementById('loadingDiscussion');
+      const noMsg = document.getElementById('noDiscussionMsg');
       
-      // 고정된 구글 문서 미리보기(preview) 링크
-      const link = "https://docs.google.com/document/d/1O-Ddxg9J9-FeAVn5CvFn_EFpzz92AJxjXv7tdcg-ya0/preview";
+      modal.classList.remove('hidden');
       
-      iframe.src = link;
-      iframe.classList.remove('hidden');
-      
-      document.getElementById('discussionModal').classList.remove('hidden');
+      // 시트 헤더 이름이 discussion_link 라고 가정
+      if (data && data.discussion_link && data.discussion_link.trim() !== '') {
+        const url = data.discussion_link.trim();
+        
+        // 구글 문서일 경우 기존처럼 iframe 처리
+        if (url.includes('docs.google.com')) {
+          contentDiv.innerHTML = `<iframe class="w-full h-full min-h-[70vh] border-0" src="${url.replace(/\/edit.*$/, '/preview')}"></iframe>`;
+          contentDiv.classList.remove('hidden');
+          loading.classList.add('hidden');
+          noMsg.classList.add('hidden');
+          return;
+        }
+
+        // sspm.or.kr 같은 외부 웹사이트일 경우 자동 크롤링 시작
+        loading.classList.remove('hidden');
+        contentDiv.classList.add('hidden');
+        noMsg.classList.add('hidden');
+
+        try {
+          // 무료 프록시를 통해 CORS 보안을 우회하여 해당 웹사이트의 코드 가져오기
+          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+          const response = await fetch(proxyUrl);
+          const result = await response.json();
+          
+          // 가져온 글자를 HTML 문서로 변환
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(result.contents, 'text/html');
+          
+          // sspm.or.kr 게시판의 본문 영역(id="bo_v_con")만 딱 잘라내기
+          let extracted = doc.getElementById('bo_v_con');
+          
+          if (extracted) {
+            // 이미지 주소 깨짐 방지
+            let htmlContent = extracted.innerHTML.replace(/src="\//g, 'src="https://sspm.or.kr/');
+            contentDiv.innerHTML = htmlContent;
+          } else {
+            contentDiv.innerHTML = `<div class="text-center py-10"><p class="text-red-500 mb-3">해당 링크에서 본문을 찾을 수 없습니다.</p><a href="${url}" target="_blank" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg">원본 사이트 새 창에서 열기</a></div>`;
+          }
+          
+          loading.classList.add('hidden');
+          contentDiv.classList.remove('hidden');
+          
+        } catch (error) {
+          loading.classList.add('hidden');
+          contentDiv.innerHTML = `<div class="text-center py-10"><p class="text-red-500 mb-3">데이터를 불러오는 중 오류가 발생했습니다.</p><a href="${url}" target="_blank" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg">원본 사이트 새 창에서 열기</a></div>`;
+          contentDiv.classList.remove('hidden');
+        }
+      } else {
+        // 링크가 아예 없는 경우
+        loading.classList.add('hidden');
+        contentDiv.classList.add('hidden');
+        noMsg.classList.remove('hidden');
+      }
     }
 
-    // 🆕 교과토의 자료 팝업 닫기 함수
     function closeDiscussionModal() {
       document.getElementById('discussionModal').classList.add('hidden');
-      document.getElementById('discussionIframe').src = "";
+      document.getElementById('discussionContent').innerHTML = ""; // 닫을 때 내용 비우기
     }
 
     function copyVerse() {
