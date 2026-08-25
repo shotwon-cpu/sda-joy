@@ -108,7 +108,7 @@
               <button onclick="copyVerse(); event.stopPropagation();" class="whitespace-nowrap px-2.5 md:px-4 py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs md:text-base font-medium text-indigo-200 transition flex items-center shadow-sm">
                 <i class="fa-solid fa-copy mr-1.5 md:mr-2"></i> 복사
               </button>
-              <!-- 새롭게 추가된 공유하기 버튼 -->
+              <!-- 🚀 새롭게 추가된 공유하기 버튼 -->
               <button onclick="shareVerse(); event.stopPropagation();" class="whitespace-nowrap px-2.5 md:px-4 py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs md:text-base font-medium text-indigo-200 transition flex items-center shadow-sm">
                 <i class="fa-solid fa-share-nodes mr-1.5 md:mr-2 text-emerald-400"></i> 공유
               </button>
@@ -213,6 +213,7 @@
   </div>
 
   <script>
+    /* 🚀 스트리밍: 초기 설정 및 앱 시작 */
     const TEACHER_NAMES = { a: "장석원 목사", b: "A 목사 해설", c: "B 목사 해설" };
     const API_URL = "https://script.google.com/macros/s/AKfycbyQTYzIeLdgZBizwLS2cgRAGbgRsko9KjpIBfc5vzp5r_2OPGa0t1nA8nKHcngonIWE/exec";
     
@@ -228,16 +229,14 @@
       setupSwipeEvents(); 
     };
 
-    // [핵심 수정] 애플/사파리 기기를 위해 날짜 형식을 강제로 고쳐주는 똑똑한 함수
+    /* 🚀 스트리밍: 데이터 헬퍼 함수 */
+    // 애플/사파리 기기를 위해 날짜 형식을 강제로 고쳐주는 함수
     function getValidDate(dateVal) {
       if (!dateVal) return null;
-      // 먼저 브라우저 기본 파싱 시도
       let d = new Date(dateVal);
       if (!isNaN(d)) return d;
       
-      // 애플 기기를 위해 - 나 . 을 / 로 모두 치환 (예: 2024.08.26 -> 2024/08/26)
       let fixedStr = String(dateVal).replace(/[\-\.]/g, '/').replace(/\s+/g, '');
-      // 만약 끝에 슬래시가 하나 더 붙었다면 제거 (예: 2024/08/26/)
       if(fixedStr.endsWith('/')) {
         fixedStr = fixedStr.slice(0, -1);
       }
@@ -264,11 +263,11 @@
       }
     }
 
+    /* 🚀 스트리밍: 로직 및 UI 업데이트 */
     function autoSelectCurrentWeek() {
       const today = new Date();
       let closestIndex = 0, minDiff = Infinity;
       sheetData.forEach((item, index) => {
-        // 방금 만든 애플 호환용 날짜 파싱 함수 적용
         const d = getValidDate(item.date);
         if (d) {
           const diff = Math.abs(today - d);
@@ -304,6 +303,7 @@
       updateVideoPlayer();
     }
 
+    /* 🚀 스트리밍: 스와이프 변경 및 유튜브 탭 */
     function changeWeek(step) {
       let newIndex = currentIndex + step;
       if (newIndex >= 0 && newIndex < sheetData.length) { 
@@ -370,6 +370,7 @@
       }
     }
 
+    /* 🚀 스트리밍: 부가 기능 (공유, 복사, TTS, 모달) */
     function openDiscussionModal() {
       const data = sheetData[currentIndex];
       const iframe = document.getElementById('discussionIframe');
@@ -414,14 +415,12 @@
       if (!data) return;
       const textToShare = `[${data.quarter || ''}]\nKR: ${data.title_ko || ''}\nEN: ${data.title_en || ''}\n\n📖 ${data.bible_ko || ''} / ${data.bible_en || ''}\n"${data.verse_ko || ''}"\n"${data.verse_en || ''}"`;
       
-      // 스마트폰 기본 공유 기능이 지원되는지 확인
       if (navigator.share) {
         navigator.share({
           title: '세종행복교회 안식일학교',
           text: textToShare
         }).catch(console.error);
       } else {
-        // 지원하지 않는 브라우저(일부 PC 등)는 클립보드 복사로 대체
         navigator.clipboard.writeText(textToShare).then(() => { alert('기억절이 클립보드에 복사되었습니다.'); });
       }
     }
@@ -507,7 +506,6 @@
         div.className = `p-5 border rounded-2xl cursor-pointer transition ${isCurrent ? 'bg-indigo-50 border-indigo-200 shadow-md' : 'bg-slate-50 hover:bg-slate-100 border-slate-200'}`;
         div.onclick = () => { selectWeek(item.originalIndex); closeListModal(); };
         
-        // 애플 호환 날짜 파싱 적용
         let dObj = getValidDate(item.date);
         let dateStr = '';
         if(dObj){
@@ -531,17 +529,7 @@
       });
     }
 
-    function setupSwipeEvents() {
-      const swipeZone = document.getElementById('swipeZone');
-      let touchStartX = 0;
-      let touchStartY = 0;
-      let touchEndX = 0;
-      let touchEndY = 0;
-      let isDragging = false; 
-      const minSwipeDistance = 40; 
-
-      swipeZone.addEventListener('touchstart', e => {
-    // 슬라이드 깐깐함 완화 및 기능 개선
+    /* 🚀 스트리밍: 부드러운 스와이프 이벤트 설정 */
     function setupSwipeEvents() {
       const swipeZone = document.getElementById('swipeZone');
       let touchStartX = 0;
@@ -554,8 +542,6 @@
         touchStartX = e.changedTouches[0].screenX;
         touchStartY = e.changedTouches[0].screenY;
       }, {passive: true});
-
-      // 기존에 삐딱한 슬라이드를 차단하던 touchmove 이벤트를 완전히 삭제했습니다.
 
       swipeZone.addEventListener('touchend', e => {
         touchEndX = e.changedTouches[0].screenX;
