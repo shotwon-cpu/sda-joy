@@ -65,18 +65,32 @@
             <span id="displayQuarter" class="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full">제 ?기 ?과</span>
             <span id="displayDate" class="text-slate-400 text-sm"></span>
           </div>
-          <h2 id="displayTitle" class="text-2xl md:text-3xl font-bold text-slate-800 mb-2 mt-4">제목을 불러오는 중</h2>
-          <p id="displayBible" class="text-indigo-600 font-semibold text-lg mb-6">성경절 위치</p>
+          <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mt-4 leading-tight" id="displayTitleContainer">
+            <span id="displayTitleKo">제목을 불러오는 중</span><br>
+            <span id="displayTitleEn" class="text-lg md:text-xl text-slate-400 font-medium mt-1 inline-block"></span>
+          </h2>
+          <p class="text-indigo-600 font-semibold text-lg mb-6 mt-3">
+            <span id="displayBibleKo"></span>
+            <span id="displayBibleEn" class="text-sm text-indigo-400 ml-2 font-normal"></span>
+          </p>
           
           <div class="verse-box text-white p-6 rounded-xl relative shadow-inner">
-            <p id="displayVerse" class="text-lg md:text-xl leading-relaxed font-medium tracking-wide mb-4">
+            <!-- 한글 기억절 -->
+            <p id="displayVerseKo" class="text-lg md:text-xl leading-relaxed font-medium tracking-wide mb-3">
               "기억절 내용이 이곳에 표시됩니다."
+            </p>
+            <!-- 영어 기억절 -->
+            <p id="displayVerseEn" class="text-base md:text-lg leading-relaxed font-light text-indigo-200 italic mb-5">
+              "English verse will be displayed here."
             </p>
             
             <!-- 복사 & 읽기 편의 기능 버튼 -->
-            <div class="flex justify-end space-x-2 pt-2 border-t border-indigo-900/50">
-              <button onclick="speakVerse()" class="px-3 py-1.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs text-indigo-200 transition flex items-center">
-                <i class="fa-solid fa-volume-high mr-1.5"></i> 듣기
+            <div class="flex justify-end space-x-2 pt-3 border-t border-indigo-900/50">
+              <button onclick="speakVerse('ko')" class="px-3 py-1.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs text-indigo-200 transition flex items-center">
+                <i class="fa-solid fa-volume-high mr-1.5"></i> 한글 듣기
+              </button>
+              <button onclick="speakVerse('en')" class="px-3 py-1.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs text-indigo-200 transition flex items-center">
+                <i class="fa-solid fa-volume-high mr-1.5 text-blue-400"></i> 영어 듣기
               </button>
               <button onclick="copyVerse()" class="px-3 py-1.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs text-indigo-200 transition flex items-center">
                 <i class="fa-solid fa-copy mr-1.5"></i> 복사
@@ -94,14 +108,12 @@
           </h3>
         </div>
 
-        <!-- 목사님 선택 탭 버튼 (a, b, c 로 통일) -->
         <div class="flex space-x-2 mb-4 overflow-x-auto pb-2">
           <button onclick="changeVideoTab('a')" id="tab-a" class="tab-active border px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition">강사 A</button>
           <button onclick="changeVideoTab('b')" id="tab-b" class="tab-inactive border px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition">강사 B</button>
           <button onclick="changeVideoTab('c')" id="tab-c" class="tab-inactive border px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition">강사 C</button>
         </div>
 
-        <!-- 영상 플레이어 -->
         <div class="aspect-video bg-slate-900 rounded-xl overflow-hidden relative shadow-inner border border-slate-800">
           <iframe id="videoPlayer" class="w-full h-full hidden" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
           <div id="noVideoMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
@@ -141,8 +153,7 @@
   </style>
 
   <script>
-    // 📢 [설정 구역] 여기서 강사 이름을 바꾸면 홈페이지 버튼 이름이 자동으로 바뀝니다!
-    // 구글 시트의 youtube_a, youtube_b, youtube_c 헤더와 짝을 이룹니다.
+    // 📢 [설정 구역] 강사 이름 설정
     const TEACHER_NAMES = {
       a: "장석원 목사",
       b: "A 목사 해설",
@@ -153,14 +164,13 @@
     
     let sheetData = [];
     let currentIndex = 0;
-    let currentTab = 'a'; // 기본 선택 탭을 a로 변경
+    let currentTab = 'a';
 
     if ('speechSynthesis' in window) {
       window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
     }
 
     window.onload = () => {
-      // 탭 이름 셋팅
       document.getElementById('tab-a').innerText = TEACHER_NAMES.a;
       document.getElementById('tab-b').innerText = TEACHER_NAMES.b;
       document.getElementById('tab-c').innerText = TEACHER_NAMES.c;
@@ -238,9 +248,15 @@
       document.getElementById('displayDate').innerText = dateObj && !isNaN(dateObj) ? 
         `${dateObj.getFullYear()}년 ${dateObj.getMonth()+1}월 ${dateObj.getDate()}일` : (data.date || '');
 
-      document.getElementById('displayTitle').innerText = data.title_ko || '제목 없음';
-      document.getElementById('displayBible').innerText = data.bible_ko || '';
-      document.getElementById('displayVerse').innerText = data.verse_ko ? `"${data.verse_ko}"` : '기억절 내용이 없습니다.';
+      // 한글 및 영어 제목, 성경절, 기억절 매핑
+      document.getElementById('displayTitleKo').innerText = data.title_ko || '제목 없음';
+      document.getElementById('displayTitleEn').innerText = data.title_en || '';
+      
+      document.getElementById('displayBibleKo').innerText = data.bible_ko || '';
+      document.getElementById('displayBibleEn').innerText = data.bible_en || '';
+      
+      document.getElementById('displayVerseKo').innerText = data.verse_ko ? `"${data.verse_ko}"` : '기억절 내용이 없습니다.';
+      document.getElementById('displayVerseEn').innerText = data.verse_en ? `"${data.verse_en}"` : '';
       
       document.getElementById('weekSelector').value = currentIndex;
       updateVideoPlayer();
@@ -285,7 +301,6 @@
       const noVideoMsg = document.getElementById('noVideoMsg');
 
       let targetUrl = '';
-      // 👇 변경된 부분: 구글 시트의 youtube_a, youtube_b, youtube_c 데이터 연동
       if (currentTab === 'a') targetUrl = data.youtube_a;
       else if (currentTab === 'b') targetUrl = data.youtube_b;
       else if (currentTab === 'c') targetUrl = data.youtube_c;
@@ -306,36 +321,63 @@
     function copyVerse() {
       const data = sheetData[currentIndex];
       if (!data) return;
-      const textToCopy = `[${data.quarter || ''}] ${data.title_ko || ''}\n📖 ${data.bible_ko || ''}\n\n"${data.verse_ko || ''}"`;
+      
+      // 한글과 영어를 보기 좋게 묶어서 복사
+      const textToCopy = `[${data.quarter || ''}]\n` +
+        `KR: ${data.title_ko || ''}\n` +
+        `EN: ${data.title_en || ''}\n\n` +
+        `📖 ${data.bible_ko || ''} / ${data.bible_en || ''}\n` +
+        `"${data.verse_ko || ''}"\n` +
+        `"${data.verse_en || ''}"`;
+        
       navigator.clipboard.writeText(textToCopy).then(() => {
-        alert('기억절이 클립보드에 복사되었습니다.');
+        alert('한글 및 영어 기억절이 클립보드에 복사되었습니다.');
       });
     }
 
-    function speakVerse() {
+    // 🌟 한글/영어 분리된 음성 듣기 기능
+    function speakVerse(lang) {
       if (!('speechSynthesis' in window)) {
         alert("현재 접속하신 브라우저(카카오톡 등)에서는 듣기 기능을 지원하지 않습니다.\n화면 우측 하단 탭을 눌러 '다른 브라우저(사파리, 크롬)로 열기'를 선택해 주세요.");
         return;
       }
 
       const data = sheetData[currentIndex];
-      if (!data || !data.verse_ko) return;
+      if (!data) return;
+      
+      // 넘겨받은 lang(ko 또는 en)에 따라 읽을 텍스트 결정
+      const textToSpeak = lang === 'en' ? data.verse_en : data.verse_ko;
+      if (!textToSpeak) {
+        alert(lang === 'en' ? "영어 기억절이 없습니다." : "한글 기억절이 없습니다.");
+        return;
+      }
       
       window.speechSynthesis.cancel();
       
-      const utterance = new SpeechSynthesisUtterance(data.verse_ko);
-      utterance.lang = 'ko-KR';
-      utterance.rate = 0.85;
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.rate = 0.85; 
       utterance.pitch = 1.0;
 
       const voices = window.speechSynthesis.getVoices();
-      const koreanVoices = voices.filter(voice => voice.lang.includes('ko'));
       
-      const googleVoice = koreanVoices.find(voice => voice.name.toLowerCase().includes('google') || voice.name.includes('구글'));
-      if (googleVoice) {
-        utterance.voice = googleVoice;
-      } else if (koreanVoices.length > 0) {
-        utterance.voice = koreanVoices[0];
+      if (lang === 'en') {
+        utterance.lang = 'en-US';
+        const englishVoices = voices.filter(voice => voice.lang.startsWith('en'));
+        const googleVoice = englishVoices.find(voice => voice.name.toLowerCase().includes('google'));
+        if (googleVoice) {
+          utterance.voice = googleVoice;
+        } else if (englishVoices.length > 0) {
+          utterance.voice = englishVoices[0]; // 영어 기본 목소리
+        }
+      } else {
+        utterance.lang = 'ko-KR';
+        const koreanVoices = voices.filter(voice => voice.lang.includes('ko'));
+        const googleVoice = koreanVoices.find(voice => voice.name.toLowerCase().includes('google') || voice.name.includes('구글'));
+        if (googleVoice) {
+          utterance.voice = googleVoice;
+        } else if (koreanVoices.length > 0) {
+          utterance.voice = koreanVoices[0]; // 한글 기본 목소리
+        }
       }
 
       window.speechSynthesis.speak(utterance);
@@ -410,6 +452,7 @@
         let dateObj = item.date ? new Date(item.date) : null;
         let dateStr = dateObj && !isNaN(dateObj) ? `${dateObj.getMonth()+1}월 ${dateObj.getDate()}일` : '';
 
+        // 리스트에서도 영어 제목과 영어 기억절을 옅게 보여줌
         div.innerHTML = `
           <div class="flex justify-between items-center mb-1">
             <span class="text-xs font-bold ${isCurrent ? 'text-indigo-700' : 'text-indigo-500'}">
@@ -417,9 +460,11 @@
             </span>
             <span class="text-xs text-slate-400">${dateStr}</span>
           </div>
-          <h4 class="font-bold text-slate-800 text-sm md:text-base mb-1">${item.title_ko || '제목 없음'}</h4>
-          <p class="text-xs font-semibold text-slate-500 mb-1.5"><i class="fa-solid fa-book-open text-[10px] mr-1"></i>${item.bible_ko || ''}</p>
-          <p class="text-sm text-slate-700 leading-relaxed font-medium">"${item.verse_ko || ''}"</p>
+          <h4 class="font-bold text-slate-800 text-sm md:text-base">${item.title_ko || '제목 없음'}</h4>
+          <p class="text-xs text-slate-400 mb-1.5 italic">${item.title_en || ''}</p>
+          <p class="text-xs font-semibold text-slate-500 mb-1"><i class="fa-solid fa-book-open text-[10px] mr-1"></i>${item.bible_ko || ''} <span class="font-normal text-slate-400">/ ${item.bible_en || ''}</span></p>
+          <p class="text-sm text-slate-700 leading-relaxed font-medium mt-1">"${item.verse_ko || ''}"</p>
+          <p class="text-xs text-slate-500 leading-relaxed font-light italic mt-1">"${item.verse_en || ''}"</p>
         `;
         container.appendChild(div);
       });
