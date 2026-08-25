@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>안교기억절 대시보드</title>
+  <title>세종 행복 안식일학교 대시보드</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -19,7 +19,7 @@
   <!-- 상단 네비게이션 -->
   <header class="nav-header text-white p-4 flex flex-col md:flex-row justify-between items-start md:items-center shadow-md gap-4">
     <div>
-      <h1 class="text-xl md:text-2xl font-bold"><i class="fa-solid fa-book-bible mr-2"></i>안교기억절</h1>
+      <h1 class="text-xl md:text-2xl font-bold"><i class="fa-solid fa-book-bible mr-2"></i>세종 행복 안식일학교</h1>
       <p class="text-xs md:text-sm text-indigo-200 mt-1">기억절&교과방송 from 고은아빠</p>
     </div>
     <div class="flex items-center space-x-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
@@ -94,11 +94,11 @@
           </h3>
         </div>
 
-        <!-- 목사님 선택 탭 버튼 -->
+        <!-- 목사님 선택 탭 버튼 (a, b, c 로 통일) -->
         <div class="flex space-x-2 mb-4 overflow-x-auto pb-2">
-          <button onclick="changeVideoTab('jang')" id="tab-jang" class="tab-active border px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition">장석원 목사</button>
-          <button onclick="changeVideoTab('a')" id="tab-a" class="tab-inactive border px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition">A 목사 해설</button>
-          <button onclick="changeVideoTab('b')" id="tab-b" class="tab-inactive border px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition">B 목사 해설</button>
+          <button onclick="changeVideoTab('a')" id="tab-a" class="tab-active border px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition">강사 A</button>
+          <button onclick="changeVideoTab('b')" id="tab-b" class="tab-inactive border px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition">강사 B</button>
+          <button onclick="changeVideoTab('c')" id="tab-c" class="tab-inactive border px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition">강사 C</button>
         </div>
 
         <!-- 영상 플레이어 -->
@@ -113,7 +113,7 @@
     </div>
   </main>
 
-  <!-- 목록 보기 모달 (13기억절 / 52기억절 공용) -->
+  <!-- 목록 보기 모달 -->
   <div id="verseListModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-5 md:p-6 w-full max-w-2xl shadow-2xl flex flex-col max-h-[85vh]">
       <div class="flex justify-between items-center mb-4">
@@ -123,21 +123,17 @@
         </button>
       </div>
       
-      <!-- 분기 선택기 (13기억절 모드에서만 표시) -->
       <div id="quarterSelectorContainer" class="mb-4 hidden">
         <select id="modalQuarterSelector" onchange="renderList('quarter', this.value)" class="w-full border-slate-300 rounded-lg p-2 bg-slate-50 font-semibold focus:ring-indigo-500">
         </select>
       </div>
 
-      <!-- 리스트 컨텐츠 영역 -->
       <div id="verseListContainer" class="overflow-y-auto flex-1 space-y-3 pr-2 custom-scrollbar">
-        <!-- 스크립트로 내용 생성됨 -->
       </div>
     </div>
   </div>
 
   <style>
-    /* 모달 스크롤바 디자인 */
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -145,14 +141,30 @@
   </style>
 
   <script>
-    // 하드코딩된 Apps Script URL
+    // 📢 [설정 구역] 여기서 강사 이름을 바꾸면 홈페이지 버튼 이름이 자동으로 바뀝니다!
+    // 구글 시트의 youtube_a, youtube_b, youtube_c 헤더와 짝을 이룹니다.
+    const TEACHER_NAMES = {
+      a: "장석원 목사",
+      b: "A 목사 해설",
+      c: "B 목사 해설"
+    };
+
     const API_URL = "https://script.google.com/macros/s/AKfycbyQTYzIeLdgZBizwLS2cgRAGbgRsko9KjpIBfc5vzp5r_2OPGa0t1nA8nKHcngonIWE/exec";
     
     let sheetData = [];
     let currentIndex = 0;
-    let currentTab = 'jang';
+    let currentTab = 'a'; // 기본 선택 탭을 a로 변경
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+    }
 
     window.onload = () => {
+      // 탭 이름 셋팅
+      document.getElementById('tab-a').innerText = TEACHER_NAMES.a;
+      document.getElementById('tab-b').innerText = TEACHER_NAMES.b;
+      document.getElementById('tab-c').innerText = TEACHER_NAMES.c;
+      
       fetchData(API_URL);
     };
 
@@ -180,7 +192,6 @@
       }
     }
 
-    // 오늘 날짜와 가장 가까운 주차 자동 탐색
     function autoSelectCurrentWeek() {
       const today = new Date();
       let closestIndex = 0;
@@ -250,7 +261,7 @@
 
     function changeVideoTab(tabName) {
       currentTab = tabName;
-      ['jang', 'a', 'b'].forEach(t => {
+      ['a', 'b', 'c'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         if(t === tabName) {
           btn.className = "tab-active border px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition";
@@ -261,7 +272,6 @@
       updateVideoPlayer();
     }
 
-    // 유튜브 URL에서 비디오 ID 추출
     function extractYouTubeId(url) {
       if (!url) return null;
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -275,9 +285,10 @@
       const noVideoMsg = document.getElementById('noVideoMsg');
 
       let targetUrl = '';
-      if (currentTab === 'jang') targetUrl = data.youtube_jang;
-      else if (currentTab === 'a') targetUrl = data.youtube_a;
+      // 👇 변경된 부분: 구글 시트의 youtube_a, youtube_b, youtube_c 데이터 연동
+      if (currentTab === 'a') targetUrl = data.youtube_a;
       else if (currentTab === 'b') targetUrl = data.youtube_b;
+      else if (currentTab === 'c') targetUrl = data.youtube_c;
 
       const videoId = extractYouTubeId(targetUrl);
 
@@ -292,7 +303,6 @@
       }
     }
 
-    // 기억절 클립보드 복사
     function copyVerse() {
       const data = sheetData[currentIndex];
       if (!data) return;
@@ -302,18 +312,35 @@
       });
     }
 
-    // 브라우저 TTS(음성 읽기)
     function speakVerse() {
+      if (!('speechSynthesis' in window)) {
+        alert("현재 접속하신 브라우저(카카오톡 등)에서는 듣기 기능을 지원하지 않습니다.\n화면 우측 하단 탭을 눌러 '다른 브라우저(사파리, 크롬)로 열기'를 선택해 주세요.");
+        return;
+      }
+
       const data = sheetData[currentIndex];
       if (!data || !data.verse_ko) return;
+      
       window.speechSynthesis.cancel();
+      
       const utterance = new SpeechSynthesisUtterance(data.verse_ko);
       utterance.lang = 'ko-KR';
-      utterance.rate = 0.9;
+      utterance.rate = 0.85;
+      utterance.pitch = 1.0;
+
+      const voices = window.speechSynthesis.getVoices();
+      const koreanVoices = voices.filter(voice => voice.lang.includes('ko'));
+      
+      const googleVoice = koreanVoices.find(voice => voice.name.toLowerCase().includes('google') || voice.name.includes('구글'));
+      if (googleVoice) {
+        utterance.voice = googleVoice;
+      } else if (koreanVoices.length > 0) {
+        utterance.voice = koreanVoices[0];
+      }
+
       window.speechSynthesis.speak(utterance);
     }
 
-    // 모달창 열기 (mode: 'quarter' 또는 'year')
     function openListModal(mode) {
       if (sheetData.length === 0) return;
       
@@ -328,7 +355,6 @@
         title.innerText = '13기억절 (분기별 보기)';
         qSelectorContainer.classList.remove('hidden');
         
-        // 현재 인덱스를 기준으로 분기 계산 (13주 단위로 나눔)
         const currentQuarter = Math.floor(currentIndex / 13) + 1;
         const maxQuarter = Math.ceil(sheetData.length / 13) || 1;
         
@@ -353,7 +379,6 @@
       document.getElementById('verseListModal').classList.add('hidden');
     }
 
-    // 목록 렌더링
     function renderList(mode, quarter = 1) {
       const container = document.getElementById('verseListContainer');
       container.innerHTML = '';
@@ -374,11 +399,9 @@
 
       filteredData.forEach(item => {
         const div = document.createElement('div');
-        // 현재 보고있는 주차 하이라이트
         const isCurrent = (item.originalIndex === currentIndex);
         div.className = `p-4 border rounded-xl cursor-pointer transition ${isCurrent ? 'bg-indigo-50 border-indigo-200' : 'bg-slate-50 hover:bg-slate-100 border-slate-200'}`;
         
-        // 리스트 아이템 클릭 시 해당 주차로 이동 후 모달 닫기
         div.onclick = () => {
           selectWeek(item.originalIndex);
           closeListModal();
