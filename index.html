@@ -59,7 +59,7 @@
     </div>
   </header>
 
-  <!-- 여백 축소: mt-2 md:mt-4 -> mt-1 md:mt-2, p-3 -> p-2, space-y 축소 -->
+  <!-- 🌟 여백 축소: mt-2 md:mt-4 -> mt-1 md:mt-2, p-3 md:p-5 -> p-2 md:p-4, space-y 축소 -->
   <main class="max-w-4xl mx-auto p-2 md:p-4 space-y-3 md:space-y-5 mt-1 md:mt-2 relative min-h-[60vh]">
     
     <!-- 중앙 로딩 화면 -->
@@ -75,16 +75,27 @@
       <!-- 기억절 카드 -->
       <div id="swipeZone" class="swipe-area bg-white rounded-3xl shadow-md border border-slate-200 overflow-hidden relative transition-transform duration-300 cursor-grab active:cursor-grabbing">
         <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-50 rounded-bl-full -z-10 opacity-70"></div>
-        <div class="p-4 md:p-8 relative z-10 pointer-events-none"> 
+        <div class="p-5 md:p-8 relative z-10 pointer-events-none"> 
           
-          <!-- 🌟 주차 선택 버튼 왼쪽에 직관적인 양쪽 화살표(이전/다음) 추가 -->
-          <div class="mb-3 flex justify-end items-center gap-2">
+          <!-- 🌟 주차 선택 버튼 및 화살표 (원래 디자인 완벽 복구) -->
+          <div class="mb-5 flex justify-end items-center gap-2">
+            
+            <button onclick="window.changeWeek(-1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
+              <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
+            </button>
+            
+            <button onclick="window.changeWeek(1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
+              <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
+            </button>
+
+            <!-- 기존 주차 선택 버튼 (크기 약간 확대) -->
+            <button onclick="window.openListModal('quarter'); event.stopPropagation();" class="pointer-events-auto bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-base sm:text-lg md:text-xl font-extrabold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition shadow-sm inline-flex items-center ml-1 md:ml-2">
               <span id="displayQuarter">제 ?기 ?과</span>
-              <i class="fa-solid fa-caret-down ml-2 opacity-50"></i>
+              <i class="fa-solid fa-caret-down ml-2 opacity-50 text-sm"></i>
             </button>
           </div>
           
-          <div class="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <div class="mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <h2 id="displayTitleKo" class="text-2xl md:text-3xl font-bold text-slate-800 leading-tight">제목을 불러오는 중</h2>
             <span id="displayTitleEn" class="text-base md:text-lg text-slate-400 font-medium italic"></span>
           </div>
