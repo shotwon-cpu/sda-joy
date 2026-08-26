@@ -13,6 +13,7 @@
     .tab-active { background-color: #ef4444; color: white; border-color: #ef4444; }
     .tab-inactive { background-color: #f1f5f9; color: #475569; border-color: #cbd5e1; }
     .swipe-area { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+    
     .loader {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #312e81; 
@@ -117,6 +118,7 @@
           <span>교과토의 자료</span>
         </a>
 
+        <!-- 🌟 하이브리드 교과 PDF 버튼 -->
         <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl border border-red-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none cursor-pointer">
           <i class="fa-solid fa-file-pdf text-lg"></i>
           <span id="pdfBtnText">교과 PDF 준비중</span>
@@ -169,13 +171,12 @@
     </div>
   </div>
 
-  <!-- PDF 팝업 모달 (🌟 [새 창 아이콘]을 X자 왼쪽으로 이동 완료!) -->
+  <!-- PDF 팝업 모달 -->
   <div id="pdfModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       <div class="bg-red-800 text-white p-4 flex justify-between items-center">
         <h3 class="font-bold text-lg"><i class="fa-solid fa-file-pdf mr-2"></i>이번 주 교과 PDF</h3>
         
-        <!-- 우측 상단 버튼 그룹: [암호 걸린 새창/다운로드] + [닫기(X)] 가 나란히 배치됨 -->
         <div class="flex items-center space-x-2">
           <button onclick="openPdfSecured()" class="text-red-100 hover:text-white transition flex items-center text-sm bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded shadow-sm font-semibold">
             <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> 새창/다운로드
@@ -247,7 +248,7 @@
     window.sheetData = [];
     window.currentIndex = 0;
     window.currentTab = 'a';
-    window.latestPdfUrl = ""; 
+    window.currentPdfUrl = ""; 
 
     window.onload = async () => {
       document.getElementById('tab-a').innerText = window.TEACHER_NAMES.a;
@@ -316,6 +317,7 @@
       window.updateUI();
     };
 
+    // 🌟 하이브리드 UI 매칭: source_url(1순위) or pdf_url(2순위) 감지
     window.updateUI = function(skipVideo = false) {
       if (window.sheetData.length === 0) return;
       const data = window.sheetData[window.currentIndex];
@@ -335,12 +337,15 @@
       const pdfBtn = document.getElementById('pdfLessonBtn');
       const pdfBtnText = document.getElementById('pdfBtnText');
 
-      if (data.pdf_url) {
-        window.latestPdfUrl = data.pdf_url;
+      // 💡 1순위: source_url(원본), 2순위: pdf_url(파이어베이스 백업)
+      const targetUrl = data.source_url || data.pdf_url;
+
+      if (targetUrl && targetUrl.trim() !== '') {
+        window.currentPdfUrl = targetUrl.trim();
         pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
         pdfBtnText.innerText = "교과 PDF 뷰어 열기";
       } else {
-        window.latestPdfUrl = "";
+        window.currentPdfUrl = "";
         pdfBtn.classList.add('opacity-50', 'pointer-events-none');
         pdfBtnText.innerText = "교과 PDF 준비중";
       }
@@ -438,12 +443,13 @@
       }
     };
 
+    // 🌟 하이브리드 PDF 팝업 열기 (구글 뷰어로 원본/백업 모두 매끄럽게 표시)
     window.openPdfModal = function() {
-      if (!window.latestPdfUrl) return;
+      if (!window.currentPdfUrl) return;
       const iframe = document.getElementById('pdfIframe');
       const loading = document.getElementById('pdfLoadingMsg');
       
-      iframe.src = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(window.latestPdfUrl);
+      iframe.src = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(window.currentPdfUrl);
       
       iframe.onload = function() {
          loading.classList.add('hidden');
@@ -459,18 +465,15 @@
       document.getElementById('pdfLoadingMsg').classList.remove('hidden');
     };
 
-    // 🌟 [새창/다운로드] 클릭 시 비밀번호 검사 보안 로직 추가 (비밀번호: 7777)
+    // 🌟 암호 검사 후 새창 열기
     window.openPdfSecured = function() {
-      if (!window.latestPdfUrl) return;
+      if (!window.currentPdfUrl) return;
       
       let password = prompt("📥 다운로드 및 새창 열기 암호를 입력하세요:");
+      if (password === null) return;
       
-      if (password === null) {
-        return; // 취소 버튼 누른 경우
-      }
-      
-      if (password === "7777") { // 💡 원하시는 암호로 이 부분을 수정하세요!
-        window.open(window.latestPdfUrl, '_blank');
+      if (password === "7777") {
+        window.open(window.currentPdfUrl, '_blank');
       } else {
         alert("❌ 암호가 틀렸습니다. 다운로드 권한이 없습니다.");
       }
