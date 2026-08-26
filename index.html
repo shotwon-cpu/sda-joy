@@ -171,27 +171,31 @@
     </div>
   </div>
 
-  <!-- 교과 PDF 및 이미지 하이브리드 모달 -->
+  <!-- 교과 PDF, 이미지, 텍스트 하이브리드 모달 -->
   <div id="pdfModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
+      
+      <!-- 모달 헤더 -->
       <div class="bg-red-800 text-white p-3 md:p-4 flex justify-between items-center">
         <h3 id="modalHeaderTitle" class="font-bold text-base sm:text-lg flex items-center truncate">
           <i class="fa-solid fa-book-open mr-2"></i>이번 주 교과 자료
         </h3>
         
         <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
-          <!-- 🌟 X버튼 옆: 14장 다중 WebP 이미지 토글 전환 버튼 -->
-          <button id="toggleViewBtn" onclick="togglePdfOrImage()" class="text-amber-900 bg-amber-300 hover:bg-amber-200 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black transition flex items-center shadow-sm">
-            <i class="fa-solid fa-images mr-1"></i> <span id="toggleBtnText">이미지 보기</span>
-          </button>
-
-          <!-- 구글 닥스 새창 열기 (암호: 7777) -->
-          <button onclick="openPdfSecured()" class="text-red-100 hover:text-white transition flex items-center text-xs sm:text-sm bg-red-700 hover:bg-red-600 px-2 sm:px-3 py-1.5 rounded-lg shadow-sm font-semibold">
-            <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 새창
+          <!-- 모드 전환 버튼들 -->
+          <button id="btnViewImage" onclick="window.switchModalView('image')" class="hidden bg-amber-300 hover:bg-amber-200 text-amber-900 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
+            <i class="fa-solid fa-images"></i> 이미지
           </button>
           
-          <!-- 모달 닫기 버튼 -->
-          <button onclick="closePdfModal()" class="text-red-200 hover:text-white transition p-1 ml-1">
+          <button id="btnViewText" onclick="window.switchModalView('text')" class="hidden bg-blue-600 hover:bg-blue-500 text-white px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
+            <i class="fa-solid fa-font"></i> 텍스트
+          </button>
+
+          <button onclick="window.openPdfSecured()" class="bg-red-700 hover:bg-red-600 text-red-100 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
+            <i class="fa-solid fa-file-pdf"></i> PDF새창
+          </button>
+          
+          <button onclick="window.closePdfModal()" class="text-red-200 hover:text-white transition p-1 ml-1">
             <i class="fa-solid fa-xmark text-2xl sm:text-3xl"></i>
           </button>
         </div>
@@ -199,11 +203,17 @@
 
       <!-- 뷰어 본체 영역 -->
       <div class="flex-1 w-full bg-slate-100 relative overflow-hidden">
-        <!-- 1. PDF 뷰어용 iframe (구글 닥스 원본 연동) -->
-        <iframe id="pdfIframe" class="w-full h-full border-0 hidden" src=""></iframe>
         
-        <!-- 2. 다중 WebP 이미지 스크롤 뷰어 영역 (Lazy Loading 적용) -->
-        <div id="imageViewerContainer" class="w-full h-full overflow-y-auto p-2 sm:p-4 hidden space-y-3 custom-scrollbar">
+        <!-- 1. 다중 WebP 이미지 스크롤 뷰어 영역 -->
+        <div id="imageViewerContainer" class="w-full h-full overflow-y-auto p-2 sm:p-4 hidden space-y-3 custom-scrollbar"></div>
+        
+        <!-- 2. 전자책 텍스트 뷰어 영역 (큰 글씨) -->
+        <div id="textViewerContainer" class="hidden w-full h-full bg-[#fdfbf7] p-4 md:p-8 overflow-y-auto relative custom-scrollbar">
+          <div class="sticky top-0 right-0 flex justify-end space-x-2 mb-4 z-10">
+            <button onclick="window.adjustTextSize(2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A +</button>
+            <button onclick="window.adjustTextSize(-2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A -</button>
+          </div>
+          <div id="textContentArea" class="text-[18px] md:text-[22px] leading-[1.8] text-slate-800 break-keep font-medium pb-10"></div>
         </div>
 
         <!-- 로딩 표시기 -->
@@ -463,128 +473,97 @@
       }
     };
 
-    // 🌟 모달 열기: 1순위로 원본 짧은 주소(source_url) 사용 및 HTTPS 자동 변환
-    window.openPdfModal = function() {
-      const data = window.sheetData[window.currentIndex];
-      const iframe = document.getElementById('pdfIframe');
-      const imgContainer = document.getElementById('imageViewerContainer');
-      const loading = document.getElementById('pdfLoadingMsg');
-      const toggleBtn = document.getElementById('toggleViewBtn');
-      const toggleBtnText = document.getElementById('toggleBtnText');
-      
-      window.currentModalMode = 'pdf';
-      toggleBtnText.innerText = "이미지 보기";
-      imgContainer.classList.add('hidden');
-      imgContainer.innerHTML = ''; 
-      iframe.classList.add('hidden');
-      loading.classList.remove('hidden');
+    // ==========================================
+    // 🌟 텍스트(전자책) 및 하이브리드 모달 제어 영역
+    // ==========================================
+    window.currentTextSize = 18;
 
-      const count = (data && data.image_count) ? Number(data.image_count) : 0;
-      if (count > 0) {
-        toggleBtn.classList.remove('hidden');
-      } else {
-        toggleBtn.classList.add('hidden');
-      }
-
-      // 💡 1순위: 깔끔한 원본 짧은 주소(source_url)
-      let targetPdf = (data && data.source_url && data.source_url.trim() !== '') 
-                      ? data.source_url.trim() 
-                      : (data && data.pdf_url && data.pdf_url.trim() !== '') 
-                        ? data.pdf_url.trim() 
-                        : window.currentPdfUrl;
-      
-      // PDF 주소가 아예 없을 때의 방어 코드
-      if (!targetPdf) {
-        if (count > 0) {
-           window.togglePdfOrImage();
-           document.getElementById('pdfModal').classList.remove('hidden');
-        } else {
-           loading.innerHTML = "<p class='text-slate-500 font-bold'>등록된 교과 자료가 없습니다.</p>";
-           document.getElementById('pdfModal').classList.remove('hidden');
-        }
-        return;
-      }
-
-      // 💡 핵심 에러 방지: 구글 뷰어 충돌을 막기 위해 http:// 를 https:// 로 강제 변환
-      if (targetPdf.startsWith("http://")) {
-        targetPdf = targetPdf.replace("http://", "https://");
-      }
-
-      iframe.src = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(targetPdf);
-      
-      iframe.onload = function() {
-        loading.classList.add('hidden');
-        if (window.currentModalMode === 'pdf') {
-          iframe.classList.remove('hidden');
-        }
-      };
-      
-      document.getElementById('pdfModal').classList.remove('hidden');
+    window.adjustTextSize = function(delta) {
+      window.currentTextSize += delta;
+      if(window.currentTextSize < 14) window.currentTextSize = 14;
+      if(window.currentTextSize > 40) window.currentTextSize = 40;
+      document.getElementById('textContentArea').style.fontSize = window.currentTextSize + "px";
     };
 
-    // 🌟 다중 WebP 이미지 연속 스크롤 + 지연 로딩 렌더링 (버킷 주소 수정본)
-    window.togglePdfOrImage = function() {
+    // 🌟 스마트 하이브리드 모달 열기 (이미지 > 텍스트 > 에러 메시지 순으로 자동 오픈)
+    window.openPdfModal = function() {
       const data = window.sheetData[window.currentIndex];
-      const iframe = document.getElementById('pdfIframe');
       const imgContainer = document.getElementById('imageViewerContainer');
+      const textContainer = document.getElementById('textViewerContainer');
       const loading = document.getElementById('pdfLoadingMsg');
-      const toggleBtnText = document.getElementById('toggleBtnText');
+      
+      const btnImage = document.getElementById('btnViewImage');
+      const btnText = document.getElementById('btnViewText');
+      
+      // 초기화
+      imgContainer.innerHTML = '';
+      document.getElementById('textContentArea').innerHTML = '';
+      loading.classList.remove('hidden');
+      document.getElementById('pdfModal').classList.remove('hidden');
 
-      if (window.currentModalMode === 'pdf') {
-        window.currentModalMode = 'image';
-        toggleBtnText.innerText = "PDF 보기";
-        iframe.classList.add('hidden');
-        
-        const count = (data && data.image_count) ? Number(data.image_count) : 0;
-        // 💡 주차 번호 안전하게 가져오기 (data.week가 없으면 index + 1 사용)
-        const weekNum = (data && data.week) ? data.week : (window.currentIndex + 1);
+      const hasImage = (data && data.image_count && Number(data.image_count) > 0);
+      const hasText = (data && data.lesson_text && data.lesson_text.trim() !== '');
 
-        if (count > 0) {
-          loading.classList.add('hidden');
-          imgContainer.innerHTML = ''; 
-          imgContainer.classList.remove('hidden');
+      // 버튼 노출 여부 결정
+      if (hasImage) btnImage.classList.remove('hidden'); else btnImage.classList.add('hidden');
+      if (hasText) btnText.classList.remove('hidden'); else btnText.classList.add('hidden');
 
-          // 🌟 파이어베이스 스토리지 버킷 주소를 정확히 일치시킴 (.firebasestorage.app)
+      // 우선순위에 따라 뷰어 열기 (1순위: 이미지, 2순위: 텍스트)
+      if (hasImage) {
+        window.switchModalView('image');
+      } else if (hasText) {
+        window.switchModalView('text');
+      } else {
+        // 둘 다 없으면
+        loading.innerHTML = "<p class='text-slate-500 font-bold mt-4 text-center leading-relaxed'>등록된 이미지나 텍스트 교과가 없습니다.<br>상단 <span class='text-red-500'>[PDF새창]</span> 버튼을 눌러 원본을 확인하세요.</p>";
+      }
+    };
+
+    // 🌟 뷰어 모드 전환 함수 (이미지 <-> 텍스트)
+    window.switchModalView = function(mode) {
+      const data = window.sheetData[window.currentIndex];
+      const imgContainer = document.getElementById('imageViewerContainer');
+      const textContainer = document.getElementById('textViewerContainer');
+      const loading = document.getElementById('pdfLoadingMsg');
+      
+      imgContainer.classList.add('hidden');
+      textContainer.classList.add('hidden');
+      loading.classList.add('hidden');
+
+      if (mode === 'image') {
+        imgContainer.classList.remove('hidden');
+        if (imgContainer.innerHTML === '') {
+          const count = Number(data.image_count);
+          const weekNum = data.week || (window.currentIndex + 1);
           const bucketName = "sabbathschool-8586d.firebasestorage.app";
 
           for (let i = 1; i <= count; i++) {
             const pageStr = String(i).padStart(2, '0');
             const imgUrl = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/lessons%2Flesson_${weekNum}_${pageStr}.webp?alt=media`;
-
             const img = document.createElement('img');
             img.loading = "lazy"; 
             img.src = imgUrl;
-            img.alt = `${weekNum}주차 ${i}페이지`;
             img.className = "w-full max-w-3xl rounded-xl shadow-md border border-slate-200 object-contain mx-auto block mb-3";
-            
-            // 이미지 로딩 실패 시 에러 로그 확인용
-            img.onerror = function() {
-              console.error("이미지 로드 실패:", imgUrl);
-            };
-
             imgContainer.appendChild(img);
           }
-        } else {
-          loading.innerHTML = "<p class='text-slate-500 font-bold'>등록된 교과 이미지가 없습니다.</p>";
         }
-
-      } else {
-        window.currentModalMode = 'pdf';
-        toggleBtnText.innerText = "이미지 보기";
-        imgContainer.classList.add('hidden');
-        iframe.classList.remove('hidden');
-        loading.classList.add('hidden');
+      } else if (mode === 'text') {
+        textContainer.classList.remove('hidden');
+        document.getElementById('textContentArea').innerHTML = data.lesson_text;
+        document.getElementById('textContentArea').style.fontSize = window.currentTextSize + "px";
       }
     };
 
+    // 🌟 모달 닫기 및 뷰어 초기화
     window.closePdfModal = function() {
       document.getElementById('pdfModal').classList.add('hidden');
-      document.getElementById('pdfIframe').src = "";
       document.getElementById('imageViewerContainer').innerHTML = "";
-      document.getElementById('pdfIframe').classList.add('hidden');
+      document.getElementById('textContentArea').innerHTML = "";
       document.getElementById('imageViewerContainer').classList.add('hidden');
+      document.getElementById('textViewerContainer').classList.add('hidden');
       document.getElementById('pdfLoadingMsg').classList.remove('hidden');
     };
+    // ==========================================
 
     // 구글 닥스 새창 열기 (비밀번호: 7777)
     window.openPdfSecured = function() {
