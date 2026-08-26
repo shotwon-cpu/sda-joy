@@ -59,7 +59,6 @@
     </div>
   </header>
 
-  <!-- 🌟 여백 축소: mt-2 md:mt-4 -> mt-1 md:mt-2, p-3 md:p-5 -> p-2 md:p-4, space-y 축소 -->
   <main class="max-w-4xl mx-auto p-2 md:p-4 space-y-3 md:space-y-5 mt-1 md:mt-2 relative min-h-[60vh]">
     
     <!-- 중앙 로딩 화면 -->
@@ -77,7 +76,7 @@
         <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-50 rounded-bl-full -z-10 opacity-70"></div>
         <div class="p-5 md:p-8 relative z-10 pointer-events-none"> 
           
-          <!-- 🌟 주차 선택 버튼 및 화살표 (원래 디자인 완벽 복구) -->
+          <!-- 주차 선택 버튼 및 화살표 -->
           <div class="mb-5 flex justify-end items-center gap-2">
             
             <button onclick="window.changeWeek(-1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
@@ -88,7 +87,7 @@
               <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
             </button>
 
-            <!-- 기존 주차 선택 버튼 (크기 약간 확대) -->
+            <!-- 기존 주차 선택 버튼 -->
             <button onclick="window.openListModal('quarter'); event.stopPropagation();" class="pointer-events-auto bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-base sm:text-lg md:text-xl font-extrabold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition shadow-sm inline-flex items-center ml-1 md:ml-2">
               <span id="displayQuarter">제 ?기 ?과</span>
               <i class="fa-solid fa-caret-down ml-2 opacity-50 text-sm"></i>
@@ -110,7 +109,7 @@
               <span id="displayBibleEn" class="text-sm md:text-base text-indigo-400/80 ml-2 font-normal"></span>
             </p>
             
-            <!-- 🌟 수정된 부분 2: 버튼 글씨를 줄이고(한글, 영어) 좌우 여백을 줄여 무조건 1줄로 유지 -->
+            <!-- 버튼 -->
             <div class="flex justify-end gap-1.5 sm:gap-2 pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 flex-wrap">
               <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="px-2.5 py-2 sm:px-4 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
                 <i class="fa-solid fa-volume-high mr-1 sm:mr-2"></i> 한글
@@ -129,20 +128,19 @@
         </div>
       </div>
 
-      <!-- 교과토의 자료 링크 카드 -->
-      <div onclick="openDiscussionModal()" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-6 flex justify-between items-center cursor-pointer hover:bg-slate-50 transition active:bg-slate-100">
-        <div class="flex items-center">
-          <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 mr-5">
-            <i class="fa-solid fa-comments text-xl md:text-2xl"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-slate-800 text-lg md:text-xl">교과토의 자료 보기</h3>
-            <p class="text-sm md:text-base text-slate-500 mt-1">이번 주 토의 자료를 확인하세요</p>
-          </div>
-        </div>
-        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50">
-          <i class="fa-solid fa-chevron-right text-slate-400 text-base md:text-lg"></i>
-        </div>
+      <!-- 🌟 상단 링크 버튼 영역: [교과토의 자료] + [교과 PDF] 나란히 배치 -->
+      <div class="grid grid-cols-2 gap-3 my-4">
+        <!-- 왼쪽: 교과토의 자료 버튼 -->
+        <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-2xl border border-emerald-100 transition shadow-sm text-sm md:text-base cursor-pointer">
+          <i class="fa-solid fa-comments text-lg"></i>
+          <span>교과토의 자료</span>
+        </a>
+
+        <!-- 오른쪽: 교과 PDF 버튼 -->
+        <a id="pdfLessonBtn" href="#" target="_blank" class="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl border border-red-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none">
+          <i class="fa-solid fa-file-pdf text-lg"></i>
+          <span id="pdfBtnText">교과 PDF 준비중</span>
+        </a>
       </div>
 
       <!-- 영상 카드 (앱으로 열기 버튼 추가) -->
@@ -229,9 +227,9 @@
 
   <!-- 🚀 Firebase 연동 핵심 스크립트 -->
   <script type="module">
-    // Firebase 11.6.1 버전 명시적 임포트
+    // 🌟 Firebase 11.6.1 버전 명시적 임포트 (doc 모듈 추가)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -263,13 +261,32 @@
       try {
         // Firebase 인증 (익명 로그인 - 읽기 권한 확보)
         await signInAnonymously(auth);
+
+        // 🌟 [추가됨] 최신 PDF 링크 실시간 감지 리스너
+        const latestPdfRef = doc(db, 'settings', 'latest_pdf');
+        onSnapshot(latestPdfRef, (docSnap) => {
+          const pdfBtn = document.getElementById('pdfLessonBtn');
+          const pdfBtnText = document.getElementById('pdfBtnText');
+
+          if (docSnap.exists() && docSnap.data().pdf_url) {
+            pdfBtn.href = docSnap.data().pdf_url;
+            pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
+            pdfBtnText.innerText = "교과 PDF 열기";
+          } else {
+            pdfBtn.href = "#";
+            pdfBtn.classList.add('opacity-50', 'pointer-events-none');
+            pdfBtnText.innerText = "교과 PDF 준비중";
+          }
+        }, (error) => {
+          console.error("PDF 링크 불러오기 오류:", error);
+        });
         
         // 데이터 실시간 감지 (새로고침 없이 구글시트에서 전송되면 즉시 반영)
         const lessonsRef = collection(db, 'sabbath_lessons');
         onSnapshot(lessonsRef, (snapshot) => {
           let loadedData = [];
-          snapshot.forEach((doc) => {
-            loadedData.push(doc.data());
+          snapshot.forEach((document) => {
+            loadedData.push(document.data());
           });
           
           if (loadedData.length > 0) {
