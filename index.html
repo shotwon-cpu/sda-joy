@@ -14,7 +14,6 @@
     .tab-inactive { background-color: #f1f5f9; color: #475569; border-color: #cbd5e1; }
     .swipe-area { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
     
-    /* 로딩 스피너 애니메이션 */
     .loader {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #312e81; 
@@ -23,17 +22,13 @@
       height: 40px;
       animation: spin 1s linear infinite;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
   <!-- 상단 네비게이션 -->
   <header class="nav-header text-white px-3 py-3 md:px-6 md:py-4 flex justify-between items-center shadow-lg gap-2 sm:gap-4 overflow-hidden">
-    
     <div class="flex flex-col justify-center min-w-0 flex-1 pr-1 sm:pr-2">
       <h1 class="text-[22px] sm:text-3xl md:text-4xl lg:text-5xl font-black flex items-center tracking-tight truncate">
         <i class="fa-solid fa-book-bible mr-1.5 sm:mr-3 text-[20px] sm:text-2xl md:text-3xl lg:text-4xl text-yellow-300"></i>세종 행복 교회
@@ -46,12 +41,10 @@
         <i class="fa-solid fa-calendar-check mb-1 text-sm sm:text-xl md:text-2xl"></i>
         <span class="whitespace-nowrap tracking-tight">이번 주</span>
       </button>
-
       <button onclick="openListModal('quarter')" class="w-full bg-emerald-600 hover:bg-emerald-500 px-1 sm:px-2 md:px-4 py-1.5 sm:py-2.5 rounded-lg text-[11px] sm:text-base md:text-lg font-extrabold transition shadow-md flex flex-col justify-center items-center">
         <i class="fa-solid fa-layer-group mb-1 text-sm sm:text-xl md:text-2xl"></i>
         <span class="whitespace-nowrap tracking-tight">13기억절</span>
       </button>
-
       <button onclick="openListModal('year')" class="w-full bg-amber-600 hover:bg-amber-500 px-1 sm:px-2 md:px-4 py-1.5 sm:py-2.5 rounded-lg text-[11px] sm:text-base md:text-lg font-extrabold transition shadow-md flex flex-col justify-center items-center">
         <i class="fa-solid fa-list-ol mb-1 text-sm sm:text-xl md:text-2xl"></i>
         <span class="whitespace-nowrap tracking-tight">52기억절</span>
@@ -60,8 +53,6 @@
   </header>
 
   <main class="max-w-4xl mx-auto p-2 md:p-4 space-y-3 md:space-y-5 mt-1 md:mt-2 relative min-h-[60vh]">
-    
-    <!-- 중앙 로딩 화면 -->
     <div id="loadingScreen" class="absolute inset-0 flex flex-col items-center justify-center bg-[#f8fafc] z-50">
       <div class="loader mb-4"></div>
       <p class="text-indigo-900 font-bold text-lg md:text-xl animate-pulse">데이터를 0.1초만에 불러옵니다 🚀</p>
@@ -70,13 +61,10 @@
 
     <!-- 콘텐츠 영역 -->
     <div id="contentArea" class="hidden space-y-4 md:space-y-6">
-      
-      <!-- 기억절 카드 -->
       <div id="swipeZone" class="swipe-area bg-white rounded-3xl shadow-md border border-slate-200 overflow-hidden relative transition-transform duration-300 cursor-grab active:cursor-grabbing">
         <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-50 rounded-bl-full -z-10 opacity-70"></div>
         <div class="p-5 md:p-8 relative z-10 pointer-events-none"> 
           
-          <!-- 주차 선택 버튼 및 화살표 -->
           <div class="mb-5 flex justify-end items-center gap-2">
             <button onclick="window.changeWeek(-1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
               <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
@@ -123,15 +111,14 @@
         </div>
       </div>
 
-      <!-- 🌟 상단 링크 버튼 영역: [교과토의 자료] + [교과 PDF] 팝업 버튼 -->
+      <!-- 상단 링크 버튼 영역 -->
       <div class="grid grid-cols-2 gap-3 my-4">
-        <!-- 왼쪽: 교과토의 자료 팝업 -->
         <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-2xl border border-emerald-100 transition shadow-sm text-sm md:text-base cursor-pointer">
           <i class="fa-solid fa-comments text-lg"></i>
           <span>교과토의 자료</span>
         </a>
 
-        <!-- 오른쪽: 교과 PDF 팝업 🌟 -->
+        <!-- 🌟 개별 주차의 PDF를 여는 팝업 버튼 -->
         <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl border border-red-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none cursor-pointer">
           <i class="fa-solid fa-file-pdf text-lg"></i>
           <span id="pdfBtnText">교과 PDF 준비중</span>
@@ -148,13 +135,11 @@
             <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> 새창/앱 열기
           </button>
         </div>
-
         <div class="flex space-x-2 mb-5 overflow-x-auto pb-2 custom-scrollbar">
           <button onclick="changeVideoTab('a')" id="tab-a" class="tab-active border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 A</button>
           <button onclick="changeVideoTab('b')" id="tab-b" class="tab-inactive border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 B</button>
           <button onclick="changeVideoTab('c')" id="tab-c" class="tab-inactive border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 C</button>
         </div>
-
         <div class="aspect-video bg-slate-900 rounded-2xl overflow-hidden relative shadow-inner border border-slate-800">
           <iframe id="videoPlayer" class="w-full h-full hidden" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
@@ -162,7 +147,7 @@
     </div>
   </main>
 
-  <!-- 교과토의 자료 모달창 -->
+  <!-- 교과토의 모달 -->
   <div id="discussionModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
@@ -186,7 +171,7 @@
     </div>
   </div>
 
-  <!-- 🌟 교과 PDF 팝업 모달창 🌟 -->
+  <!-- PDF 팝업 모달 -->
   <div id="pdfModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       <div class="bg-red-800 text-white p-4 flex justify-between items-center">
@@ -202,7 +187,6 @@
       </div>
       <div class="flex-1 w-full bg-slate-100 relative">
         <iframe id="pdfIframe" class="w-full h-full border-0 hidden" src=""></iframe>
-        <!-- 로딩 표시 -->
         <div id="pdfLoadingMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-white">
           <i class="fa-solid fa-spinner fa-spin text-4xl mb-3 text-red-500"></i>
           <p class="text-lg font-bold">PDF 문서를 불러오는 중입니다...</p>
@@ -230,12 +214,10 @@
           <i class="fa-solid fa-xmark text-3xl"></i>
         </button>
       </div>
-      
       <div id="quarterSelectorContainer" class="mb-5 hidden">
         <select id="modalQuarterSelector" onchange="renderList('quarter', this.value)" class="w-full border-slate-300 rounded-xl p-3 bg-slate-50 text-lg font-bold focus:ring-indigo-500">
         </select>
       </div>
-
       <div id="verseListContainer" class="overflow-y-auto flex-1 space-y-4 pr-2 custom-scrollbar">
       </div>
     </div>
@@ -260,12 +242,11 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // 전역 변수 설정
     window.TEACHER_NAMES = { a: "장석원 목사", b: "권정행 목사", c: "이주환 목사" };
     window.sheetData = [];
     window.currentIndex = 0;
     window.currentTab = 'a';
-    window.latestPdfUrl = ""; // 🌟 PDF 주소를 임시 저장할 변수
+    window.latestPdfUrl = ""; 
 
     window.onload = async () => {
       document.getElementById('tab-a').innerText = window.TEACHER_NAMES.a;
@@ -277,23 +258,6 @@
       try {
         await signInAnonymously(auth);
 
-        // 🌟 최신 PDF 링크 실시간 감지
-        const latestPdfRef = doc(db, 'settings', 'latest_pdf');
-        onSnapshot(latestPdfRef, (docSnap) => {
-          const pdfBtn = document.getElementById('pdfLessonBtn');
-          const pdfBtnText = document.getElementById('pdfBtnText');
-
-          if (docSnap.exists() && docSnap.data().pdf_url) {
-            window.latestPdfUrl = docSnap.data().pdf_url;
-            pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
-            pdfBtnText.innerText = "교과 PDF 뷰어 열기";
-          } else {
-            window.latestPdfUrl = "";
-            pdfBtn.classList.add('opacity-50', 'pointer-events-none');
-            pdfBtnText.innerText = "교과 PDF 준비중";
-          }
-        });
-        
         // 데이터베이스 실시간 감지
         const lessonsRef = collection(db, 'sabbath_lessons');
         onSnapshot(lessonsRef, (snapshot) => {
@@ -352,6 +316,7 @@
       window.updateUI();
     };
 
+    // 🌟 화면이 넘겨질 때마다 현재 주차에 맞는 PDF 버튼 상태 업데이트
     window.updateUI = function(skipVideo = false) {
       if (window.sheetData.length === 0) return;
       const data = window.sheetData[window.currentIndex];
@@ -367,6 +332,20 @@
       document.getElementById('displayBibleKo').innerText = bibleKo;
       document.getElementById('displayVerseEn').innerText = data.verse_en ? `"${data.verse_en}"` : '';
       document.getElementById('displayBibleEn').innerText = bibleEn;
+      
+      // 🌟 개별 주차 데이터(data.pdf_url)를 확인해서 버튼을 켜고 끕니다.
+      const pdfBtn = document.getElementById('pdfLessonBtn');
+      const pdfBtnText = document.getElementById('pdfBtnText');
+
+      if (data.pdf_url) {
+        window.latestPdfUrl = data.pdf_url;
+        pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
+        pdfBtnText.innerText = "교과 PDF 뷰어 열기";
+      } else {
+        window.latestPdfUrl = "";
+        pdfBtn.classList.add('opacity-50', 'pointer-events-none');
+        pdfBtnText.innerText = "교과 PDF 준비중";
+      }
       
       if (!skipVideo) { window.updateVideoPlayer(); }
     };
@@ -461,37 +440,30 @@
       }
     };
 
-    // 🌟 PDF 팝업 열기 함수 🌟
+    // PDF 팝업 모달 함수
     window.openPdfModal = function() {
       if (!window.latestPdfUrl) return;
       const iframe = document.getElementById('pdfIframe');
       const loading = document.getElementById('pdfLoadingMsg');
       
-      // 구글 독스 뷰어를 사용하여 스마트폰에서도 강제 다운로드 없이 팝업 안에서 바로 표시되도록 함
       iframe.src = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(window.latestPdfUrl);
       
-      // 로딩 애니메이션 숨기고 뷰어 표시
       iframe.onload = function() {
          loading.classList.add('hidden');
          iframe.classList.remove('hidden');
       };
-      
       document.getElementById('pdfModal').classList.remove('hidden');
     };
 
-    // 🌟 PDF 팝업 닫기 함수 🌟
     window.closePdfModal = function() {
       document.getElementById('pdfModal').classList.add('hidden');
       document.getElementById('pdfIframe').src = "";
       document.getElementById('pdfIframe').classList.add('hidden');
-      document.getElementById('pdfLoadingMsg').classList.remove('hidden'); // 다음에 열 때를 위해 로딩 화면 다시 켜두기
+      document.getElementById('pdfLoadingMsg').classList.remove('hidden');
     };
 
-    // 🌟 PDF 직접 다운로드 / 새창 열기 🌟
     window.openPdfNewTab = function() {
-      if (window.latestPdfUrl) {
-        window.open(window.latestPdfUrl, '_blank');
-      }
+      if (window.latestPdfUrl) { window.open(window.latestPdfUrl, '_blank'); }
     };
 
     window.openVideoNewTab = function() {
