@@ -463,7 +463,7 @@
       }
     };
 
-    // 🌟 모달 열기: 기본값은 구글 닥스 뷰어로 원본 PDF 로드
+    // 🌟 모달 열기: 1순위로 원본 짧은 주소(source_url) 사용 및 HTTPS 자동 변환
     window.openPdfModal = function() {
       const data = window.sheetData[window.currentIndex];
       const iframe = document.getElementById('pdfIframe');
@@ -479,7 +479,6 @@
       iframe.classList.add('hidden');
       loading.classList.remove('hidden');
 
-      // image_count가 등록되어 있을 때만 이미지 보기 토글 버튼 노출
       const count = (data && data.image_count) ? Number(data.image_count) : 0;
       if (count > 0) {
         toggleBtn.classList.remove('hidden');
@@ -487,13 +486,29 @@
         toggleBtn.classList.add('hidden');
       }
 
+      // 💡 1순위: 깔끔한 원본 짧은 주소(source_url)
       let targetPdf = (data && data.source_url && data.source_url.trim() !== '') 
                       ? data.source_url.trim() 
                       : (data && data.pdf_url && data.pdf_url.trim() !== '') 
                         ? data.pdf_url.trim() 
                         : window.currentPdfUrl;
       
-      if (!targetPdf) return;
+      // PDF 주소가 아예 없을 때의 방어 코드
+      if (!targetPdf) {
+        if (count > 0) {
+           window.togglePdfOrImage();
+           document.getElementById('pdfModal').classList.remove('hidden');
+        } else {
+           loading.innerHTML = "<p class='text-slate-500 font-bold'>등록된 교과 자료가 없습니다.</p>";
+           document.getElementById('pdfModal').classList.remove('hidden');
+        }
+        return;
+      }
+
+      // 💡 핵심 에러 방지: 구글 뷰어 충돌을 막기 위해 http:// 를 https:// 로 강제 변환
+      if (targetPdf.startsWith("http://")) {
+        targetPdf = targetPdf.replace("http://", "https://");
+      }
 
       iframe.src = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(targetPdf);
       
@@ -503,6 +518,7 @@
           iframe.classList.remove('hidden');
         }
       };
+      
       document.getElementById('pdfModal').classList.remove('hidden');
     };
 
