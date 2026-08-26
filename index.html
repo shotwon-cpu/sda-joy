@@ -118,10 +118,10 @@
           <span>교과토의 자료</span>
         </a>
 
-        <!-- 교과 자료 버튼 -->
+        <!-- 교과 PDF 버튼 -->
         <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl border border-red-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none cursor-pointer">
-          <i class="fa-solid fa-book-open-reader text-lg"></i>
-          <span id="pdfBtnText">교과 자료 준비중</span>
+          <i class="fa-solid fa-file-pdf text-lg"></i>
+          <span id="pdfBtnText">교과 PDF 준비중</span>
         </a>
       </div>
 
@@ -171,15 +171,16 @@
     </div>
   </div>
 
-  <!-- 교과 자료 팝업 모달 -->
+  <!-- 교과 PDF 모달 -->
   <div id="pdfModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       <div class="bg-red-800 text-white p-4 flex justify-between items-center">
-        <h3 class="font-bold text-lg"><i class="fa-solid fa-book-open-reader mr-2"></i>이번 주 교과 자료</h3>
+        <h3 class="font-bold text-lg"><i class="fa-solid fa-file-pdf mr-2"></i>이번 주 교과 PDF</h3>
         
         <div class="flex items-center space-x-2">
+          <!-- 🌟 X버튼 바로 옆 구글 닥스 새창 열기 버튼 -->
           <button onclick="openPdfSecured()" class="text-red-100 hover:text-white transition flex items-center text-sm bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded shadow-sm font-semibold">
-            <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> 새창 열기
+            <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> 구글 닥스 새창
           </button>
           <button onclick="closePdfModal()" class="text-red-200 hover:text-white transition p-1">
             <i class="fa-solid fa-xmark text-3xl"></i>
@@ -191,7 +192,7 @@
         <iframe id="pdfIframe" class="w-full h-full border-0 hidden" src=""></iframe>
         <div id="pdfLoadingMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-white">
           <i class="fa-solid fa-spinner fa-spin text-4xl mb-3 text-red-500"></i>
-          <p class="text-lg font-bold">교과 자료를 불러오는 중입니다...</p>
+          <p class="text-lg font-bold">PDF 문서를 불러오는 중입니다...</p>
         </div>
       </div>
     </div>
@@ -336,19 +337,19 @@
       const pdfBtn = document.getElementById('pdfLessonBtn');
       const pdfBtnText = document.getElementById('pdfBtnText');
 
-      // 1순위: source_url(원본), 2순위: pdf_url(백업)
+      // 1순위: source_url(원본 PDF), 2순위: pdf_url(백업 PDF)
       if (data && data.source_url && data.source_url.trim() !== '') {
         window.currentPdfUrl = data.source_url.trim();
         pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
-        pdfBtnText.innerHTML = `교과 자료 열기 <span class="ml-1 text-[11px] bg-red-200 text-red-800 px-1.5 py-0.5 rounded-md font-black shadow-sm">원본</span>`;
+        pdfBtnText.innerHTML = `교과 PDF 열기 <span class="ml-1 text-[11px] bg-red-200 text-red-800 px-1.5 py-0.5 rounded-md font-black shadow-sm">원본</span>`;
       } else if (data && data.pdf_url && data.pdf_url.trim() !== '') {
         window.currentPdfUrl = data.pdf_url.trim();
         pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
-        pdfBtnText.innerHTML = `교과 자료 열기 <span class="ml-1 text-[11px] bg-indigo-200 text-indigo-800 px-1.5 py-0.5 rounded-md font-black shadow-sm">백업</span>`;
+        pdfBtnText.innerHTML = `교과 PDF 열기 <span class="ml-1 text-[11px] bg-indigo-200 text-indigo-800 px-1.5 py-0.5 rounded-md font-black shadow-sm">백업</span>`;
       } else {
         window.currentPdfUrl = "";
         pdfBtn.classList.add('opacity-50', 'pointer-events-none');
-        pdfBtnText.innerText = "교과 자료 준비중";
+        pdfBtnText.innerText = "교과 PDF 준비중";
       }
       
       if (!skipVideo) { window.updateVideoPlayer(); }
@@ -444,34 +445,24 @@
       }
     };
 
-    // 🌟 HTTP 보안 충돌 및 모바일 PDF 다운로드 방지 완벽 대응 로직
+    // 🌟 팝업창 안에서 Google Docs Viewer로 표시하는 로직
     window.openPdfModal = function() {
       const data = window.sheetData[window.currentIndex];
       const iframe = document.getElementById('pdfIframe');
       const loading = document.getElementById('pdfLoadingMsg');
       
-      let targetUrl = "";
-      
+      let targetPdf = "";
       if (data && data.source_url && data.source_url.trim() !== '') {
-        let rawUrl = data.source_url.trim();
-        
-        // 원본이 .pdf 파일이거나 http 주소인 경우 -> 구글 닥스 뷰어로 안전하게 변환하여 표시
-        if (rawUrl.toLowerCase().includes('.pdf') || rawUrl.startsWith('http://')) {
-          targetUrl = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(rawUrl);
-        } else {
-          // 일반 https 웹페이지인 경우 다이렉트 표시
-          targetUrl = rawUrl;
-        }
+        targetPdf = data.source_url.trim();
       } else if (data && data.pdf_url && data.pdf_url.trim() !== '') {
-        // 2순위 백업본
-        targetUrl = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(data.pdf_url.trim());
+        targetPdf = data.pdf_url.trim();
       } else if (window.currentPdfUrl) {
-        targetUrl = window.currentPdfUrl;
+        targetPdf = window.currentPdfUrl;
       }
       
-      if (!targetUrl) return;
+      if (!targetPdf) return;
 
-      iframe.src = targetUrl;
+      iframe.src = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(targetPdf);
       
       iframe.onload = function() {
          loading.classList.add('hidden');
@@ -487,16 +478,22 @@
       document.getElementById('pdfLoadingMsg').classList.remove('hidden');
     };
 
+    // 🌟 X버튼 옆 구글 닥스 새창 열기 (암호 입력 후 Google Docs Viewer로 새 탭에서 열림)
     window.openPdfSecured = function() {
       const data = window.sheetData[window.currentIndex];
-      let targetUrl = (data && data.source_url) ? data.source_url.trim() : window.currentPdfUrl;
+      let targetUrl = (data && data.source_url && data.source_url.trim() !== '') 
+                      ? data.source_url.trim() 
+                      : (data && data.pdf_url && data.pdf_url.trim() !== '') 
+                        ? data.pdf_url.trim() 
+                        : window.currentPdfUrl;
       if (!targetUrl) return;
       
-      let password = prompt("📥 새창 열기 암호를 입력하세요:");
+      let password = prompt("📥 구글 닥스 새창 열기 암호를 입력하세요:");
       if (password === null) return;
       
       if (password === "7777") {
-        window.open(targetUrl, '_blank');
+        let gviewUrl = "https://docs.google.com/gview?url=" + encodeURIComponent(targetUrl);
+        window.open(gviewUrl, '_blank');
       } else {
         alert("❌ 암호가 틀렸습니다. 열람 권한이 없습니다.");
       }
