@@ -59,7 +59,8 @@
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto p-3 md:p-5 space-y-4 md:space-y-6 mt-2 md:mt-4 relative min-h-[60vh]">
+  <!-- 여백 축소: mt-2 md:mt-4 -> mt-1 md:mt-2, p-3 -> p-2, space-y 축소 -->
+  <main class="max-w-4xl mx-auto p-2 md:p-5 space-y-3 md:space-y-6 mt-1 md:mt-2 relative min-h-[60vh]">
     
     <!-- 중앙 로딩 화면 -->
     <div id="loadingScreen" class="absolute inset-0 flex flex-col items-center justify-center bg-[#f8fafc] z-50">
@@ -74,27 +75,16 @@
       <!-- 기억절 카드 -->
       <div id="swipeZone" class="swipe-area bg-white rounded-3xl shadow-md border border-slate-200 overflow-hidden relative transition-transform duration-300 cursor-grab active:cursor-grabbing">
         <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-50 rounded-bl-full -z-10 opacity-70"></div>
-        <div class="p-5 md:p-8 relative z-10 pointer-events-none"> 
+        <div class="p-4 md:p-8 relative z-10 pointer-events-none"> 
           
-          <!-- 🌟 수정된 부분 1: 주차 선택 버튼 왼쪽에 직관적인 양쪽 화살표(이전/다음) 추가 -->
-          <div class="mb-5 flex justify-end items-center gap-2">
-            
-            <button onclick="window.changeWeek(-1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
-              <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
-            </button>
-            
-            <button onclick="window.changeWeek(1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
-              <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
-            </button>
-
-            <!-- 기존 주차 선택 버튼 (크기 약간 확대) -->
-            <button onclick="window.openListModal('quarter'); event.stopPropagation();" class="pointer-events-auto bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-base sm:text-lg md:text-xl font-extrabold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition shadow-sm inline-flex items-center ml-1 md:ml-2">
+          <!-- 🌟 주차 선택 버튼 왼쪽에 직관적인 양쪽 화살표(이전/다음) 추가 -->
+          <div class="mb-3 flex justify-end items-center gap-2">
               <span id="displayQuarter">제 ?기 ?과</span>
-              <i class="fa-solid fa-caret-down ml-2 opacity-50 text-sm"></i>
+              <i class="fa-solid fa-caret-down ml-2 opacity-50"></i>
             </button>
           </div>
           
-          <div class="mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <div class="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <h2 id="displayTitleKo" class="text-2xl md:text-3xl font-bold text-slate-800 leading-tight">제목을 불러오는 중</h2>
             <span id="displayTitleEn" class="text-base md:text-lg text-slate-400 font-medium italic"></span>
           </div>
@@ -109,19 +99,19 @@
               <span id="displayBibleEn" class="text-sm md:text-base text-indigo-400/80 ml-2 font-normal"></span>
             </p>
             
-            <!-- 🌟 수정된 부분 2: 버튼 글씨 크게 + 화면 좁으면 자동 줄바꿈(flex-wrap) 방어막 적용 -->
-            <div class="flex justify-end gap-2 pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 flex-wrap">
-              <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="px-3 py-2 sm:px-4 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-bold text-indigo-100 transition flex items-center shadow-sm">
-                <i class="fa-solid fa-volume-high mr-1.5 sm:mr-2"></i> 한글 듣기
+            <!-- 🌟 수정된 부분 2: 버튼 글씨를 줄이고(한글, 영어) 좌우 여백을 줄여 무조건 1줄로 유지 -->
+            <div class="flex justify-end gap-1.5 sm:gap-2 pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 flex-wrap">
+              <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="px-2.5 py-2 sm:px-4 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
+                <i class="fa-solid fa-volume-high mr-1 sm:mr-2"></i> 한글
               </button>
-              <button onclick="window.speakVerse('en'); event.stopPropagation();" class="px-3 py-2 sm:px-4 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-bold text-indigo-100 transition flex items-center shadow-sm">
-                <i class="fa-solid fa-volume-high mr-1.5 sm:mr-2 text-blue-400"></i> 영어 듣기
+              <button onclick="window.speakVerse('en'); event.stopPropagation();" class="px-2.5 py-2 sm:px-4 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
+                <i class="fa-solid fa-volume-high mr-1 sm:mr-2 text-blue-400"></i> 영어
               </button>
-              <button onclick="window.copyVerse(); event.stopPropagation();" class="px-3 py-2 sm:px-4 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-bold text-indigo-100 transition flex items-center shadow-sm">
-                <i class="fa-solid fa-copy mr-1.5 sm:mr-2"></i> 복사
+              <button onclick="window.copyVerse(); event.stopPropagation();" class="px-2.5 py-2 sm:px-4 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
+                <i class="fa-solid fa-copy mr-1 sm:mr-2"></i> 복사
               </button>
-              <button onclick="window.shareVerse(); event.stopPropagation();" class="px-3 py-2 sm:px-4 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-bold text-indigo-100 transition flex items-center shadow-sm">
-                <i class="fa-solid fa-share-nodes mr-1.5 sm:mr-2 text-emerald-400"></i> 공유
+              <button onclick="window.shareVerse(); event.stopPropagation();" class="px-2.5 py-2 sm:px-4 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
+                <i class="fa-solid fa-share-nodes mr-1 sm:mr-2 text-emerald-400"></i> 공유
               </button>
             </div>
           </div>
@@ -280,11 +270,19 @@
             if(window.currentIndex === 0) {
                 window.autoSelectCurrentWeek();
             }
-            window.updateUI();
             
-            // 데이터 로딩 성공 시 로딩 화면 0.1초만에 숨기기
+            // 🚀 블랙 매직: 무거운 유튜브 영상은 빼고 가벼운 글씨부터 먼저 화면에 즉시 그립니다.
+            window.updateUI(true); 
+            
+            // 데이터 로딩 성공 시 로딩 화면을 대기 없이 0초만에 숨기기
             document.getElementById('loadingScreen').classList.add('hidden');
             document.getElementById('contentArea').classList.remove('hidden');
+
+            // 사용자가 화면의 기억절 글씨를 읽기 시작하는 0.1초 뒤에 백그라운드에서 영상을 몰래 로딩합니다.
+            setTimeout(() => {
+              window.updateVideoPlayer();
+            }, 100);
+
           } else {
             document.getElementById('loadingScreen').innerHTML = "<p class='text-amber-600 font-bold'>아직 전송된 데이터가 없습니다. 관리자(구글 시트)에서 데이터를 전송해주세요!</p>";
           }
@@ -328,7 +326,8 @@
       window.updateUI();
     };
 
-    window.updateUI = function() {
+    // skipVideo 파라미터 추가: 초기 로딩 시 영상 로딩을 분리하기 위함
+    window.updateUI = function(skipVideo = false) {
       if (window.sheetData.length === 0) return;
       const data = window.sheetData[window.currentIndex];
       
@@ -344,7 +343,10 @@
       document.getElementById('displayVerseEn').innerText = data.verse_en ? `"${data.verse_en}"` : '';
       document.getElementById('displayBibleEn').innerText = bibleEn;
       
-      window.updateVideoPlayer();
+      // 넘기기 명령이 없을 때만 영상을 업데이트합니다.
+      if (!skipVideo) {
+        window.updateVideoPlayer();
+      }
     };
 
     window.changeWeek = function(step) {
@@ -565,53 +567,38 @@
 
     window.setupSwipeEvents = function() {
       const swipeZone = document.getElementById('swipeZone');
-      let touchStartX = 0, touchStartY = 0;
-      
-      // 스와이프 작동 최소 거리 (작을수록 살짝만 밀어도 넘어감)
-      const minSwipeDistance = 30; 
+      let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
+      let isDragging = false; 
+      const minSwipeDistance = 40; 
 
-      // 1. 손가락이 화면에 닿을 때 (시작점 기억)
       swipeZone.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX; 
-        touchStartY = e.changedTouches[0].screenY; 
+        touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; isDragging = false;
       }, {passive: true});
-      
-      // 2. 중간에 움직이는 과정(touchmove) 검사 로직 삭제! (이게 삑사리의 주범이었습니다)
-
-      // 3. 손가락을 뗄 때 (최종 결정)
+      swipeZone.addEventListener('touchmove', e => {
+        let currentY = e.changedTouches[0].screenY;
+        if (Math.abs(currentY - touchStartY) > 20) isDragging = true;
+      }, {passive: true});
       swipeZone.addEventListener('touchend', e => {
-        let touchEndX = e.changedTouches[0].screenX; 
-        let touchEndY = e.changedTouches[0].screenY;
-        
-        let dx = touchEndX - touchStartX; 
-        let dy = touchEndY - touchStartY;
-
-        // 핵심 로직: 가로로 밀린 거리가 최소 기준(30)을 넘고, 
-        // 세로로 밀린 거리보다 가로로 밀린 거리가 더 크면(대각선 포함) 무조건 넘김!
-        if (Math.abs(dx) >= minSwipeDistance && Math.abs(dx) > Math.abs(dy) * 0.7) {
-           if (dx > 0) {
-             window.changeWeek(-1); // 오른쪽으로 밀기
-           } else {
-             window.changeWeek(1);  // 왼쪽으로 밀기
+        touchEndX = e.changedTouches[0].screenX; touchEndY = e.changedTouches[0].screenY;
+        if(!isDragging) {
+           const dx = touchEndX - touchStartX; const dy = touchEndY - touchStartY;
+           if (Math.abs(dy) < Math.abs(dx)) {
+              if (dx > minSwipeDistance) window.changeWeek(-1); 
+              else if (dx < -minSwipeDistance) window.changeWeek(1); 
            }
         }
       }, {passive: true});
 
-      // (PC 마우스 드래그 지원용)
       let isMouseDown = false;
-      swipeZone.addEventListener('mousedown', e => { 
-        isMouseDown = true; touchStartX = e.screenX; touchStartY = e.screenY; 
-      });
+      swipeZone.addEventListener('mousedown', e => { isMouseDown = true; touchStartX = e.screenX; touchStartY = e.screenY; });
       swipeZone.addEventListener('mouseup', e => {
         if(isMouseDown) {
-          isMouseDown = false;
-          let touchEndX = e.screenX; let touchEndY = e.screenY;
-          let dx = touchEndX - touchStartX; let dy = touchEndY - touchStartY;
-
-          if (Math.abs(dx) >= minSwipeDistance && Math.abs(dx) > Math.abs(dy) * 0.7) {
-             if (dx > 0) window.changeWeek(-1); 
-             else window.changeWeek(1); 
-          }
+          touchEndX = e.screenX; touchEndY = e.screenY; isMouseDown = false;
+          const dx = touchEndX - touchStartX; const dy = touchEndY - touchStartY;
+           if (Math.abs(dy) < Math.abs(dx)) {
+              if (dx > minSwipeDistance) window.changeWeek(-1); 
+              else if (dx < -minSwipeDistance) window.changeWeek(1); 
+           }
         }
       });
       swipeZone.addEventListener('mouseleave', () => { isMouseDown = false; });
