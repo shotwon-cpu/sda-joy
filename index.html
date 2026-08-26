@@ -118,7 +118,7 @@
           <span>교과토의 자료</span>
         </a>
 
-        <!-- 🌟 교과토의자료 스타일로 다이렉트 연동되는 교과 버튼 -->
+        <!-- 교과 자료 버튼 -->
         <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl border border-red-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none cursor-pointer">
           <i class="fa-solid fa-book-open-reader text-lg"></i>
           <span id="pdfBtnText">교과 자료 준비중</span>
@@ -171,7 +171,7 @@
     </div>
   </div>
 
-  <!-- 교과 자료 팝업 모달 (교과토의자료와 동일한 다이렉트 프레임 방식) -->
+  <!-- 교과 자료 팝업 모달 -->
   <div id="pdfModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       <div class="bg-red-800 text-white p-4 flex justify-between items-center">
@@ -336,7 +336,7 @@
       const pdfBtn = document.getElementById('pdfLessonBtn');
       const pdfBtnText = document.getElementById('pdfBtnText');
 
-      // 🌟 버튼 글씨 옆에 [원본] 또는 [백업] 뱃지를 달아주는 로직
+      // 1순위: source_url(원본), 2순위: pdf_url(백업)
       if (data && data.source_url && data.source_url.trim() !== '') {
         window.currentPdfUrl = data.source_url.trim();
         pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
@@ -444,7 +444,7 @@
       }
     };
 
-    // 🌟 주소 형식에 따라 다이렉트 표시 또는 구글 닥스 뷰어를 자동 선택하는 완벽한 로직
+    // 🌟 교과토의자료처럼 원본 웹 주소를 다이렉트로 직접 iframe에 로드하는 함수
     window.openPdfModal = function() {
       const data = window.sheetData[window.currentIndex];
       const iframe = document.getElementById('pdfIframe');
@@ -452,13 +452,7 @@
       
       let targetUrl = "";
       if (data && data.source_url && data.source_url.trim() !== '') {
-        let rawUrl = data.source_url.trim();
-        // 만약 주소가 .pdf로 끝나거나 다운로드 성격의 링크라면 구글 닥스 뷰어로 안전하게 감싸기
-        if (rawUrl.toLowerCase().includes('.pdf') || rawUrl.toLowerCase().includes('download')) {
-          targetUrl = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(rawUrl);
-        } else {
-          targetUrl = rawUrl; // 일반 웹페이지는 다이렉트 표시
-        }
+        targetUrl = data.source_url.trim(); 
       } else if (data && data.pdf_url && data.pdf_url.trim() !== '') {
         targetUrl = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(data.pdf_url.trim());
       } else if (window.currentPdfUrl) {
