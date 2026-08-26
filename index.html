@@ -118,10 +118,10 @@
           <span>교과토의 자료</span>
         </a>
 
-        <!-- 🌟 하이브리드 교과 PDF 버튼 -->
+        <!-- 🌟 교과토의자료 스타일로 다이렉트 연동되는 교과 버튼 -->
         <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl border border-red-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none cursor-pointer">
-          <i class="fa-solid fa-file-pdf text-lg"></i>
-          <span id="pdfBtnText">교과 PDF 준비중</span>
+          <i class="fa-solid fa-book-open-reader text-lg"></i>
+          <span id="pdfBtnText">교과 자료 준비중</span>
         </a>
       </div>
 
@@ -171,15 +171,15 @@
     </div>
   </div>
 
-  <!-- PDF 팝업 모달 -->
+  <!-- 교과 자료 팝업 모달 (교과토의자료와 동일한 다이렉트 프레임 방식) -->
   <div id="pdfModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       <div class="bg-red-800 text-white p-4 flex justify-between items-center">
-        <h3 class="font-bold text-lg"><i class="fa-solid fa-file-pdf mr-2"></i>이번 주 교과 PDF</h3>
+        <h3 class="font-bold text-lg"><i class="fa-solid fa-book-open-reader mr-2"></i>이번 주 교과 자료</h3>
         
         <div class="flex items-center space-x-2">
           <button onclick="openPdfSecured()" class="text-red-100 hover:text-white transition flex items-center text-sm bg-red-700 hover:bg-red-600 px-3 py-1.5 rounded shadow-sm font-semibold">
-            <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> 새창/다운로드
+            <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> 새창 열기
           </button>
           <button onclick="closePdfModal()" class="text-red-200 hover:text-white transition p-1">
             <i class="fa-solid fa-xmark text-3xl"></i>
@@ -191,7 +191,7 @@
         <iframe id="pdfIframe" class="w-full h-full border-0 hidden" src=""></iframe>
         <div id="pdfLoadingMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-white">
           <i class="fa-solid fa-spinner fa-spin text-4xl mb-3 text-red-500"></i>
-          <p class="text-lg font-bold">PDF 문서를 불러오는 중입니다...</p>
+          <p class="text-lg font-bold">교과 자료를 불러오는 중입니다...</p>
         </div>
       </div>
     </div>
@@ -317,7 +317,6 @@
       window.updateUI();
     };
 
-    // 🌟 하이브리드 UI 매칭: source_url(1순위) or pdf_url(2순위) 감지
     window.updateUI = function(skipVideo = false) {
       if (window.sheetData.length === 0) return;
       const data = window.sheetData[window.currentIndex];
@@ -337,17 +336,17 @@
       const pdfBtn = document.getElementById('pdfLessonBtn');
       const pdfBtnText = document.getElementById('pdfBtnText');
 
-      // 💡 1순위: source_url(원본), 2순위: pdf_url(파이어베이스 백업)
+      // 🌟 교과토의자료처럼 원본 웹링크 or 백업링크 판별
       const targetUrl = data.source_url || data.pdf_url;
 
       if (targetUrl && targetUrl.trim() !== '') {
         window.currentPdfUrl = targetUrl.trim();
         pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
-        pdfBtnText.innerText = "교과 PDF 뷰어 열기";
+        pdfBtnText.innerText = "교과 자료 열기";
       } else {
         window.currentPdfUrl = "";
         pdfBtn.classList.add('opacity-50', 'pointer-events-none');
-        pdfBtnText.innerText = "교과 PDF 준비중";
+        pdfBtnText.innerText = "교과 자료 준비중";
       }
       
       if (!skipVideo) { window.updateVideoPlayer(); }
@@ -443,13 +442,26 @@
       }
     };
 
-    // 🌟 하이브리드 PDF 팝업 열기 (구글 뷰어로 원본/백업 모두 매끄럽게 표시)
+    // 🌟 교과토의자료처럼 원본 웹 주소를 다이렉트로 띄우는 완전 하이브리드 로직!
     window.openPdfModal = function() {
-      if (!window.currentPdfUrl) return;
+      const data = window.sheetData[window.currentIndex];
       const iframe = document.getElementById('pdfIframe');
       const loading = document.getElementById('pdfLoadingMsg');
       
-      iframe.src = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(window.currentPdfUrl);
+      let targetUrl = "";
+      if (data && data.source_url && data.source_url.trim() !== '') {
+        // 1순위: R열 원본 웹페이지/뷰어 그대로 다이렉트 표시!
+        targetUrl = data.source_url.trim(); 
+      } else if (data && data.pdf_url && data.pdf_url.trim() !== '') {
+        // 2순위: 파이어베이스 백업본인 경우 구글 닥스 뷰어로 감싸서 표시
+        targetUrl = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(data.pdf_url.trim());
+      } else if (window.currentPdfUrl) {
+        targetUrl = window.currentPdfUrl;
+      }
+      
+      if (!targetUrl) return;
+
+      iframe.src = targetUrl;
       
       iframe.onload = function() {
          loading.classList.add('hidden');
@@ -465,17 +477,18 @@
       document.getElementById('pdfLoadingMsg').classList.remove('hidden');
     };
 
-    // 🌟 암호 검사 후 새창 열기
     window.openPdfSecured = function() {
-      if (!window.currentPdfUrl) return;
+      const data = window.sheetData[window.currentIndex];
+      let targetUrl = (data && data.source_url) ? data.source_url.trim() : window.currentPdfUrl;
+      if (!targetUrl) return;
       
-      let password = prompt("📥 다운로드 및 새창 열기 암호를 입력하세요:");
+      let password = prompt("📥 새창 열기 암호를 입력하세요:");
       if (password === null) return;
       
       if (password === "7777") {
-        window.open(window.currentPdfUrl, '_blank');
+        window.open(targetUrl, '_blank');
       } else {
-        alert("❌ 암호가 틀렸습니다. 다운로드 권한이 없습니다.");
+        alert("❌ 암호가 틀렸습니다. 열람 권한이 없습니다.");
       }
     };
 
