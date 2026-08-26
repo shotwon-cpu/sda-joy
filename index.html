@@ -522,7 +522,7 @@
       document.getElementById('pdfModal').classList.remove('hidden');
     };
 
-    // 🌟 다중 WebP 이미지 연속 스크롤 + 지연 로딩 렌더링
+    // 🌟 다중 WebP 이미지 연속 스크롤 + 지연 로딩 렌더링 (버킷 주소 수정본)
     window.togglePdfOrImage = function() {
       const data = window.sheetData[window.currentIndex];
       const iframe = document.getElementById('pdfIframe');
@@ -536,6 +536,7 @@
         iframe.classList.add('hidden');
         
         const count = (data && data.image_count) ? Number(data.image_count) : 0;
+        // 💡 주차 번호 안전하게 가져오기 (data.week가 없으면 index + 1 사용)
         const weekNum = (data && data.week) ? data.week : (window.currentIndex + 1);
 
         if (count > 0) {
@@ -543,18 +544,24 @@
           imgContainer.innerHTML = ''; 
           imgContainer.classList.remove('hidden');
 
-          const bucketName = "sabbathschool-8586d.appspot.com";
+          // 🌟 파이어베이스 스토리지 버킷 주소를 정확히 일치시킴 (.firebasestorage.app)
+          const bucketName = "sabbathschool-8586d.firebasestorage.app";
 
           for (let i = 1; i <= count; i++) {
             const pageStr = String(i).padStart(2, '0');
             const imgUrl = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/lessons%2Flesson_${weekNum}_${pageStr}.webp?alt=media`;
 
             const img = document.createElement('img');
-            img.loading = "lazy"; // 트래픽 절약용 지연 로딩
+            img.loading = "lazy"; 
             img.src = imgUrl;
             img.alt = `${weekNum}주차 ${i}페이지`;
-            img.className = "w-full max-w-3xl rounded-xl shadow-md border border-slate-200 object-contain mx-auto block";
+            img.className = "w-full max-w-3xl rounded-xl shadow-md border border-slate-200 object-contain mx-auto block mb-3";
             
+            // 이미지 로딩 실패 시 에러 로그 확인용
+            img.onerror = function() {
+              console.error("이미지 로드 실패:", imgUrl);
+            };
+
             imgContainer.appendChild(img);
           }
         } else {
