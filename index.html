@@ -78,16 +78,12 @@
           
           <!-- 주차 선택 버튼 및 화살표 -->
           <div class="mb-5 flex justify-end items-center gap-2">
-            
             <button onclick="window.changeWeek(-1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
               <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
             </button>
-            
             <button onclick="window.changeWeek(1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
               <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
             </button>
-
-            <!-- 기존 주차 선택 버튼 -->
             <button onclick="window.openListModal('quarter'); event.stopPropagation();" class="pointer-events-auto bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-base sm:text-lg md:text-xl font-extrabold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition shadow-sm inline-flex items-center ml-1 md:ml-2">
               <span id="displayQuarter">제 ?기 ?과</span>
               <i class="fa-solid fa-caret-down ml-2 opacity-50 text-sm"></i>
@@ -109,7 +105,6 @@
               <span id="displayBibleEn" class="text-sm md:text-base text-indigo-400/80 ml-2 font-normal"></span>
             </p>
             
-            <!-- 버튼 -->
             <div class="flex justify-end gap-1.5 sm:gap-2 pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 flex-wrap">
               <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="px-2.5 py-2 sm:px-4 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
                 <i class="fa-solid fa-volume-high mr-1 sm:mr-2"></i> 한글
@@ -128,22 +123,22 @@
         </div>
       </div>
 
-      <!-- 🌟 상단 링크 버튼 영역: [교과토의 자료] + [교과 PDF] 나란히 배치 -->
+      <!-- 🌟 상단 링크 버튼 영역: [교과토의 자료] + [교과 PDF] 팝업 버튼 -->
       <div class="grid grid-cols-2 gap-3 my-4">
-        <!-- 왼쪽: 교과토의 자료 버튼 -->
+        <!-- 왼쪽: 교과토의 자료 팝업 -->
         <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-2xl border border-emerald-100 transition shadow-sm text-sm md:text-base cursor-pointer">
           <i class="fa-solid fa-comments text-lg"></i>
           <span>교과토의 자료</span>
         </a>
 
-        <!-- 오른쪽: 교과 PDF 버튼 -->
-        <a id="pdfLessonBtn" href="#" target="_blank" class="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl border border-red-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none">
+        <!-- 오른쪽: 교과 PDF 팝업 🌟 -->
+        <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl border border-red-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none cursor-pointer">
           <i class="fa-solid fa-file-pdf text-lg"></i>
           <span id="pdfBtnText">교과 PDF 준비중</span>
         </a>
       </div>
 
-      <!-- 영상 카드 (앱으로 열기 버튼 추가) -->
+      <!-- 영상 카드 -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-6 md:pb-8">
         <div class="flex justify-between items-center mb-5 flex-wrap gap-2">
           <h3 class="text-xl md:text-2xl font-bold flex items-center text-slate-800">
@@ -170,7 +165,6 @@
   <!-- 교과토의 자료 모달창 -->
   <div id="discussionModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
-      
       <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
         <h3 class="font-bold text-lg"><i class="fa-solid fa-comments mr-2"></i>이번 주 교과토의 자료</h3>
         <div class="flex items-center space-x-3">
@@ -182,7 +176,6 @@
           </button>
         </div>
       </div>
-      
       <div class="flex-1 w-full bg-slate-50 relative">
         <iframe id="discussionIframe" class="w-full h-full border-0 hidden" src=""></iframe>
         <div id="noDiscussionMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white hidden">
@@ -190,7 +183,31 @@
           <p class="text-lg">등록된 토의 자료 링크가 없습니다.</p>
         </div>
       </div>
+    </div>
+  </div>
 
+  <!-- 🌟 교과 PDF 팝업 모달창 🌟 -->
+  <div id="pdfModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-2 md:p-4">
+    <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
+      <div class="bg-red-800 text-white p-4 flex justify-between items-center">
+        <h3 class="font-bold text-lg"><i class="fa-solid fa-file-pdf mr-2"></i>이번 주 교과 PDF</h3>
+        <div class="flex items-center space-x-3">
+          <button onclick="openPdfNewTab()" class="text-red-200 hover:text-white transition flex items-center text-sm bg-red-700 px-3 py-1.5 rounded">
+            <i class="fa-solid fa-download mr-1"></i> 다운로드/새창
+          </button>
+          <button onclick="closePdfModal()" class="text-red-200 hover:text-white transition p-1">
+            <i class="fa-solid fa-xmark text-3xl"></i>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 w-full bg-slate-100 relative">
+        <iframe id="pdfIframe" class="w-full h-full border-0 hidden" src=""></iframe>
+        <!-- 로딩 표시 -->
+        <div id="pdfLoadingMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-white">
+          <i class="fa-solid fa-spinner fa-spin text-4xl mb-3 text-red-500"></i>
+          <p class="text-lg font-bold">PDF 문서를 불러오는 중입니다...</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -200,7 +217,6 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     .animate-fade-in { animation: fadeIn 0.2s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-    
     .slide-left { transform: translateX(-100%); opacity: 0; }
     .slide-right { transform: translateX(100%); opacity: 0; }
   </style>
@@ -225,9 +241,8 @@
     </div>
   </div>
 
-  <!-- 🚀 Firebase 연동 핵심 스크립트 -->
+  <!-- 🚀 Firebase 연동 스크립트 -->
   <script type="module">
-    // 🌟 Firebase 11.6.1 버전 명시적 임포트 (doc 모듈 추가)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getFirestore, collection, getDocs, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -236,7 +251,7 @@
       apiKey: "AIzaSyBXM-QBYDZuOKpZXFXtwK5fpTGTL2uFHCE",
       authDomain: "sabbathschool-8586d.firebaseapp.com",
       projectId: "sabbathschool-8586d",
-      storageBucket: "sabbathschool-8586d.firebasestorage.app",
+      storageBucket: "sabbathschool-8586d.appspot.com",
       messagingSenderId: "891053713701",
       appId: "1:891053713701:web:5e49997a29e1b5432852cc"
     };
@@ -245,11 +260,12 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // 전역 변수 설정 (기존 로직 유지)
+    // 전역 변수 설정
     window.TEACHER_NAMES = { a: "장석원 목사", b: "권정행 목사", c: "이주환 목사" };
     window.sheetData = [];
     window.currentIndex = 0;
     window.currentTab = 'a';
+    window.latestPdfUrl = ""; // 🌟 PDF 주소를 임시 저장할 변수
 
     window.onload = async () => {
       document.getElementById('tab-a').innerText = window.TEACHER_NAMES.a;
@@ -259,29 +275,26 @@
       window.setupSwipeEvents(); 
       
       try {
-        // Firebase 인증 (익명 로그인 - 읽기 권한 확보)
         await signInAnonymously(auth);
 
-        // 🌟 [추가됨] 최신 PDF 링크 실시간 감지 리스너
+        // 🌟 최신 PDF 링크 실시간 감지
         const latestPdfRef = doc(db, 'settings', 'latest_pdf');
         onSnapshot(latestPdfRef, (docSnap) => {
           const pdfBtn = document.getElementById('pdfLessonBtn');
           const pdfBtnText = document.getElementById('pdfBtnText');
 
           if (docSnap.exists() && docSnap.data().pdf_url) {
-            pdfBtn.href = docSnap.data().pdf_url;
+            window.latestPdfUrl = docSnap.data().pdf_url;
             pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
-            pdfBtnText.innerText = "교과 PDF 열기";
+            pdfBtnText.innerText = "교과 PDF 뷰어 열기";
           } else {
-            pdfBtn.href = "#";
+            window.latestPdfUrl = "";
             pdfBtn.classList.add('opacity-50', 'pointer-events-none');
             pdfBtnText.innerText = "교과 PDF 준비중";
           }
-        }, (error) => {
-          console.error("PDF 링크 불러오기 오류:", error);
         });
         
-        // 데이터 실시간 감지 (새로고침 없이 구글시트에서 전송되면 즉시 반영)
+        // 데이터베이스 실시간 감지
         const lessonsRef = collection(db, 'sabbath_lessons');
         onSnapshot(lessonsRef, (snapshot) => {
           let loadedData = [];
@@ -290,33 +303,19 @@
           });
           
           if (loadedData.length > 0) {
-             // 'index' 속성을 기준으로 정렬 (구글 시트의 행 순서 보장)
             loadedData.sort((a, b) => (a.index || 0) - (b.index || 0));
             window.sheetData = loadedData;
             
-            // 처음 로드할 때만 이번 주 선택
-            if(window.currentIndex === 0) {
-                window.autoSelectCurrentWeek();
-            }
-            
-            // 🚀 블랙 매직: 무거운 유튜브 영상은 빼고 가벼운 글씨부터 먼저 즉시 렌더링
+            if(window.currentIndex === 0) { window.autoSelectCurrentWeek(); }
             window.updateUI(true); 
             
-            // 데이터 로딩 성공 시 로딩 화면을 대기 없이 0초만에 숨기기
             document.getElementById('loadingScreen').classList.add('hidden');
             document.getElementById('contentArea').classList.remove('hidden');
 
-            // 사용자가 화면의 기억절 글씨를 읽기 시작하는 0.1초 뒤에 백그라운드에서 영상을 몰래 로딩합니다.
-            setTimeout(() => {
-              window.updateVideoPlayer();
-            }, 100);
-
+            setTimeout(() => { window.updateVideoPlayer(); }, 100);
           } else {
-            document.getElementById('loadingScreen').innerHTML = "<p class='text-amber-600 font-bold'>아직 전송된 데이터가 없습니다. 관리자(구글 시트)에서 데이터를 전송해주세요!</p>";
+            document.getElementById('loadingScreen').innerHTML = "<p class='text-amber-600 font-bold'>아직 전송된 데이터가 없습니다.</p>";
           }
-        }, (error) => {
-          console.error("Firebase read error:", error);
-          document.getElementById('loadingScreen').innerHTML = "<p class='text-red-500 font-bold'>데이터를 읽어오는 중 에러가 발생했습니다.</p>";
         });
 
       } catch (error) {
@@ -325,7 +324,6 @@
       }
     };
     
-    // [중요] 모듈 스크립트 내의 함수들을 HTML 인라인 이벤트(onclick 등)에서 쓰기 위해 window 객체에 등록
     window.getValidDate = function(dateVal) {
       if (!dateVal) return null;
       let d = new Date(dateVal);
@@ -354,7 +352,6 @@
       window.updateUI();
     };
 
-    // skipVideo 파라미터 추가: 초기 로딩 시 영상 로딩을 분리하기 위함
     window.updateUI = function(skipVideo = false) {
       if (window.sheetData.length === 0) return;
       const data = window.sheetData[window.currentIndex];
@@ -371,10 +368,7 @@
       document.getElementById('displayVerseEn').innerText = data.verse_en ? `"${data.verse_en}"` : '';
       document.getElementById('displayBibleEn').innerText = bibleEn;
       
-      // 넘기기 명령이 없을 때만 영상을 업데이트합니다.
-      if (!skipVideo) {
-        window.updateVideoPlayer();
-      }
+      if (!skipVideo) { window.updateVideoPlayer(); }
     };
 
     window.changeWeek = function(step) {
@@ -467,6 +461,39 @@
       }
     };
 
+    // 🌟 PDF 팝업 열기 함수 🌟
+    window.openPdfModal = function() {
+      if (!window.latestPdfUrl) return;
+      const iframe = document.getElementById('pdfIframe');
+      const loading = document.getElementById('pdfLoadingMsg');
+      
+      // 구글 독스 뷰어를 사용하여 스마트폰에서도 강제 다운로드 없이 팝업 안에서 바로 표시되도록 함
+      iframe.src = "https://docs.google.com/gview?embedded=true&url=" + encodeURIComponent(window.latestPdfUrl);
+      
+      // 로딩 애니메이션 숨기고 뷰어 표시
+      iframe.onload = function() {
+         loading.classList.add('hidden');
+         iframe.classList.remove('hidden');
+      };
+      
+      document.getElementById('pdfModal').classList.remove('hidden');
+    };
+
+    // 🌟 PDF 팝업 닫기 함수 🌟
+    window.closePdfModal = function() {
+      document.getElementById('pdfModal').classList.add('hidden');
+      document.getElementById('pdfIframe').src = "";
+      document.getElementById('pdfIframe').classList.add('hidden');
+      document.getElementById('pdfLoadingMsg').classList.remove('hidden'); // 다음에 열 때를 위해 로딩 화면 다시 켜두기
+    };
+
+    // 🌟 PDF 직접 다운로드 / 새창 열기 🌟
+    window.openPdfNewTab = function() {
+      if (window.latestPdfUrl) {
+        window.open(window.latestPdfUrl, '_blank');
+      }
+    };
+
     window.openVideoNewTab = function() {
       const data = window.sheetData[window.currentIndex];
       let targetUrl = (window.currentTab === 'a') ? data.youtube_a : (window.currentTab === 'b') ? data.youtube_b : data.youtube_c;
@@ -489,7 +516,6 @@
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
       const textToShare = `[${data.quarter || ''}]\nKR: ${data.title_ko || ''}\nEN: ${data.title_en || ''}\n\n📖 ${data.bible_ko || ''} / ${data.bible_en || ''}\n"${data.verse_ko || ''}"\n"${data.verse_en || ''}"`;
-      
       if (navigator.share) {
         navigator.share({ title: '세종행복교회 안식일학교', text: textToShare }).catch(console.error);
       } else {
@@ -498,9 +524,7 @@
     };
 
     window.speakVerse = function(lang) {
-      if (!('speechSynthesis' in window)) {
-        alert("현재 브라우저에서는 듣기 기능을 지원하지 않습니다."); return;
-      }
+      if (!('speechSynthesis' in window)) { alert("현재 브라우저에서는 듣기 기능을 지원하지 않습니다."); return; }
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
       const textToSpeak = lang === 'en' ? data.verse_en : data.verse_ko;
@@ -596,51 +620,32 @@
     window.setupSwipeEvents = function() {
       const swipeZone = document.getElementById('swipeZone');
       let touchStartX = 0, touchStartY = 0;
-      
-      // 스와이프 작동 최소 거리 (작을수록 살짝만 밀어도 넘어감)
       const minSwipeDistance = 30; 
 
-      // 1. 손가락이 화면에 닿을 때 (시작점 기억)
       swipeZone.addEventListener('touchstart', e => {
         touchStartX = e.changedTouches[0].screenX; 
         touchStartY = e.changedTouches[0].screenY; 
       }, {passive: true});
       
-      // 2. 중간에 움직이는 과정(touchmove) 검사 로직 삭제! (이게 삑사리의 주범이었습니다)
-
-      // 3. 손가락을 뗄 때 (최종 결정)
       swipeZone.addEventListener('touchend', e => {
         let touchEndX = e.changedTouches[0].screenX; 
         let touchEndY = e.changedTouches[0].screenY;
-        
         let dx = touchEndX - touchStartX; 
         let dy = touchEndY - touchStartY;
-
-        // 핵심 로직: 가로로 밀린 거리가 최소 기준(30)을 넘고, 
-        // 세로로 밀린 거리보다 가로로 밀린 거리가 더 크면(대각선 포함) 무조건 넘김!
         if (Math.abs(dx) >= minSwipeDistance && Math.abs(dx) > Math.abs(dy) * 0.7) {
-           if (dx > 0) {
-             window.changeWeek(-1); // 오른쪽으로 밀기
-           } else {
-             window.changeWeek(1);  // 왼쪽으로 밀기
-           }
+           if (dx > 0) window.changeWeek(-1); 
+           else window.changeWeek(1);  
         }
       }, {passive: true});
 
-      // (PC 마우스 드래그 지원용)
       let isMouseDown = false;
-      swipeZone.addEventListener('mousedown', e => { 
-        isMouseDown = true; touchStartX = e.screenX; touchStartY = e.screenY; 
-      });
+      swipeZone.addEventListener('mousedown', e => { isMouseDown = true; touchStartX = e.screenX; touchStartY = e.screenY; });
       swipeZone.addEventListener('mouseup', e => {
         if(isMouseDown) {
           isMouseDown = false;
-          let touchEndX = e.screenX; let touchEndY = e.screenY;
-          let dx = touchEndX - touchStartX; let dy = touchEndY - touchStartY;
-
+          let dx = e.screenX - touchStartX; let dy = e.screenY - touchStartY;
           if (Math.abs(dx) >= minSwipeDistance && Math.abs(dx) > Math.abs(dy) * 0.7) {
-             if (dx > 0) window.changeWeek(-1); 
-             else window.changeWeek(1); 
+             if (dx > 0) window.changeWeek(-1); else window.changeWeek(1); 
           }
         }
       });
