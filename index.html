@@ -60,7 +60,7 @@
   </header>
 
   <!-- 여백 축소: mt-2 md:mt-4 -> mt-1 md:mt-2, p-3 -> p-2, space-y 축소 -->
-  <main class="max-w-4xl mx-auto p-2 md:p-5 space-y-3 md:space-y-6 mt-1 md:mt-2 relative min-h-[60vh]">
+  <main class="max-w-4xl mx-auto p-2 md:p-4 space-y-3 md:space-y-5 mt-1 md:mt-2 relative min-h-[60vh]">
     
     <!-- 중앙 로딩 화면 -->
     <div id="loadingScreen" class="absolute inset-0 flex flex-col items-center justify-center bg-[#f8fafc] z-50">
@@ -271,7 +271,7 @@
                 window.autoSelectCurrentWeek();
             }
             
-            // 🚀 블랙 매직: 무거운 유튜브 영상은 빼고 가벼운 글씨부터 먼저 화면에 즉시 그립니다.
+            // 🚀 블랙 매직: 무거운 유튜브 영상은 빼고 가벼운 글씨부터 먼저 즉시 렌더링
             window.updateUI(true); 
             
             // 데이터 로딩 성공 시 로딩 화면을 대기 없이 0초만에 숨기기
