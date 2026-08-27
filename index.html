@@ -1102,8 +1102,14 @@
         return;
       }
       
-      let gviewUrl = "https://docs.google.com/gview?url=" + encodeURIComponent(targetUrl);
-      window.open(gviewUrl, '_blank');
+      // 💡 SSPM 자체 웹 뷰어 링크(viewer.php)는 그대로 새창 열기
+      if (targetUrl.includes('viewer.php') || !targetUrl.toLowerCase().endsWith('.pdf')) {
+        window.open(targetUrl, '_blank');
+      } else {
+        // 순수 .pdf 파일인 경우 구글 문서 뷰어로 열기
+        let gviewUrl = "https://docs.google.com/gview?url=" + encodeURIComponent(targetUrl);
+        window.open(gviewUrl, '_blank');
+      }
     };
 
     window.openVideoNewTab = function() {
