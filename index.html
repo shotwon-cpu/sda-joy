@@ -474,199 +474,209 @@
     };
 
     // ==========================================
-    // 🌟 텍스트(전자책) 및 하이브리드 모달 제어 영역 (슬라이더 & 텍스트 우선 모드)
-    // ==========================================
-    window.currentTextSize = 18;
+// 🌟 텍스트(전자책) 및 하이브리드 모달 제어 영역 (확대 오인식 방지 & 비밀번호 제거)
+// ==========================================
+window.currentTextSize = 18;
+window.currentImagePage = 1;
+window.totalImagePages = 14;
+
+window.adjustTextSize = function(delta) {
+  window.currentTextSize += delta;
+  if(window.currentTextSize < 14) window.currentTextSize = 14;
+  if(window.currentTextSize > 40) window.currentTextSize = 40;
+  const area = document.getElementById('textContentArea');
+  if (area) area.style.fontSize = window.currentTextSize + "px";
+};
+
+// 🌟 스마트 하이브리드 모달 열기 (1순위: 텍스트 > 2순위: 이미지 > 3순위: 안내 메시지)
+window.openPdfModal = function() {
+  const data = window.sheetData[window.currentIndex];
+  const imgContainer = document.getElementById('imageViewerContainer');
+  const textContainer = document.getElementById('textViewerContainer');
+  const loading = document.getElementById('pdfLoadingMsg');
+  
+  const btnImage = document.getElementById('btnViewImage');
+  const btnText = document.getElementById('btnViewText');
+  
+  // 초기화
+  imgContainer.innerHTML = '';
+  document.getElementById('textContentArea').innerHTML = '';
+  loading.classList.remove('hidden');
+  document.getElementById('pdfModal').classList.remove('hidden');
+
+  const hasText = (data && data.lesson_text && data.lesson_text.trim() !== '');
+  const hasImage = (data && data.image_count && Number(data.image_count) > 0);
+
+  // 상단 버튼 노출 여부 결정
+  if (btnImage) { if (hasImage) btnImage.classList.remove('hidden'); else btnImage.classList.add('hidden'); }
+  if (btnText) { if (hasText) btnText.classList.remove('hidden'); else btnText.classList.add('hidden'); }
+
+  // 1순위 텍스트 모드 기본 열기
+  if (hasText) {
+    window.switchModalView('text');
+  } else if (hasImage) {
+    window.switchModalView('image');
+  } else {
+    loading.innerHTML = "<p class='text-slate-500 font-bold mt-4 text-center leading-relaxed'>등록된 교과 텍스트나 이미지가 없습니다.<br>상단 <span class='text-red-500'>[PDF새창]</span> 버튼을 눌러 원본을 확인하세요.</p>";
+  }
+};
+
+// 🌟 뷰어 모드 전환 함수 (텍스트 <-> 이미지)
+window.switchModalView = function(mode) {
+  const data = window.sheetData[window.currentIndex];
+  const imgContainer = document.getElementById('imageViewerContainer');
+  const textContainer = document.getElementById('textViewerContainer');
+  const loading = document.getElementById('pdfLoadingMsg');
+  
+  imgContainer.classList.add('hidden');
+  textContainer.classList.add('hidden');
+  loading.classList.add('hidden');
+
+  if (mode === 'text') {
+    textContainer.classList.remove('hidden');
+    const textContentArea = document.getElementById('textContentArea');
+    textContentArea.style.whiteSpace = "pre-line";
+    textContentArea.innerHTML = data.lesson_text || "";
+    textContentArea.style.fontSize = window.currentTextSize + "px";
+  } else if (mode === 'image') {
+    imgContainer.classList.remove('hidden');
     window.currentImagePage = 1;
-    window.totalImagePages = 14;
+    window.totalImagePages = Number(data.image_count) || 14;
+    window.renderImageSlider();
+  }
+};
 
-    window.adjustTextSize = function(delta) {
-      window.currentTextSize += delta;
-      if(window.currentTextSize < 14) window.currentTextSize = 14;
-      if(window.currentTextSize > 40) window.currentTextSize = 40;
-      const area = document.getElementById('textContentArea');
-      if (area) area.style.fontSize = window.currentTextSize + "px";
-    };
-
-    // 🌟 스마트 하이브리드 모달 열기 (1순위: 텍스트 > 2순위: 이미지 > 3순위: 안내 메시지)
-    window.openPdfModal = function() {
-      const data = window.sheetData[window.currentIndex];
-      const imgContainer = document.getElementById('imageViewerContainer');
-      const textContainer = document.getElementById('textViewerContainer');
-      const loading = document.getElementById('pdfLoadingMsg');
+// 🌟 이미지 1장씩 보기 슬라이더 UI 렌더링
+window.renderImageSlider = function() {
+  const imgContainer = document.getElementById('imageViewerContainer');
+  imgContainer.innerHTML = `
+    <div class="flex flex-col items-center justify-center w-full select-none" id="sliderWrapper">
+      <!-- 상단 페이지 컨트롤 바 -->
+      <div class="flex items-center justify-between w-full max-w-lg mb-3 px-2">
+        <button onclick="window.changeImagePage(-1)" class="px-4 py-2 bg-slate-800 text-white rounded-lg font-bold text-sm shadow hover:bg-slate-700 active:scale-95 transition">◀ 이전</button>
+        <span id="pageIndicator" class="font-bold text-slate-700 bg-slate-100 px-4 py-1.5 rounded-full text-sm border border-slate-200">
+          ${window.currentImagePage} / ${window.totalImagePages}
+        </span>
+        <button onclick="window.changeImagePage(1)" class="px-4 py-2 bg-slate-800 text-white rounded-lg font-bold text-sm shadow hover:bg-slate-700 active:scale-95 transition">다음 ▶</button>
+      </div>
       
-      const btnImage = document.getElementById('btnViewImage');
-      const btnText = document.getElementById('btnViewText');
+      <!-- 이미지 본체 컨테이너 (스크롤 및 터치 확대 허용) -->
+      <div class="w-full flex justify-center relative min-h-[300px] items-center overflow-x-auto touch-pan-y" id="imgBoxArea">
+        <img id="currentLessonImg" class="w-full max-w-2xl rounded-xl shadow-lg border border-slate-200 object-contain transition-opacity duration-200 block mx-auto" src="" alt="교과 이미지" />
+      </div>
       
-      // 초기화
-      imgContainer.innerHTML = '';
-      document.getElementById('textContentArea').innerHTML = '';
-      loading.classList.remove('hidden');
-      document.getElementById('pdfModal').classList.remove('hidden');
+      <p class="text-xs text-slate-400 mt-2">💡 좌우로 시원하게 쓸어넘기거나 상단 버튼으로 페이지를 넘길 수 있습니다.</p>
+    </div>
+  `;
 
-      const hasText = (data && data.lesson_text && data.lesson_text.trim() !== '');
-      const hasImage = (data && data.image_count && Number(data.image_count) > 0);
+  window.loadImagePage(window.currentImagePage);
+  window.attachSwipeEvents();
+};
 
-      // 상단 버튼 노출 여부 결정
-      if (btnImage) { if (hasImage) btnImage.classList.remove('hidden'); else btnImage.classList.add('hidden'); }
-      if (btnText) { if (hasText) btnText.classList.remove('hidden'); else btnText.classList.add('hidden'); }
+// 🌟 특정 페이지의 이미지만 로드
+window.loadImagePage = function(page) {
+  const data = window.sheetData[window.currentIndex];
+  const weekNum = data.week || (window.currentIndex + 1);
+  const bucketName = "sabbathschool-8586d.firebasestorage.app";
+  const pageStr = String(page).padStart(2, '0');
+  const imgUrl = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/lessons%2Flesson_${weekNum}_${pageStr}.webp?alt=media`;
 
-      // 💡 [핵심] 트래픽과 속도를 위해 1순위를 '텍스트'로 변경
-      if (hasText) {
-        window.switchModalView('text');
-      } else if (hasImage) {
-        window.switchModalView('image');
+  const imgElem = document.getElementById('currentLessonImg');
+  const indicator = document.getElementById('pageIndicator');
+
+  if (imgElem) {
+    imgElem.style.opacity = '0.3';
+    imgElem.src = imgUrl;
+    imgElem.onload = () => { imgElem.style.opacity = '1'; };
+  }
+  if (indicator) {
+    indicator.innerText = `${page} / ${window.totalImagePages}`;
+  }
+};
+
+// 🌟 페이지 넘김 제어 함수
+window.changeImagePage = function(delta) {
+  let newPage = window.currentImagePage + delta;
+  if (newPage < 1) newPage = 1;
+  if (newPage > window.totalImagePages) newPage = window.totalImagePages;
+
+  if (newPage !== window.currentImagePage) {
+    window.currentImagePage = newPage;
+    window.loadImagePage(window.currentImagePage);
+  }
+};
+
+// 🌟 확대 시 오작동 방지 스마트 스와이프 제어
+window.attachSwipeEvents = function() {
+  const wrapper = document.getElementById('imgBoxArea');
+  if (!wrapper) return;
+
+  let startX = 0;
+  let startY = 0;
+  let isMultiTouch = false;
+
+  wrapper.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) {
+      isMultiTouch = true;
+      return;
+    }
+    isMultiTouch = false;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+
+  wrapper.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 1) {
+      isMultiTouch = true;
+    }
+  }, { passive: true });
+
+  wrapper.addEventListener('touchend', (e) => {
+    if (isMultiTouch) return;
+
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+
+    const diffX = endX - startX;
+    const diffY = endY - startY;
+
+    if (Math.abs(diffX) > 70 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+      if (diffX < 0) {
+        window.changeImagePage(1);  
       } else {
-        loading.innerHTML = "<p class='text-slate-500 font-bold mt-4 text-center leading-relaxed'>등록된 교과 텍스트나 이미지가 없습니다.<br>상단 <span class='text-red-500'>[PDF새창]</span> 버튼을 눌러 원본을 확인하세요.</p>";
+        window.changeImagePage(-1); 
       }
-    };
+    }
+  }, { passive: true });
+};
 
-    // 🌟 뷰어 모드 전환 함수 (텍스트 <-> 이미지)
-    window.switchModalView = function(mode) {
-      const data = window.sheetData[window.currentIndex];
-      const imgContainer = document.getElementById('imageViewerContainer');
-      const textContainer = document.getElementById('textViewerContainer');
-      const loading = document.getElementById('pdfLoadingMsg');
-      
-      imgContainer.classList.add('hidden');
-      textContainer.classList.add('hidden');
-      loading.classList.add('hidden');
+// 🌟 모달 닫기 및 뷰어 초기화
+window.closePdfModal = function() {
+  document.getElementById('pdfModal').classList.add('hidden');
+  document.getElementById('imageViewerContainer').innerHTML = "";
+  document.getElementById('textContentArea').innerHTML = "";
+  document.getElementById('imageViewerContainer').classList.add('hidden');
+  document.getElementById('textViewerContainer').classList.add('hidden');
+  document.getElementById('pdfLoadingMsg').classList.remove('hidden');
+};
 
-      if (mode === 'text') {
-        textContainer.classList.remove('hidden');
-        // 줄바꿈 보존을 위해 pre-line 스타일 적용 및 텍스트 삽입
-        const textContentArea = document.getElementById('textContentArea');
-        textContentArea.style.whiteSpace = "pre-line";
-        textContentArea.innerHTML = data.lesson_text || "";
-        textContentArea.style.fontSize = window.currentTextSize + "px";
-      } else if (mode === 'image') {
-        imgContainer.classList.remove('hidden');
-        window.currentImagePage = 1;
-        window.totalImagePages = Number(data.image_count) || 14;
-        window.renderImageSlider();
-      }
-    };
+// 🌟 구글 닥스 새창 열기 (비밀번호 제거완료)
+window.openPdfSecured = function() {
+  const data = window.sheetData[window.currentIndex];
+  let targetUrl = (data && data.source_url && data.source_url.trim() !== '') 
+                  ? data.source_url.trim() 
+                  : (data && data.pdf_url && data.pdf_url.trim() !== '') 
+                    ? data.pdf_url.trim() 
+                    : window.currentPdfUrl;
+  if (!targetUrl) {
+    alert("❌ 연결할 원본 PDF 주소가 없습니다.");
+    return;
+  }
+  
+  let gviewUrl = "https://docs.google.com/gview?url=" + encodeURIComponent(targetUrl);
+  window.open(gviewUrl, '_blank');
+};
 
-    // 🌟 이미지 1장씩 보기 슬라이더 UI 렌더링 (트래픽 최적화)
-    window.renderImageSlider = function() {
-      const imgContainer = document.getElementById('imageViewerContainer');
-      imgContainer.innerHTML = `
-        <div class="flex flex-col items-center justify-center w-full select-none" id="sliderWrapper">
-          <!-- 페이지 표시 & 좌우 이동 바 -->
-          <div class="flex items-center justify-between w-full max-w-lg mb-3 px-2">
-            <button onclick="window.changeImagePage(-1)" class="px-4 py-2 bg-slate-800 text-white rounded-lg font-bold text-sm shadow hover:bg-slate-700 active:scale-95 transition">◀ 이전</button>
-            <span id="pageIndicator" class="font-bold text-slate-700 bg-slate-100 px-4 py-1.5 rounded-full text-sm border border-slate-200">
-              ${window.currentImagePage} / ${window.totalImagePages}
-            </span>
-            <button onclick="window.changeImagePage(1)" class="px-4 py-2 bg-slate-800 text-white rounded-lg font-bold text-sm shadow hover:bg-slate-700 active:scale-95 transition">다음 ▶</button>
-          </div>
-          
-          <!-- 이미지 본체 -->
-          <div class="w-full flex justify-center relative min-h-[300px] items-center">
-            <img id="currentLessonImg" class="w-full max-w-2xl rounded-xl shadow-lg border border-slate-200 object-contain transition-opacity duration-200" src="" alt="교과 이미지" />
-          </div>
-          
-          <p class="text-xs text-slate-400 mt-2">💡 스마트폰 화면을 좌우로 밀어서(스와이프) 넘길 수 있습니다.</p>
-        </div>
-      `;
-
-      window.loadImagePage(window.currentImagePage);
-      window.attachSwipeEvents();
-    };
-
-    // 🌟 특정 페이지의 이미지만 정확하게 로드 (필요한 페이지만 불러와 트래픽 절약)
-    window.loadImagePage = function(page) {
-      const data = window.sheetData[window.currentIndex];
-      const weekNum = data.week || (window.currentIndex + 1);
-      const bucketName = "sabbathschool-8586d.firebasestorage.app";
-      const pageStr = String(page).padStart(2, '0');
-      const imgUrl = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/lessons%2Flesson_${weekNum}_${pageStr}.webp?alt=media`;
-
-      const imgElem = document.getElementById('currentLessonImg');
-      const indicator = document.getElementById('pageIndicator');
-
-      if (imgElem) {
-        imgElem.style.opacity = '0.3';
-        imgElem.src = imgUrl;
-        imgElem.onload = () => { imgElem.style.opacity = '1'; };
-      }
-      if (indicator) {
-        indicator.innerText = `${page} / ${window.totalImagePages}`;
-      }
-    };
-
-    // 🌟 페이지 넘김 제어 함수
-    window.changeImagePage = function(delta) {
-      let newPage = window.currentImagePage + delta;
-      if (newPage < 1) newPage = 1;
-      if (newPage > window.totalImagePages) newPage = window.totalImagePages;
-
-      if (newPage !== window.currentImagePage) {
-        window.currentImagePage = newPage;
-        window.loadImagePage(window.currentImagePage);
-      }
-    };
-
-    // 🌟 모바일 터치 스와이프(좌우 넘기기) 제스처 지원
-    window.attachSwipeEvents = function() {
-      const wrapper = document.getElementById('sliderWrapper');
-      if (!wrapper) return;
-
-      let touchStartX = 0;
-      let touchEndX = 0;
-
-      wrapper.ontouchstart = (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-      };
-
-      wrapper.ontouchend = (e) => {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-      };
-
-      function handleSwipe() {
-        const diff = touchEndX - touchStartX;
-        if (Math.abs(diff) > 40) { // 40px 이상 밀었을 때
-          if (diff < 0) {
-            window.changeImagePage(1);  // 왼쪽으로 밀면 -> 다음 장
-          } else {
-            window.changeImagePage(-1); // 오른쪽으로 밀면 -> 이전 장
-          }
-        }
-      }
-    };
-
-    // 🌟 모달 닫기 및 뷰어 초기화
-    window.closePdfModal = function() {
-      document.getElementById('pdfModal').classList.add('hidden');
-      document.getElementById('imageViewerContainer').innerHTML = "";
-      document.getElementById('textContentArea').innerHTML = "";
-      document.getElementById('imageViewerContainer').classList.add('hidden');
-      document.getElementById('textViewerContainer').classList.add('hidden');
-      document.getElementById('pdfLoadingMsg').classList.remove('hidden');
-    };
-    // ==========================================
-
-    // 구글 닥스 새창 열기 (비밀번호: 7777)
-    window.openPdfSecured = function() {
-      const data = window.sheetData[window.currentIndex];
-      let targetUrl = (data && data.source_url && data.source_url.trim() !== '') 
-                      ? data.source_url.trim() 
-                      : (data && data.pdf_url && data.pdf_url.trim() !== '') 
-                        ? data.pdf_url.trim() 
-                        : window.currentPdfUrl;
-      if (!targetUrl) return;
-      
-      let password = prompt("📥 새창 열기 암호를 입력하세요:");
-      if (password === null) return;
-      
-      if (password === "7777") {
-        let gviewUrl = "https://docs.google.com/gview?url=" + encodeURIComponent(targetUrl);
-        window.open(gviewUrl, '_blank');
-      } else {
-        alert("❌ 암호가 틀렸습니다. 열람 권한이 없습니다.");
-      }
-    };
 
     window.openVideoNewTab = function() {
       const data = window.sheetData[window.currentIndex];
