@@ -222,25 +222,6 @@
     </div>
   </main>
 
-  <!-- PWA 앱 원터치 설치 배너 -->
-  <div id="pwaInstallBanner" class="hidden fixed bottom-3 left-3 right-3 max-w-md mx-auto bg-indigo-900/95 backdrop-blur-md text-white p-3.5 rounded-2xl shadow-2xl z-50 flex items-center justify-between border border-indigo-700 animate-fade-in">
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center text-indigo-950 font-black text-xl shadow">
-        <i class="fa-solid fa-book-bible"></i>
-      </div>
-      <div>
-        <p class="font-extrabold text-sm sm:text-base">세종행복교회 앱 설치</p>
-        <p class="text-xs text-indigo-200">홈 화면에 추가하여 앱처럼 편리하게 이용하세요!</p>
-      </div>
-    </div>
-    <div class="flex items-center space-x-1.5">
-      <button id="btnPwaInstall" class="bg-yellow-400 hover:bg-yellow-300 text-indigo-950 font-black px-3 py-1.5 rounded-lg text-xs sm:text-sm shadow transition active:scale-95">설치</button>
-      <button onclick="document.getElementById('pwaInstallBanner').classList.add('hidden')" class="text-indigo-300 hover:text-white p-1">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-    </div>
-  </div>
-
   <!-- 찬미가 모달 -->
   <div id="hymnModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
@@ -268,7 +249,12 @@
         <h3 id="discussionModalTitle" class="font-bold text-base sm:text-lg flex items-center truncate">
           <i class="fa-solid fa-comments mr-2"></i>이번 주 교과토의 자료
         </h3>
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <!-- 💡 PWA 앱 설치 버튼 (조용히 숨겨둔 위치, 브라우저가 지원할 때만 표시) -->
+          <button id="pwaInstallBtn" class="hidden text-emerald-200 hover:text-white transition items-center text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded">
+            <i class="fa-solid fa-download mr-1"></i> 앱 설치
+          </button>
+
           <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 px-3 py-1.5 rounded">
             <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 새창 열기
           </button>
@@ -430,23 +416,43 @@
       });
     }
 
+    // 💡 [PWA 조용한 앱 설치 제어 코드]
     let deferredPrompt = null;
+    const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      const banner = document.getElementById('pwaInstallBanner');
-      if (banner) banner.classList.remove('hidden');
+      // 설치 가능한 브라우저일 때만 모달 내부 설치 버튼 조용히 표시
+      if (pwaInstallBtn) {
+        pwaInstallBtn.classList.remove('hidden');
+        pwaInstallBtn.classList.add('flex');
+      }
     });
 
-    document.getElementById('btnPwaInstall')?.addEventListener('click', async () => {
-      if (deferredPrompt) {
+    if (pwaInstallBtn) {
+      pwaInstallBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+          alert('이미 앱이 설치되어 있거나 홈 화면 추가를 지원하지 않는 브라우저입니다.');
+          return;
+        }
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
-          document.getElementById('pwaInstallBanner').classList.add('hidden');
+          console.log('PWA 설치 완료');
         }
         deferredPrompt = null;
+        pwaInstallBtn.classList.add('hidden');
+        pwaInstallBtn.classList.remove('flex');
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      if (pwaInstallBtn) {
+        pwaInstallBtn.classList.add('hidden');
+        pwaInstallBtn.classList.remove('flex');
       }
+      deferredPrompt = null;
     });
 
     window.onload = async () => {
