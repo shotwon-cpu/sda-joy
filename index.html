@@ -19,10 +19,10 @@
       background-color: #f8fafc;
       font-family: 'Pretendard', sans-serif;
       overflow-x: hidden;
-      overflow-y: auto; /* PC 마우스 휠 스크롤 기본 허용 */
+      overflow-y: auto;
     }
 
-    /* 💡 터치 지원 모바일 기기에서만 화면 밖 여백 및 바운스 현상 차단 */
+    /* 터치 지원 모바일 기기에서만 화면 밖 여백 및 바운스 현상 차단 */
     @media (hover: none) and (pointer: coarse) {
       html, body {
         overscroll-behavior-x: none;
@@ -161,10 +161,10 @@
           <span>교과토의 자료</span>
         </a>
 
-        <!-- 교과 자료 열기 버튼 -->
+        <!-- 💡 '교과 자료 열기'에서 '교과 열기'로 텍스트 변경 -->
         <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl border border-red-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none cursor-pointer">
           <i class="fa-solid fa-book-open-reader text-lg"></i>
-          <span id="pdfBtnText">교과 자료 준비중</span>
+          <span id="pdfBtnText">교과 준비중</span>
         </a>
       </div>
 
@@ -217,7 +217,10 @@
   <div id="discussionModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
-        <h3 class="font-bold text-lg"><i class="fa-solid fa-comments mr-2"></i>이번 주 교과토의 자료</h3>
+        <!-- 💡 주차별 동적 제목 업데이트를 위한 ID 부여 -->
+        <h3 id="discussionModalTitle" class="font-bold text-base sm:text-lg flex items-center truncate">
+          <i class="fa-solid fa-comments mr-2"></i>이번 주 교과토의 자료
+        </h3>
         <div class="flex items-center space-x-3">
           <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 px-3 py-1.5 rounded">
             <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 새창 열기
@@ -301,9 +304,17 @@
     <div class="bg-white rounded-3xl p-5 md:p-8 w-full max-w-2xl shadow-2xl flex flex-col max-h-[85vh]">
       <div class="flex justify-between items-center mb-5">
         <h3 id="modalTitle" class="text-2xl font-bold text-slate-800">목록</h3>
-        <button onclick="closeListModal()" class="text-slate-400 hover:text-slate-700 transition">
-          <i class="fa-solid fa-xmark text-3xl"></i>
-        </button>
+        
+        <!-- 글씨 크기 조절 버튼 그룹 및 X 닫기 버튼 -->
+        <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <button onclick="window.adjustListTextSize(1)" class="bg-white hover:bg-slate-50 text-slate-700 font-extrabold px-2.5 py-1 rounded-lg text-xs sm:text-sm shadow-sm transition active:scale-95">A +</button>
+            <button onclick="window.adjustListTextSize(-1)" class="bg-white hover:bg-slate-50 text-slate-700 font-extrabold px-2.5 py-1 rounded-lg text-xs sm:text-sm shadow-sm transition active:scale-95">A -</button>
+          </div>
+          <button onclick="closeListModal()" class="text-slate-400 hover:text-slate-700 transition p-1 ml-1">
+            <i class="fa-solid fa-xmark text-3xl"></i>
+          </button>
+        </div>
       </div>
       <div id="quarterSelectorContainer" class="mb-5 hidden">
         <select id="modalQuarterSelector" onchange="renderList('quarter', this.value)" class="w-full border-slate-300 rounded-xl p-3 bg-slate-50 text-lg font-bold focus:ring-indigo-500">
@@ -436,14 +447,15 @@
       const hasSourceUrl = (data && data.source_url && data.source_url.trim() !== '');
       const hasPdfUrl = (data && data.pdf_url && data.pdf_url.trim() !== '');
 
+      // 💡 '교과 자료 열기' 대신 '교과 열기'로 표시
       if (hasText || hasImage || hasSourceUrl || hasPdfUrl) {
         window.currentPdfUrl = (hasSourceUrl ? data.source_url.trim() : (hasPdfUrl ? data.pdf_url.trim() : ""));
         pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
-        pdfBtnText.innerHTML = `교과 자료 열기`;
+        pdfBtnText.innerHTML = `교과 열기`;
       } else {
         window.currentPdfUrl = "";
         pdfBtn.classList.add('opacity-50', 'pointer-events-none');
-        pdfBtnText.innerText = "교과 자료 준비중";
+        pdfBtnText.innerText = "교과 준비중";
       }
       
       if (!skipVideo) { window.updateVideoPlayer(); }
@@ -535,10 +547,18 @@
       document.getElementById('hymnIframe').src = "";
     };
 
+    // 💡 교과토의 모달 상단 제목을 현재 주차("제 ?기 ?과 토의 자료")로 동적 반영
     window.openDiscussionModal = function() {
       const data = window.sheetData[window.currentIndex];
       const iframe = document.getElementById('discussionIframe');
       const noMsg = document.getElementById('noDiscussionMsg');
+      const titleElem = document.getElementById('discussionModalTitle');
+
+      if (titleElem && data && data.quarter) {
+        titleElem.innerHTML = `<i class="fa-solid fa-comments mr-2"></i>${data.quarter} 토의 자료`;
+      } else if (titleElem) {
+        titleElem.innerHTML = `<i class="fa-solid fa-comments mr-2"></i>이번 주 교과토의 자료`;
+      }
 
       if (data && data.discussion_link && data.discussion_link.trim() !== '') {
         iframe.src = data.discussion_link.trim();
@@ -576,6 +596,18 @@
       if(window.currentTextSize > 40) window.currentTextSize = 40;
       const area = document.getElementById('textContentArea');
       if (area) area.style.fontSize = window.currentTextSize + "px";
+    };
+
+    // 🌟 13기억절 / 52기억절 목록 글씨 크기 조절 변수 및 함수
+    window.currentListTextDelta = 0;
+    window.currentListMode = 'quarter';
+    window.currentListQuarter = 1;
+
+    window.adjustListTextSize = function(delta) {
+      window.currentListTextDelta += delta;
+      if (window.currentListTextDelta < -4) window.currentListTextDelta = -4;
+      if (window.currentListTextDelta > 10) window.currentListTextDelta = 10;
+      window.renderList(window.currentListMode, window.currentListQuarter);
     };
 
     window.openPdfModal = function() {
@@ -821,6 +853,8 @@
       const qSelector = document.getElementById('modalQuarterSelector');
       modal.classList.remove('hidden');
       
+      window.currentListMode = mode;
+
       if (mode === 'quarter') {
         document.getElementById('modalTitle').innerText = '13기억절 (분기별 보기)';
         qSelectorContainer.classList.remove('hidden');
@@ -833,6 +867,7 @@
           if (i === currentQuarter) opt.selected = true;
           qSelector.appendChild(opt);
         }
+        window.currentListQuarter = currentQuarter;
         window.renderList('quarter', currentQuarter);
       } else {
         document.getElementById('modalTitle').innerText = '52기억절 (1년 보기)';
@@ -846,6 +881,9 @@
     };
 
     window.renderList = function(mode, quarter = 1) {
+      window.currentListMode = mode;
+      window.currentListQuarter = quarter;
+
       const container = document.getElementById('verseListContainer');
       container.innerHTML = '';
       let filteredData = (mode === 'quarter') ? 
@@ -855,6 +893,15 @@
       if (filteredData.length === 0) {
         container.innerHTML = '<p class="text-center text-slate-500 py-5 text-lg">해당하는 데이터가 없습니다.</p>'; return;
       }
+
+      // 글씨 크기 오프셋 계산
+      const d = window.currentListTextDelta || 0;
+      const titleKoSize = (20 + d) + "px";
+      const titleEnSize = (14 + d) + "px";
+      const bibleSize = (16 + d) + "px";
+      const verseKoSize = (18 + d) + "px";
+      const verseEnSize = (15 + d) + "px";
+
       filteredData.forEach(item => {
         const div = document.createElement('div');
         const isCurrent = (item.originalIndex === window.currentIndex);
@@ -874,11 +921,11 @@
             <span class="text-sm font-bold ${isCurrent ? 'text-indigo-700' : 'text-indigo-500'}">${item.quarter || ((item.originalIndex + 1) + '주차')}</span>
             <span class="text-sm text-slate-400">${dateStr}</span>
           </div>
-          <h4 class="font-bold text-slate-800 text-lg md:text-xl">${item.title_ko || '제목 없음'}</h4>
-          <p class="text-sm md:text-base text-slate-400 mb-3 italic">${item.title_en || ''}</p>
-          <p class="text-base font-semibold text-slate-500 mb-2"><i class="fa-solid fa-book-open text-sm mr-1.5"></i>${item.bible_ko || ''} <span class="font-normal text-slate-400">/ ${item.bible_en || ''}</span></p>
-          <p class="text-lg md:text-xl text-slate-800 leading-relaxed font-medium mt-1">"${item.verse_ko || ''}"</p>
-          <p class="text-base md:text-lg text-slate-500 leading-relaxed font-light italic mt-2">"${item.verse_en || ''}"</p>
+          <h4 class="font-bold text-slate-800 leading-snug" style="font-size: ${titleKoSize};">${item.title_ko || '제목 없음'}</h4>
+          <p class="text-slate-400 mb-3 italic" style="font-size: ${titleEnSize};">${item.title_en || ''}</p>
+          <p class="font-semibold text-slate-500 mb-2" style="font-size: ${bibleSize};"><i class="fa-solid fa-book-open text-sm mr-1.5"></i>${item.bible_ko || ''} <span class="font-normal text-slate-400">/ ${item.bible_en || ''}</span></p>
+          <p class="text-slate-800 leading-relaxed font-medium mt-1" style="font-size: ${verseKoSize};">"${item.verse_ko || ''}"</p>
+          <p class="text-slate-500 leading-relaxed font-light italic mt-2" style="font-size: ${verseEnSize};">"${item.verse_en || ''}"</p>
         `;
         container.appendChild(div);
       });
