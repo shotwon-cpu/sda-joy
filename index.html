@@ -112,7 +112,7 @@
                 <button onclick="window.changeWeek(-1); event.stopPropagation();" class="w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
                   <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
                 </button>
-                <button onclick="window.changeWeek(1); event.stopPropagation();" class="w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
+                <button onclick="window.changeWeek(1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
                   <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
                 </button>
                 <button onclick="window.openListModal('quarter'); event.stopPropagation();" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-base sm:text-lg md:text-xl font-extrabold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition shadow-sm inline-flex items-center ml-1 md:ml-2">
@@ -158,7 +158,7 @@
 
       <!-- 상단 링크 버튼 영역 -->
       <div class="grid grid-cols-2 gap-3 my-4">
-        <!-- 💡 교과토의 자료 버튼 (동적 텍스트 및 활성/비활성 제어) -->
+        <!-- 교과토의 자료 버튼 -->
         <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-2xl border border-emerald-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none cursor-pointer">
           <i class="fa-solid fa-comments text-lg"></i>
           <span id="discussionBtnText">교과토의 준비중</span>
@@ -177,10 +177,11 @@
           <h3 class="text-xl md:text-2xl font-bold flex items-center text-slate-800">
             <i class="fa-brands fa-youtube text-red-500 mr-2 text-2xl"></i> 이번 주 교과 해설 영상
           </h3>
-          <button onclick="openVideoNewTab()" class="text-sm md:text-base bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg font-bold transition flex items-center border border-red-200 shadow-sm">
+          <button id="videoNewTabBtn" onclick="openVideoNewTab()" class="text-sm md:text-base bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg font-bold transition flex items-center border border-red-200 shadow-sm opacity-50 pointer-events-none">
             <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> 새창/앱 열기
           </button>
         </div>
+        <!-- 💡 주차/분기별 목사님 성함으로 자동 업데이트되는 탭 버튼 -->
         <div class="flex space-x-2 mb-5 overflow-x-auto pb-2 custom-scrollbar">
           <button onclick="changeVideoTab('a')" id="tab-a" class="tab-active border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 A</button>
           <button onclick="changeVideoTab('b')" id="tab-b" class="tab-inactive border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 B</button>
@@ -190,6 +191,13 @@
           <div id="videoLoader" class="absolute inset-0 flex items-center justify-center bg-slate-900 z-10 hidden">
             <i class="fa-solid fa-spinner fa-spin text-3xl text-red-500"></i>
           </div>
+
+          <div id="noVideoMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-900 p-4 text-center z-10 hidden">
+            <i class="fa-brands fa-youtube text-5xl md:text-6xl text-slate-600 mb-3"></i>
+            <p class="text-base md:text-lg font-bold text-slate-300">해당 강사의 교과 해설 영상 준비 중입니다.</p>
+            <p class="text-xs md:text-sm text-slate-500 mt-1">다른 강사 탭을 선택해 영상을 확인해 보세요.</p>
+          </div>
+
           <iframe id="videoPlayer" class="w-full h-full hidden transition-opacity duration-500 opacity-0" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
       </div>
@@ -346,7 +354,8 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    window.TEACHER_NAMES = { a: "장석원 목사", b: "권정행 목사", c: "이주환 목사" };
+    // 💡 기본 기본값 성함 (데이터에 특정 강사 이름이 없을 경우 기본값으로 표시)
+    window.DEFAULT_TEACHERS = { a: "장석원 목사", b: "권정행 목사", c: "이주환 목사" };
     window.sheetData = [];
     window.currentIndex = 0;
     window.currentTab = 'a';
@@ -354,10 +363,6 @@
     window.currentModalMode = 'pdf';
 
     window.onload = async () => {
-      document.getElementById('tab-a').innerText = window.TEACHER_NAMES.a;
-      document.getElementById('tab-b').innerText = window.TEACHER_NAMES.b;
-      document.getElementById('tab-c').innerText = window.TEACHER_NAMES.c;
-      
       window.setupSwipeEvents(); 
       window.setupModalBackdropClicks();
       
@@ -472,7 +477,20 @@
       
       window.applyMainVerseFontSize();
 
-      // 💡 [추가] 교과토의 버튼 활성/비활성 및 텍스트 전환 처리
+      // 💡 [핵심] 분기/주차별 목사님 성함 동적 업데이트 (데이터에 없으면 기본 성함 표시)
+      const teacherA = (data && data.teacher_a && data.teacher_a.trim() !== '') ? data.teacher_a.trim() : window.DEFAULT_TEACHERS.a;
+      const teacherB = (data && data.teacher_b && data.teacher_b.trim() !== '') ? data.teacher_b.trim() : window.DEFAULT_TEACHERS.b;
+      const teacherC = (data && data.teacher_c && data.teacher_c.trim() !== '') ? data.teacher_c.trim() : window.DEFAULT_TEACHERS.c;
+
+      const tabAElem = document.getElementById('tab-a');
+      const tabBElem = document.getElementById('tab-b');
+      const tabCElem = document.getElementById('tab-c');
+
+      if (tabAElem) tabAElem.innerText = teacherA;
+      if (tabBElem) tabBElem.innerText = teacherB;
+      if (tabCElem) tabCElem.innerText = teacherC;
+
+      // 교과토의 버튼 활성/비활성 및 텍스트 전환 처리
       const discBtn = document.getElementById('discussionBtn');
       const discBtnText = document.getElementById('discussionBtnText');
       const hasDiscussion = (data && data.discussion_link && data.discussion_link.trim() !== '');
@@ -555,10 +573,16 @@
       const data = window.sheetData[window.currentIndex];
       const player = document.getElementById('videoPlayer');
       const loader = document.getElementById('videoLoader');
+      const noVideoMsg = document.getElementById('noVideoMsg');
+      const newTabBtn = document.getElementById('videoNewTabBtn');
+
       let targetUrl = (window.currentTab === 'a') ? data.youtube_a : (window.currentTab === 'b') ? data.youtube_b : data.youtube_c;
       const videoId = window.extractYouTubeId(targetUrl);
       
       if (videoId) {
+        if (newTabBtn) newTabBtn.classList.remove('opacity-50', 'pointer-events-none');
+        if (noVideoMsg) noVideoMsg.classList.add('hidden');
+        
         player.classList.remove('opacity-100');
         player.classList.add('opacity-0');
         loader.classList.remove('hidden');
@@ -574,11 +598,13 @@
           };
         }, 200);
       } else {
+        if (newTabBtn) newTabBtn.classList.add('opacity-50', 'pointer-events-none');
         player.src = "";
         player.classList.add('hidden');
         player.classList.remove('opacity-100');
         player.classList.add('opacity-0');
         loader.classList.add('hidden');
+        if (noVideoMsg) noVideoMsg.classList.remove('hidden');
       }
     };
 
