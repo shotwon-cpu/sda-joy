@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>세종행복교회 안식일학교</title>
   
-  <!-- 💡 [PWA 메타태그 및 매니페스트 연결] -->
+  <!-- PWA 메타태그 및 매니페스트 연결 -->
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#312e81">
   <meta name="mobile-web-app-capable" content="yes">
@@ -145,9 +145,9 @@
                 <!-- 1행 (3개 버튼) -->
                 <div class="flex items-center justify-between gap-1 sm:gap-2 w-full flex-nowrap">
                   <!-- 1-1. 기억절 암송 완료 버튼 -->
-                  <button id="btnReciteToggle" onclick="window.toggleReciteStatus(); event.stopPropagation();" class="flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap">
+                  <button id="btnReciteToggle" onclick="window.recordDailyRecite(); event.stopPropagation();" class="flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap">
                     <i id="reciteIcon" class="fa-regular fa-circle-check mr-1 text-base sm:text-lg"></i>
-                    <span id="reciteText" class="whitespace-nowrap font-black">기억절 암송 완료</span>
+                    <span id="reciteText" class="whitespace-nowrap font-black">오늘 암송 실천하기</span>
                   </button>
 
                   <!-- 1-2. 4단계 가림판 모드 버튼 -->
@@ -230,7 +230,7 @@
     </div>
   </main>
 
-  <!-- 💡 [PWA 앱 원터치 설치 배너] -->
+  <!-- PWA 앱 원터치 설치 배너 -->
   <div id="pwaInstallBanner" class="hidden fixed bottom-3 left-3 right-3 max-w-md mx-auto bg-indigo-900/95 backdrop-blur-md text-white p-3.5 rounded-2xl shadow-2xl z-50 flex items-center justify-between border border-indigo-700 animate-fade-in">
     <div class="flex items-center space-x-3">
       <div class="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center text-indigo-950 font-black text-xl shadow">
@@ -297,46 +297,44 @@
 
   <!-- 교과 PDF, 이미지, 텍스트 하이브리드 모달 -->
   <div id="pdfModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-2 md:p-4">
-    <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
-      <div class="bg-red-800 text-white p-3 md:p-4 flex justify-between items-center">
-        <h3 id="modalHeaderTitle" class="font-bold text-base sm:text-lg flex items-center truncate">
-          <i class="fa-solid fa-book-open mr-2"></i>이번 주 교과 자료
-        </h3>
+    <div class="bg-red-800 text-white p-3 md:p-4 flex justify-between items-center">
+      <h3 id="modalHeaderTitle" class="font-bold text-base sm:text-lg flex items-center truncate">
+        <i class="fa-solid fa-book-open mr-2"></i>이번 주 교과 자료
+      </h3>
+      
+      <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
+        <button id="btnViewImage" onclick="window.switchModalView('image')" class="hidden bg-amber-300 hover:bg-amber-200 text-amber-900 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
+          <i class="fa-solid fa-images"></i> 이미지
+        </button>
         
-        <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
-          <button id="btnViewImage" onclick="window.switchModalView('image')" class="hidden bg-amber-300 hover:bg-amber-200 text-amber-900 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
-            <i class="fa-solid fa-images"></i> 이미지
-          </button>
-          
-          <button id="btnViewText" onclick="window.switchModalView('text')" class="hidden bg-blue-600 hover:bg-blue-500 text-white px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
-            <i class="fa-solid fa-font"></i> 텍스트
-          </button>
+        <button id="btnViewText" onclick="window.switchModalView('text')" class="hidden bg-blue-600 hover:bg-blue-500 text-white px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
+          <i class="fa-solid fa-font"></i> 텍스트
+        </button>
 
-          <button onclick="window.openPdfSecured()" class="bg-red-700 hover:bg-red-600 text-red-100 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
-            <i class="fa-solid fa-file-pdf"></i> PDF새창
-          </button>
-          
-          <button onclick="window.closePdfModal()" class="text-red-200 hover:text-white transition p-1 ml-1">
-            <i class="fa-solid fa-xmark text-2xl sm:text-3xl"></i>
-          </button>
+        <button onclick="window.openPdfSecured()" class="bg-red-700 hover:bg-red-600 text-red-100 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
+          <i class="fa-solid fa-file-pdf"></i> PDF새창
+        </button>
+        
+        <button onclick="window.closePdfModal()" class="text-red-200 hover:text-white transition p-1 ml-1">
+          <i class="fa-solid fa-xmark text-2xl sm:text-3xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-1 w-full bg-slate-100 relative overflow-hidden">
+      <div id="imageViewerContainer" class="w-full h-full overflow-y-auto p-2 sm:p-4 hidden space-y-3 custom-scrollbar"></div>
+      
+      <div id="textViewerContainer" class="hidden w-full h-full bg-[#fdfbf7] p-4 md:p-8 overflow-y-auto relative custom-scrollbar">
+        <div class="sticky top-0 right-0 flex justify-end space-x-2 mb-4 z-10">
+          <button onclick="window.adjustTextSize(2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A +</button>
+          <button onclick="window.adjustTextSize(-2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A -</button>
         </div>
+        <div id="textContentArea" class="text-[18px] md:text-[22px] leading-[1.8] text-slate-800 break-keep font-medium pb-10"></div>
       </div>
 
-      <div class="flex-1 w-full bg-slate-100 relative overflow-hidden">
-        <div id="imageViewerContainer" class="w-full h-full overflow-y-auto p-2 sm:p-4 hidden space-y-3 custom-scrollbar"></div>
-        
-        <div id="textViewerContainer" class="hidden w-full h-full bg-[#fdfbf7] p-4 md:p-8 overflow-y-auto relative custom-scrollbar">
-          <div class="sticky top-0 right-0 flex justify-end space-x-2 mb-4 z-10">
-            <button onclick="window.adjustTextSize(2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A +</button>
-            <button onclick="window.adjustTextSize(-2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A -</button>
-          </div>
-          <div id="textContentArea" class="text-[18px] md:text-[22px] leading-[1.8] text-slate-800 break-keep font-medium pb-10"></div>
-        </div>
-
-        <div id="pdfLoadingMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-white">
-          <i class="fa-solid fa-spinner fa-spin text-4xl mb-3 text-red-500"></i>
-          <p class="text-lg font-bold">자료를 불러오는 중입니다...</p>
-        </div>
+      <div id="pdfLoadingMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-white">
+        <i class="fa-solid fa-spinner fa-spin text-4xl mb-3 text-red-500"></i>
+        <p class="text-lg font-bold">자료를 불러오는 중입니다...</p>
       </div>
     </div>
   </div>
@@ -405,10 +403,11 @@
 
     window.currentMaskStep = 1;
 
+    // 주차별 영구 암송 기록 (13기억절 모달 체크용)
     window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
+    // 일일 연속 출석 기록 (매일 실천 스트릭용)
     window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
 
-    // 💡 [PWA 서비스 워커 등록 및 설치 프롬프트 이벤트 제어]
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js').catch(err => console.log('SW registration failed:', err));
     }
@@ -528,34 +527,38 @@
       if (verseEnElem) verseEnElem.innerText = maskedEn ? `"${maskedEn}"` : "";
     };
 
-    window.toggleReciteStatus = async function() {
+    // 💡 [개선된 일일 암송 실천 및 연속 출석 기록 로직]
+    window.recordDailyRecite = async function() {
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
-      const weekKey = String(data.week || (window.currentIndex + 1));
-      const isCurrentlyRecited = !!window.recitedWeeks[weekKey];
-      const newStatus = !isCurrentlyRecited;
 
-      window.recitedWeeks[weekKey] = newStatus;
+      const todayStr = new Date().toISOString().split('T')[0];
+      const weekKey = String(data.week || (window.currentIndex + 1));
+
+      // 주차별 암송 완료 영구 등록 (13기억절 체크마크용)
+      window.recitedWeeks[weekKey] = true;
       localStorage.setItem('recited_weeks', JSON.stringify(window.recitedWeeks));
 
-      if (newStatus) {
-        const todayStr = new Date().toISOString().split('T')[0];
-        if (window.streakData.lastDate !== todayStr) {
-          const yesterday = new Date();
-          yesterday.setDate(yesterday.getDate() - 1);
-          const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-          if (window.streakData.lastDate === yesterdayStr) {
-            window.streakData.count += 1;
-          } else {
-            window.streakData.count = 1;
-          }
-          window.streakData.lastDate = todayStr;
-          localStorage.setItem('streak_data', JSON.stringify(window.streakData));
-        }
+      // 오늘 이미 완료했는지 체크
+      if (window.streakData.lastDate === todayStr) {
+        alert("오늘 암송 실천을 이미 완료하셨습니다! 🔥 (" + window.streakData.count + "일 연속 달성 중)");
+        return;
       }
 
-      window.updateReciteButtonUI(newStatus);
+      // 연속일수 계산
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+      if (window.streakData.lastDate === yesterdayStr) {
+        window.streakData.count += 1;
+      } else {
+        window.streakData.count = 1;
+      }
+      window.streakData.lastDate = todayStr;
+      localStorage.setItem('streak_data', JSON.stringify(window.streakData));
+
+      window.updateDailyReciteButtonUI(true);
       window.updateStreakUI();
 
       if (window.currentUser) {
@@ -572,20 +575,21 @@
       }
     };
 
-    window.updateReciteButtonUI = function(isRecited) {
+    // 오늘 완료 여부에 따른 버튼 UI 반영
+    window.updateDailyReciteButtonUI = function(isDoneToday) {
       const btn = document.getElementById('btnReciteToggle');
       const icon = document.getElementById('reciteIcon');
       const text = document.getElementById('reciteText');
       if (!btn || !icon || !text) return;
 
-      if (isRecited) {
+      if (isDoneToday) {
         btn.className = "flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 active:scale-95 whitespace-nowrap";
         icon.className = "fa-solid fa-circle-check mr-1 text-base sm:text-lg text-yellow-300";
-        text.innerText = "암송 완료! ✨";
+        text.innerText = "오늘 암송 완료! ✨";
       } else {
         btn.className = "flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap";
         icon.className = "fa-regular fa-circle-check mr-1 text-base sm:text-lg";
-        text.innerText = "기억절 암송 완료";
+        text.innerText = "오늘 암송 실천하기";
       }
     };
 
@@ -612,8 +616,8 @@
             localStorage.setItem('streak_data', JSON.stringify(window.streakData));
             window.updateStreakUI();
           }
-          const currentWeekKey = String(window.sheetData[window.currentIndex]?.week || (window.currentIndex + 1));
-          window.updateReciteButtonUI(!!window.recitedWeeks[currentWeekKey]);
+          const todayStr = new Date().toISOString().split('T')[0];
+          window.updateDailyReciteButtonUI(window.streakData.lastDate === todayStr);
         }
       } catch (e) {
         console.log("Cloud load failed:", e);
@@ -693,8 +697,9 @@
       window.applyVerseMasking();
       window.applyMainVerseFontSize();
 
-      const weekKey = String(data.week || (window.currentIndex + 1));
-      window.updateReciteButtonUI(!!window.recitedWeeks[weekKey]);
+      // 오늘 날짜 기준으로 완료 여부 UI 반영
+      const todayStr = new Date().toISOString().split('T')[0];
+      window.updateDailyReciteButtonUI(window.streakData.lastDate === todayStr);
 
       const teacherA = (data && data.teacher_a && data.teacher_a.trim() !== '') ? data.teacher_a.trim() : window.DEFAULT_TEACHERS.a;
       const teacherB = (data && data.teacher_b && data.teacher_b.trim() !== '') ? data.teacher_b.trim() : window.DEFAULT_TEACHERS.b;
