@@ -11,8 +11,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="세종행복교회">
-  <!-- index.html <head> 내부 -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='512' height='512'%3E%3Crect width='512' height='512' rx='115' fill='%23312e81'/%3E%3Cpath d='M352 96c0-17.7-14.3-32-32-32H96C60.7 64 32 92.7 32 128v256c0 35.3 28.7 64 64 64h224c17.7 0 32-14.3 32-32V96zm-96 224H128c-8.8 0-16-7.2-16-16s7.2-16 16-16h128c8.8 0 16 7.2 16 16s-7.2 16-16 16zm0-80H128c-8.8 0-16-7.2-16-16s7.2-16 16-16h128c8.8 0 16 7.2 16 16s-7.2 16-16 16zm192-80c0-17.7-14.3-32-32-32h-32v320h32c17.7 0 32-14.3 32-32V160z' fill='%23fde047'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3004/3004416.png">
+
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -250,12 +250,7 @@
         <h3 id="discussionModalTitle" class="font-bold text-base sm:text-lg flex items-center truncate">
           <i class="fa-solid fa-comments mr-2"></i>이번 주 교과토의 자료
         </h3>
-        <div class="flex items-center space-x-2 sm:space-x-3">
-          <!-- 💡 PWA 앱 설치 버튼 (조용히 숨겨둔 위치, 브라우저가 지원할 때만 표시) -->
-          <button id="pwaInstallBtn" class="hidden text-emerald-200 hover:text-white transition items-center text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded">
-            <i class="fa-solid fa-download mr-1"></i> 앱 설치
-          </button>
-
+        <div class="flex items-center space-x-3">
           <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 px-3 py-1.5 rounded">
             <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 새창 열기
           </button>
@@ -416,45 +411,6 @@
           .catch((err) => console.log('SW registration error:', err));
       });
     }
-
-    // 💡 [PWA 조용한 앱 설치 제어 코드]
-    let deferredPrompt = null;
-    const pwaInstallBtn = document.getElementById('pwaInstallBtn');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      // 설치 가능한 브라우저일 때만 모달 내부 설치 버튼 조용히 표시
-      if (pwaInstallBtn) {
-        pwaInstallBtn.classList.remove('hidden');
-        pwaInstallBtn.classList.add('flex');
-      }
-    });
-
-    if (pwaInstallBtn) {
-      pwaInstallBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) {
-          alert('이미 앱이 설치되어 있거나 홈 화면 추가를 지원하지 않는 브라우저입니다.');
-          return;
-        }
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          console.log('PWA 설치 완료');
-        }
-        deferredPrompt = null;
-        pwaInstallBtn.classList.add('hidden');
-        pwaInstallBtn.classList.remove('flex');
-      });
-    }
-
-    window.addEventListener('appinstalled', () => {
-      if (pwaInstallBtn) {
-        pwaInstallBtn.classList.add('hidden');
-        pwaInstallBtn.classList.remove('flex');
-      }
-      deferredPrompt = null;
-    });
 
     window.onload = async () => {
       window.setupSwipeEvents(); 
