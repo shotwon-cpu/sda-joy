@@ -95,14 +95,12 @@
           <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-50 rounded-bl-full -z-10 opacity-70"></div>
           <div class="p-5 md:p-8 relative z-10 pointer-events-none"> 
             
-            <!-- 💡 [수정] 상단 컨트롤 바: [🔥 연속일수] + [◀] + [▶] + [제 ?기 ?과] -->
+            <!-- 상단 컨트롤 바: [🔥 연속일수] + [◀] + [▶] + [제 ?기 ?과] -->
             <div class="mb-5 flex justify-end items-center gap-1.5 sm:gap-2 flex-wrap">
-              <!-- 1. 연속일수 뱃지 (화살표 왼쪽) -->
               <div id="streakBadge" class="pointer-events-auto flex items-center bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-black shadow-sm mr-auto sm:mr-0">
                 <span class="mr-1 text-sm sm:text-base">🔥</span><span id="streakCount">0</span>일 연속
               </div>
 
-              <!-- 2. 주차 이동 버튼 및 분기 버튼 -->
               <button onclick="window.changeWeek(-1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
                 <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
               </button>
@@ -130,34 +128,35 @@
                 <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150"></span>
               </p>
               
-              <!-- 💡 [수정] 기억절 카드 하단 컨트롤 영역 -->
-              <div class="pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-                <!-- 좌측: 기억절 암송 완료 버튼 -->
-                <button id="btnReciteToggle" onclick="window.toggleReciteStatus(); event.stopPropagation();" class="px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 flex-shrink-0">
-                  <i id="reciteIcon" class="fa-regular fa-circle-check mr-1.5 text-sm sm:text-base"></i>
-                  <span id="reciteText">기억절 암송 완료</span>
-                </button>
+              <!-- 💡 [2줄 구조 완벽 정렬] 1줄: [암송완료]와 [A+/A-] / 2줄: [한글][영어][복사][공유] -->
+              <div class="pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 space-y-3">
+                <!-- 1번째 줄: 좌측 [암송완료] / 우측 [A+/A-] -->
+                <div class="flex justify-between items-center w-full">
+                  <button id="btnReciteToggle" onclick="window.toggleReciteStatus(); event.stopPropagation();" class="px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95">
+                    <i id="reciteIcon" class="fa-regular fa-circle-check mr-1.5 text-sm sm:text-base"></i>
+                    <span id="reciteText">기억절 암송 완료</span>
+                  </button>
 
-                <!-- 우측 그룹: [한글] [영어] [복사] [공유] + [A+/A-] (오른편 끝 배치) -->
-                <div class="flex items-center justify-end gap-1.5 sm:gap-2 flex-wrap">
-                  <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="px-2.5 py-2 sm:px-3 sm:py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
+                  <div class="flex items-center space-x-1 bg-indigo-950/80 p-1 rounded-lg border border-indigo-900/80">
+                    <button onclick="window.adjustMainVerseTextSize(2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-extrabold px-2.5 py-1 rounded text-xs sm:text-sm shadow-sm transition active:scale-95">A +</button>
+                    <button onclick="window.adjustMainVerseTextSize(-2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-extrabold px-2.5 py-1 rounded text-xs sm:text-sm shadow-sm transition active:scale-95">A -</button>
+                  </div>
+                </div>
+
+                <!-- 2번째 줄: 우측 정렬 [한글] [영어] [복사] [공유] -->
+                <div class="flex justify-end items-center gap-1.5 sm:gap-2">
+                  <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="px-2.5 py-1.5 sm:px-3.5 sm:py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
                     <i class="fa-solid fa-volume-high mr-1 sm:mr-1.5"></i> 한글
                   </button>
-                  <button onclick="window.speakVerse('en'); event.stopPropagation();" class="px-2.5 py-2 sm:px-3 sm:py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
+                  <button onclick="window.speakVerse('en'); event.stopPropagation();" class="px-2.5 py-1.5 sm:px-3.5 sm:py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
                     <i class="fa-solid fa-volume-high mr-1 sm:mr-1.5 text-blue-400"></i> 영어
                   </button>
-                  <button onclick="window.copyVerse(); event.stopPropagation();" class="px-2.5 py-2 sm:px-3 sm:py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
+                  <button onclick="window.copyVerse(); event.stopPropagation();" class="px-2.5 py-1.5 sm:px-3.5 sm:py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
                     <i class="fa-solid fa-copy mr-1 sm:mr-1.5"></i> 복사
                   </button>
-                  <button onclick="window.shareVerse(); event.stopPropagation();" class="px-2.5 py-2 sm:px-3 sm:py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
+                  <button onclick="window.shareVerse(); event.stopPropagation();" class="px-2.5 py-1.5 sm:px-3.5 sm:py-2 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
                     <i class="fa-solid fa-share-nodes mr-1 sm:mr-1.5 text-emerald-400"></i> 공유
                   </button>
-
-                  <!-- 💡 글자크기 조절 버튼 (오른편 끝 배치) -->
-                  <div class="flex items-center space-x-1 bg-indigo-950/80 p-1 rounded-lg border border-indigo-900/80 ml-1">
-                    <button onclick="window.adjustMainVerseTextSize(2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-extrabold px-2 py-1 rounded text-xs sm:text-sm shadow-sm transition active:scale-95">A +</button>
-                    <button onclick="window.adjustMainVerseTextSize(-2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-extrabold px-2 py-1 rounded text-xs sm:text-sm shadow-sm transition active:scale-95">A -</button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -422,7 +421,6 @@
       window.recitedWeeks[weekKey] = newStatus;
       localStorage.setItem('recited_weeks', JSON.stringify(window.recitedWeeks));
 
-      // 연속일수(스트릭) 계산
       if (newStatus) {
         const todayStr = new Date().toISOString().split('T')[0];
         if (window.streakData.lastDate !== todayStr) {
@@ -464,11 +462,11 @@
       if (!btn || !icon || !text) return;
 
       if (isRecited) {
-        btn.className = "px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 active:scale-95 flex-shrink-0";
+        btn.className = "px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 active:scale-95";
         icon.className = "fa-solid fa-circle-check mr-1.5 text-sm sm:text-base text-yellow-300";
         text.innerText = "암송 완료! ✨";
       } else {
-        btn.className = "px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 flex-shrink-0";
+        btn.className = "px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95";
         icon.className = "fa-regular fa-circle-check mr-1.5 text-sm sm:text-base";
         text.innerText = "기억절 암송 완료";
       }
@@ -579,11 +577,9 @@
       
       window.applyMainVerseFontSize();
 
-      // 암송 완료 상태 UI 반영
       const weekKey = String(data.week || (window.currentIndex + 1));
       window.updateReciteButtonUI(!!window.recitedWeeks[weekKey]);
 
-      // 분기/주차별 목사님 성함 동적 업데이트
       const teacherA = (data && data.teacher_a && data.teacher_a.trim() !== '') ? data.teacher_a.trim() : window.DEFAULT_TEACHERS.a;
       const teacherB = (data && data.teacher_b && data.teacher_b.trim() !== '') ? data.teacher_b.trim() : window.DEFAULT_TEACHERS.b;
       const teacherC = (data && data.teacher_c && data.teacher_c.trim() !== '') ? data.teacher_c.trim() : window.DEFAULT_TEACHERS.c;
@@ -596,7 +592,6 @@
       if (tabBElem) tabBElem.innerText = teacherB;
       if (tabCElem) tabCElem.innerText = teacherC;
 
-      // 교과토의 버튼 활성/비활성 처리
       const discBtn = document.getElementById('discussionBtn');
       const discBtnText = document.getElementById('discussionBtnText');
       const hasDiscussion = (data && data.discussion_link && data.discussion_link.trim() !== '');
@@ -609,7 +604,6 @@
         discBtnText.innerText = "교과토의 준비중";
       }
 
-      // 교과 열기 버튼 활성/비활성 처리
       const pdfBtn = document.getElementById('pdfLessonBtn');
       const pdfBtnText = document.getElementById('pdfBtnText');
 
@@ -809,8 +803,6 @@
 
       const hasText = (data && data.lesson_text && data.lesson_text.trim() !== '');
       const hasImage = (data && data.image_count && Number(data.image_count) > 0);
-      const hasSourceUrl = (data && data.source_url && data.source_url.trim() !== '');
-      const hasPdfUrl = (data && data.pdf_url && data.pdf_url.trim() !== '');
 
       if (btnImage) { if (hasImage) btnImage.classList.remove('hidden'); else btnImage.classList.add('hidden'); }
       if (btnText) { if (hasText) btnText.classList.remove('hidden'); else btnText.classList.add('hidden'); }
