@@ -4,6 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>세종행복교회 안식일학교</title>
+  
+  <!-- 💡 [PWA 메타태그 및 매니페스트 연결] -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#312e81">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="세종행복교회">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3389/3389081.png">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -129,10 +139,10 @@
                 <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150"></span>
               </p>
               
-              <!-- 💡 [7개 버튼 내부 여백 최소화 & 글씨 크기 극대화] -->
+              <!-- 7개 버튼 2행 레이아웃 (내부 여백 최소화 & 글씨 크기 극대화) -->
               <div class="pt-3 sm:pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 space-y-2 sm:space-y-3">
                 
-                <!-- 1행 (3개 버튼 - 여백 최소화 / 폰트 크기 극대화) -->
+                <!-- 1행 (3개 버튼) -->
                 <div class="flex items-center justify-between gap-1 sm:gap-2 w-full flex-nowrap">
                   <!-- 1-1. 기억절 암송 완료 버튼 -->
                   <button id="btnReciteToggle" onclick="window.toggleReciteStatus(); event.stopPropagation();" class="flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap">
@@ -153,7 +163,7 @@
                   </div>
                 </div>
 
-                <!-- 2행 (4개 버튼 - 여백 최소화 / 폰트 크기 극대화) -->
+                <!-- 2행 (4개 버튼) -->
                 <div class="grid grid-cols-4 gap-1 sm:gap-2 w-full">
                   <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="w-full py-2 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap">
                     <i class="fa-solid fa-volume-high mr-1 text-sm sm:text-base"></i> 한글
@@ -175,15 +185,13 @@
         </div>
       </div>
 
-      <!-- 💡 [교과토의 자료 / 교과 열기 버튼 여백 최소화 & 글씨 크기 극대화] -->
+      <!-- 교과토의 자료 / 교과 열기 버튼 -->
       <div class="grid grid-cols-2 gap-2 sm:gap-3 my-3 sm:my-4">
-        <!-- 교과토의 자료 버튼 -->
         <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-2 sm:px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-black rounded-2xl border border-emerald-100 transition shadow-sm text-base sm:text-lg md:text-xl opacity-50 pointer-events-none cursor-pointer">
           <i class="fa-solid fa-comments text-xl sm:text-2xl"></i>
           <span id="discussionBtnText">교과토의 준비중</span>
         </a>
 
-        <!-- 교과 열기 버튼 -->
         <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-2 sm:px-4 bg-red-50 hover:bg-red-100 text-red-600 font-black rounded-2xl border border-red-100 transition shadow-sm text-base sm:text-lg md:text-xl opacity-50 pointer-events-none cursor-pointer">
           <i class="fa-solid fa-book-open-reader text-xl sm:text-2xl"></i>
           <span id="pdfBtnText">교과 준비중</span>
@@ -221,6 +229,25 @@
       </div>
     </div>
   </main>
+
+  <!-- 💡 [PWA 앱 원터치 설치 배너] -->
+  <div id="pwaInstallBanner" class="hidden fixed bottom-3 left-3 right-3 max-w-md mx-auto bg-indigo-900/95 backdrop-blur-md text-white p-3.5 rounded-2xl shadow-2xl z-50 flex items-center justify-between border border-indigo-700 animate-fade-in">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center text-indigo-950 font-black text-xl shadow">
+        <i class="fa-solid fa-book-bible"></i>
+      </div>
+      <div>
+        <p class="font-extrabold text-sm sm:text-base">세종행복교회 앱 설치</p>
+        <p class="text-xs text-indigo-200">홈 화면에 추가하여 앱처럼 편리하게 이용하세요!</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-1.5">
+      <button id="btnPwaInstall" class="bg-yellow-400 hover:bg-yellow-300 text-indigo-950 font-black px-3 py-1.5 rounded-lg text-xs sm:text-sm shadow transition active:scale-95">설치</button>
+      <button onclick="document.getElementById('pwaInstallBanner').classList.add('hidden')" class="text-indigo-300 hover:text-white p-1">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+  </div>
 
   <!-- 찬미가 모달 -->
   <div id="hymnModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 md:p-4">
@@ -380,6 +407,30 @@
 
     window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
     window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
+
+    // 💡 [PWA 서비스 워커 등록 및 설치 프롬프트 이벤트 제어]
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js').catch(err => console.log('SW registration failed:', err));
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.classList.remove('hidden');
+    });
+
+    document.getElementById('btnPwaInstall')?.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          document.getElementById('pwaInstallBanner').classList.add('hidden');
+        }
+        deferredPrompt = null;
+      }
+    });
 
     window.onload = async () => {
       window.setupSwipeEvents(); 
