@@ -95,33 +95,18 @@
           <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-50 rounded-bl-full -z-10 opacity-70"></div>
           <div class="p-5 md:p-8 relative z-10 pointer-events-none"> 
             
-            <!-- 제목 위 컨트롤 영역: 좌측(A+/A- 글자크기 및 스트릭) & 우측(주차 이동 및 분기 선택) -->
-            <div class="mb-5 flex justify-between items-center gap-2 flex-wrap">
-              <div class="flex items-center space-x-2 pointer-events-auto">
-                <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                  <button onclick="window.adjustMainVerseTextSize(2); event.stopPropagation();" class="bg-white hover:bg-slate-50 text-slate-700 font-extrabold px-2.5 py-1 rounded-lg text-xs sm:text-sm shadow-sm transition active:scale-95">A +</button>
-                  <button onclick="window.adjustMainVerseTextSize(-2); event.stopPropagation();" class="bg-white hover:bg-slate-50 text-slate-700 font-extrabold px-2.5 py-1 rounded-lg text-xs sm:text-sm shadow-sm transition active:scale-95">A -</button>
-                </div>
-                
-                <!-- 💡 [추가] 연속 암송 스트릭 표시 뱃지 -->
-                <div id="streakBadge" class="flex items-center bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-xl text-xs sm:text-sm font-black shadow-sm">
-                  <span class="mr-1">🔥</span> <span id="streakCount">0</span>일 연속
-                </div>
-              </div>
-
-              <!-- 주차 이동 및 분기 선택 -->
-              <div class="flex items-center gap-2 pointer-events-auto">
-                <button onclick="window.changeWeek(-1); event.stopPropagation();" class="w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
-                  <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
-                </button>
-                <button onclick="window.changeWeek(1); event.stopPropagation();" class="w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
-                  <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
-                </button>
-                <button onclick="window.openListModal('quarter'); event.stopPropagation();" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-base sm:text-lg md:text-xl font-extrabold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition shadow-sm inline-flex items-center ml-1 md:ml-2">
-                  <span id="displayQuarter">제 ?기 ?과</span>
-                  <i class="fa-solid fa-caret-down ml-2 opacity-50 text-sm"></i>
-                </button>
-              </div>
+            <!-- 💡 [원상 복구] 상단 컨트롤 바: 원래 우측 정렬 위치(◀, ▶, 제 ?기 ?과) 완벽 유지 -->
+            <div class="mb-5 flex justify-end items-center gap-2">
+              <button onclick="window.changeWeek(-1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
+                <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
+              </button>
+              <button onclick="window.changeWeek(1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
+                <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
+              </button>
+              <button onclick="window.openListModal('quarter'); event.stopPropagation();" class="pointer-events-auto bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-base sm:text-lg md:text-xl font-extrabold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition shadow-sm inline-flex items-center ml-1 md:ml-2">
+                <span id="displayQuarter">제 ?기 ?과</span>
+                <i class="fa-solid fa-caret-down ml-2 opacity-50 text-sm"></i>
+              </button>
             </div>
             
             <div class="mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -139,27 +124,33 @@
                 <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150"></span>
               </p>
               
-              <div class="flex justify-between items-center gap-2 pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 flex-wrap">
-                <!-- 💡 [추가] 암송 완료 체크 토글 버튼 -->
-                <button id="btnReciteToggle" onclick="window.toggleReciteStatus(); event.stopPropagation();" class="px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95">
-                  <i id="reciteIcon" class="fa-regular fa-circle-check mr-1.5 text-base sm:text-lg"></i>
+              <!-- 💡 [원래 순서 유지 및 재배치] 암송완료 -> A+/A- -> 한글 -> 영어 -> 복사 -> 공유 -->
+              <div class="flex justify-end items-center gap-1.5 sm:gap-2 pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 flex-wrap">
+                <!-- 1. 암송 완료 버튼 -->
+                <button id="btnReciteToggle" onclick="window.toggleReciteStatus(); event.stopPropagation();" class="px-2.5 py-2 sm:px-3.5 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 mr-auto">
+                  <i id="reciteIcon" class="fa-regular fa-circle-check mr-1.5 text-sm sm:text-base"></i>
                   <span id="reciteText">기억절 암송 완료</span>
                 </button>
 
-                <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                  <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="px-2.5 py-2 sm:px-3.5 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
-                    <i class="fa-solid fa-volume-high mr-1 sm:mr-1.5"></i> 한글
-                  </button>
-                  <button onclick="window.speakVerse('en'); event.stopPropagation();" class="px-2.5 py-2 sm:px-3.5 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
-                    <i class="fa-solid fa-volume-high mr-1 sm:mr-1.5 text-blue-400"></i> 영어
-                  </button>
-                  <button onclick="window.copyVerse(); event.stopPropagation();" class="px-2.5 py-2 sm:px-3.5 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
-                    <i class="fa-solid fa-copy mr-1 sm:mr-1.5"></i> 복사
-                  </button>
-                  <button onclick="window.shareVerse(); event.stopPropagation();" class="px-2.5 py-2 sm:px-3.5 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
-                    <i class="fa-solid fa-share-nodes mr-1 sm:mr-1.5 text-emerald-400"></i> 공유
-                  </button>
+                <!-- 2. 글자크기 조절 버튼 (암송완료 버튼 오른쪽) -->
+                <div class="flex items-center space-x-1 bg-indigo-950/80 p-1 rounded-lg border border-indigo-900/80">
+                  <button onclick="window.adjustMainVerseTextSize(2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-extrabold px-2 py-1 rounded text-xs sm:text-sm shadow-sm transition active:scale-95">A +</button>
+                  <button onclick="window.adjustMainVerseTextSize(-2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-extrabold px-2 py-1 rounded text-xs sm:text-sm shadow-sm transition active:scale-95">A -</button>
                 </div>
+
+                <!-- 3. 원래 버튼 순서 유지 (한글 -> 영어 -> 복사 -> 공유) -->
+                <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="px-2.5 py-2 sm:px-3.5 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
+                  <i class="fa-solid fa-volume-high mr-1 sm:mr-1.5"></i> 한글
+                </button>
+                <button onclick="window.speakVerse('en'); event.stopPropagation();" class="px-2.5 py-2 sm:px-3.5 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
+                  <i class="fa-solid fa-volume-high mr-1 sm:mr-1.5 text-blue-400"></i> 영어
+                </button>
+                <button onclick="window.copyVerse(); event.stopPropagation();" class="px-2.5 py-2 sm:px-3.5 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
+                  <i class="fa-solid fa-copy mr-1 sm:mr-1.5"></i> 복사
+                </button>
+                <button onclick="window.shareVerse(); event.stopPropagation();" class="px-2.5 py-2 sm:px-3.5 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-xs sm:text-sm md:text-base font-bold text-indigo-100 transition flex items-center shadow-sm tracking-tight">
+                  <i class="fa-solid fa-share-nodes mr-1 sm:mr-1.5 text-emerald-400"></i> 공유
+                </button>
               </div>
             </div>
           </div>
@@ -367,14 +358,11 @@
     window.currentModalMode = 'pdf';
     window.currentUser = null;
 
-    // 💡 [암송 관리 및 스트릭 로컬/Firestore 연동 상태]
     window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
-    window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
 
     window.onload = async () => {
       window.setupSwipeEvents(); 
       window.setupModalBackdropClicks();
-      window.updateStreakUI();
       
       try {
         const userCred = await signInAnonymously(auth);
@@ -414,7 +402,6 @@
       }
     };
 
-    // 🌟 [암송 토글 및 스트릭 연산 로직]
     window.toggleReciteStatus = async function() {
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
@@ -425,34 +412,13 @@
       window.recitedWeeks[weekKey] = newStatus;
       localStorage.setItem('recited_weeks', JSON.stringify(window.recitedWeeks));
 
-      // 스트릭(연속 일수) 계산
-      if (newStatus) {
-        const todayStr = new Date().toISOString().split('T')[0];
-        if (window.streakData.lastDate !== todayStr) {
-          const yesterday = new Date();
-          yesterday.setDate(yesterday.getDate() - 1);
-          const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-          if (window.streakData.lastDate === yesterdayStr) {
-            window.streakData.count += 1;
-          } else {
-            window.streakData.count = 1;
-          }
-          window.streakData.lastDate = todayStr;
-          localStorage.setItem('streak_data', JSON.stringify(window.streakData));
-        }
-      }
-
       window.updateReciteButtonUI(newStatus);
-      window.updateStreakUI();
 
-      // Cloud 동기화
       if (window.currentUser) {
         try {
           const userDocRef = doc(db, 'user_records', window.currentUser.uid);
           await setDoc(userDocRef, {
             recited_weeks: window.recitedWeeks,
-            streak_data: window.streakData,
             last_updated: new Date().toISOString()
           }, { merge: true });
         } catch (e) {
@@ -468,20 +434,13 @@
       if (!btn || !icon || !text) return;
 
       if (isRecited) {
-        btn.className = "px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 active:scale-95";
-        icon.className = "fa-solid fa-circle-check mr-1.5 text-base sm:text-lg text-yellow-300";
+        btn.className = "px-2.5 py-2 sm:px-3.5 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 active:scale-95 mr-auto";
+        icon.className = "fa-solid fa-circle-check mr-1.5 text-sm sm:text-base text-yellow-300";
         text.innerText = "암송 완료! ✨";
       } else {
-        btn.className = "px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95";
-        icon.className = "fa-regular fa-circle-check mr-1.5 text-base sm:text-lg";
+        btn.className = "px-2.5 py-2 sm:px-3.5 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 mr-auto";
+        icon.className = "fa-regular fa-circle-check mr-1.5 text-sm sm:text-base";
         text.innerText = "기억절 암송 완료";
-      }
-    };
-
-    window.updateStreakUI = function() {
-      const streakElem = document.getElementById('streakCount');
-      if (streakElem) {
-        streakElem.innerText = window.streakData.count || 0;
       }
     };
 
@@ -495,11 +454,6 @@
           if (cloudData.recited_weeks) {
             window.recitedWeeks = { ...window.recitedWeeks, ...cloudData.recited_weeks };
             localStorage.setItem('recited_weeks', JSON.stringify(window.recitedWeeks));
-          }
-          if (cloudData.streak_data) {
-            window.streakData = cloudData.streak_data;
-            localStorage.setItem('streak_data', JSON.stringify(window.streakData));
-            window.updateStreakUI();
           }
           const currentWeekKey = String(window.sheetData[window.currentIndex]?.week || (window.currentIndex + 1));
           window.updateReciteButtonUI(!!window.recitedWeeks[currentWeekKey]);
@@ -1060,7 +1014,6 @@
       document.getElementById('verseListModal').classList.add('hidden');
     };
 
-    // 💡 [수정] 목록 모달에서 주차별 암송 완료 여부에 따라 초록색 체크(✔) 뱃지 렌더링
     window.renderList = function(mode, quarter = 1) {
       window.currentListMode = mode;
       window.currentListQuarter = quarter;
@@ -1099,7 +1052,6 @@
           dateStr = `${month}월 ${date}일`;
         }
 
-        // 💡 암송 완료 체크마크 뱃지 HTML
         const checkBadgeHtml = isRecited ? `
           <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xs font-black px-2.5 py-1 rounded-full border border-emerald-200 shadow-sm ml-2">
             <i class="fa-solid fa-check text-emerald-600"></i> 암송완료
