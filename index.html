@@ -128,14 +128,22 @@
                 <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150"></span>
               </p>
               
-              <!-- 💡 [2줄 구조 완벽 정렬] 1줄: [암송완료]와 [A+/A-] / 2줄: [한글][영어][복사][공유] -->
+              <!-- 2줄 구조: 1줄: [암송완료] + [💡 힌트/가림모드] + [A+/A-] / 2줄: [한글][영어][복사][공유] -->
               <div class="pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 space-y-3">
-                <!-- 1번째 줄: 좌측 [암송완료] / 우측 [A+/A-] -->
-                <div class="flex justify-between items-center w-full">
-                  <button id="btnReciteToggle" onclick="window.toggleReciteStatus(); event.stopPropagation();" class="px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95">
-                    <i id="reciteIcon" class="fa-regular fa-circle-check mr-1.5 text-sm sm:text-base"></i>
-                    <span id="reciteText">기억절 암송 완료</span>
-                  </button>
+                <!-- 1번째 줄: 좌측 [암송완료] + [가림모드 단계별 버튼] / 우측 [A+/A-] -->
+                <div class="flex justify-between items-center w-full gap-2 flex-wrap">
+                  <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <button id="btnReciteToggle" onclick="window.toggleReciteStatus(); event.stopPropagation();" class="px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95">
+                      <i id="reciteIcon" class="fa-regular fa-circle-check mr-1.5 text-sm sm:text-base"></i>
+                      <span id="reciteText">기억절 암송 완료</span>
+                    </button>
+
+                    <!-- 💡 [추가] 4단계 힌트/가림판 모드 버튼 -->
+                    <button id="btnMaskStep" onclick="window.cycleMaskStep(); event.stopPropagation();" class="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-black transition shadow-md flex items-center bg-indigo-900/90 hover:bg-indigo-800 text-amber-300 border border-amber-400/40 active:scale-95">
+                      <i id="maskStepIcon" class="fa-regular fa-eye mr-1.5 text-amber-300"></i>
+                      <span id="maskStepText">1단계: 전체보기</span>
+                    </button>
+                  </div>
 
                   <div class="flex items-center space-x-1 bg-indigo-950/80 p-1 rounded-lg border border-indigo-900/80">
                     <button onclick="window.adjustMainVerseTextSize(2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-extrabold px-2.5 py-1 rounded text-xs sm:text-sm shadow-sm transition active:scale-95">A +</button>
@@ -365,6 +373,9 @@
     window.currentModalMode = 'pdf';
     window.currentUser = null;
 
+    // 💡 [암송 가림판 단계 상태] 1: 전체보기, 2: 빈칸모드, 3: 첫글자모드, 4: 전체가림
+    window.currentMaskStep = 1;
+
     window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
     window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
 
@@ -409,6 +420,63 @@
         console.error("Auth error:", error);
         document.getElementById('loadingScreen').innerHTML = "<p class='text-red-500 font-bold'>접속 권한(Auth) 오류입니다.</p>";
       }
+    };
+
+    // 🌟 [4단계 인출 훈련 가림판 변환 알고리즘]
+    window.cycleMaskStep = function() {
+      window.currentMaskStep = (window.currentMaskStep % 4) + 1;
+      window.applyVerseMasking();
+    };
+
+    window.applyVerseMasking = function() {
+      const data = window.sheetData[window.currentIndex];
+      if (!data) return;
+
+      const btnText = document.getElementById('maskStepText');
+      const btnIcon = document.getElementById('maskStepIcon');
+      const verseKoElem = document.getElementById('displayVerseKo');
+      const verseEnElem = document.getElementById('displayVerseEn');
+
+      const originalKo = data.verse_ko ? data.verse_ko.trim() : "";
+      const originalEn = data.verse_en ? data.verse_en.trim() : "";
+
+      const stepNames = {
+        1: { text: "1단계: 전체보기", icon: "fa-regular fa-eye" },
+        2: { text: "2단계: 빈칸모드", icon: "fa-solid fa-puzzle-piece" },
+        3: { text: "3단계: 첫글자만", icon: "fa-solid fa-font" },
+        4: { text: "4단계: 전체가림", icon: "fa-solid fa-eye-slash" }
+      };
+
+      if (btnText && btnIcon) {
+        btnText.innerText = stepNames[window.currentMaskStep].text;
+        btnIcon.className = stepNames[window.currentMaskStep].icon + " mr-1.5 text-amber-300";
+      }
+
+      let maskedKo = originalKo;
+      let maskedEn = originalEn;
+
+      if (window.currentMaskStep === 2) {
+        // 2단계: 핵심 단어 빈칸 [ ___ ] 처리 (3글자 이상 어절 마스킹)
+        maskedKo = originalKo.split(' ').map((w, idx) => (w.length >= 3 && idx % 2 === 1) ? '[ ___ ]' : w).join(' ');
+        maskedEn = originalEn.split(' ').map((w, idx) => (w.length >= 4 && idx % 2 === 1) ? '[ ___ ]' : w).join(' ');
+      } else if (window.currentMaskStep === 3) {
+        // 3단계: 첫 글자만 남기고 '○' 마스킹
+        maskedKo = originalKo.split(' ').map(word => {
+          if (word.length <= 1) return word;
+          return word[0] + '○'.repeat(word.length - 1);
+        }).join(' ');
+        maskedEn = originalEn.split(' ').map(word => {
+          if (word.length <= 1) return word;
+          return word[0] + '•'.repeat(word.length - 1);
+        }).join(' ');
+      } else if (window.currentMaskStep === 4) {
+        // 4단계: 전체 가림 (블라인드)
+        maskedKo = "••••••••••••••••••••••••••••••••••••••••";
+        maskedEn = "••••••••••••••••••••••••••••••••••••••••";
+      }
+
+      if (verseKoElem) verseKoElem.innerText = maskedKo ? `"${maskedKo}"` : "";
+      if (verseEnElem) verseEnElem.innerText = maskedEn ? `"${maskedEn}"` : "";
     };
 
     window.toggleReciteStatus = async function() {
@@ -462,11 +530,11 @@
       if (!btn || !icon || !text) return;
 
       if (isRecited) {
-        btn.className = "px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 active:scale-95";
+        btn.className = "px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 active:scale-95";
         icon.className = "fa-solid fa-circle-check mr-1.5 text-sm sm:text-base text-yellow-300";
         text.innerText = "암송 완료! ✨";
       } else {
-        btn.className = "px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95";
+        btn.className = "px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs sm:text-sm md:text-base font-extrabold transition shadow-md flex items-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95";
         icon.className = "fa-regular fa-circle-check mr-1.5 text-sm sm:text-base";
         text.innerText = "기억절 암송 완료";
       }
@@ -570,11 +638,11 @@
       const bibleKo = data.bible_ko ? `(${data.bible_ko})` : '';
       const bibleEn = data.bible_en ? `(${data.bible_en})` : '';
       
-      document.getElementById('displayVerseKo').innerText = data.verse_ko ? `"${data.verse_ko}"` : '';
       document.getElementById('displayBibleKo').innerText = bibleKo;
-      document.getElementById('displayVerseEn').innerText = data.verse_en ? `"${data.verse_en}"` : '';
       document.getElementById('displayBibleEn').innerText = bibleEn;
       
+      // 가림판 상태에 맞춰 기억절 본문 렌더링
+      window.applyVerseMasking();
       window.applyMainVerseFontSize();
 
       const weekKey = String(data.week || (window.currentIndex + 1));
@@ -634,6 +702,7 @@
 
         setTimeout(() => {
           window.currentIndex = newIndex; 
+          window.currentMaskStep = 1; // 주차 변경 시 1단계(전체보기)로 자동 리셋
           window.updateUI();
           swipeZone.classList.remove('slide-left', 'slide-right');
           swipeZone.style.transition = 'none'; 
@@ -651,6 +720,7 @@
     
     window.selectWeek = function(index) { 
       window.currentIndex = parseInt(index); 
+      window.currentMaskStep = 1;
       window.updateUI(); 
     };
 
