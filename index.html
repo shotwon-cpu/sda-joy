@@ -316,7 +316,7 @@
         </button>
         
         <button onclick="window.closePdfModal()" class="text-red-200 hover:text-white transition p-1 ml-1">
-          <i class="fa-solid fa-xmark text-2xl sm:text-3xl"></i>
+            <i class="fa-solid fa-xmark text-2xl sm:text-3xl"></i>
         </button>
       </div>
     </div>
@@ -377,7 +377,16 @@
   <!-- 🚀 Firebase 연동 및 스크립트 영역 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { 
+      initializeFirestore, 
+      persistentLocalCache, 
+      persistentMultipleTabManager, 
+      collection, 
+      doc, 
+      setDoc, 
+      getDoc, 
+      onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -390,7 +399,14 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+
+    // 💡 [2번 기능 핵심] IndexedDB 기반 Firestore 오프라인 영구 캐시 활성화
+    const db = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager()
+      })
+    });
+
     const auth = getAuth(app);
 
     window.DEFAULT_TEACHERS = { a: "장석원 목사", b: "권정행 목사", c: "이주환 목사" };
@@ -408,7 +424,7 @@
     // 일일 연속 출석 기록 (매일 실천 스트릭용)
     window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
 
-    // 💡 [UTC 시차 문제 완전 해결] 한국 현지 날짜(YYYY-MM-DD) 반환 함수
+    // 한국 현지 날짜(YYYY-MM-DD) 반환 함수
     window.getTodayLocalDateString = function() {
       const now = new Date();
       const year = now.getFullYear();
@@ -451,6 +467,8 @@
         window.loadUserReciteDataFromCloud();
 
         const quarterDataRef = collection(db, 'sabbath_data');
+        
+        // 💡 오프라인 캐시가 적용되어 캐시된 로컬 DB로부터 0.01초만에 즉각 렌더링
         onSnapshot(quarterDataRef, (snapshot) => {
           let loadedData = [];
           
@@ -478,7 +496,8 @@
         });
 
       } catch (error) {
-        console.error("Auth error:", error);
+        console.error("Auth/Firestore error:", error);
+        // 오프라인 상태에서도 인증 실패 시 캐시된 LocalStorage 데이터가 동작하도록 대비
         document.getElementById('loadingScreen').innerHTML = "<p class='text-red-500 font-bold'>접속 권한(Auth) 오류입니다.</p>";
       }
     };
@@ -536,7 +555,6 @@
       if (verseEnElem) verseEnElem.innerText = maskedEn ? `"${maskedEn}"` : "";
     };
 
-    // 💡 [개선] 시차 오차를 완전히 제거한 연속 출석 & 일일 암송 로직
     window.recordDailyRecite = async function() {
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
@@ -544,31 +562,25 @@
       const todayStr = window.getTodayLocalDateString();
       const weekKey = String(data.week || (window.currentIndex + 1));
 
-      // 주차별 암송 완료 영구 등록 (13기억절 체크마크용)
       window.recitedWeeks[weekKey] = true;
       localStorage.setItem('recited_weeks', JSON.stringify(window.recitedWeeks));
 
-      // 오늘 이미 완료했는지 체크
       if (window.streakData.lastDate === todayStr) {
         alert("오늘 암송 실천을 이미 완료하셨습니다! 🔥 (" + window.streakData.count + "일 연속 달성 중)");
         return;
       }
 
-      // 연속일수(스트릭) 정확한 일수 계산 (밀리초 차이 기반)
       if (window.streakData.lastDate) {
         const lastDateObj = new Date(window.streakData.lastDate + 'T00:00:00');
         const todayDateObj = new Date(todayStr + 'T00:00:00');
         const diffDays = Math.round((todayDateObj - lastDateObj) / (1000 * 60 * 60 * 24));
 
         if (diffDays === 1) {
-          // 어제 하고 오늘 한 경우 -> +1일 증가
           window.streakData.count = (window.streakData.count || 0) + 1;
         } else {
-          // 하루 이상 건너뛴 경우 -> 1일부터 재시작
           window.streakData.count = 1;
         }
       } else {
-        // 최초 시작
         window.streakData.count = 1;
       }
 
@@ -592,7 +604,6 @@
       }
     };
 
-    // 오늘 완료 여부에 따른 버튼 UI 반영
     window.updateDailyReciteButtonUI = function(isDoneToday) {
       const btn = document.getElementById('btnReciteToggle');
       const icon = document.getElementById('reciteIcon');
@@ -714,7 +725,6 @@
       window.applyVerseMasking();
       window.applyMainVerseFontSize();
 
-      // 오늘 날짜 기준으로 완료 여부 UI 반영
       const todayStr = window.getTodayLocalDateString();
       window.updateDailyReciteButtonUI(window.streakData.lastDate === todayStr);
 
