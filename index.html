@@ -141,7 +141,10 @@
           <button onclick="changeVideoTab('c')" id="tab-c" class="tab-inactive border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 C</button>
         </div>
         <div class="aspect-video bg-slate-900 rounded-2xl overflow-hidden relative shadow-inner border border-slate-800">
-          <iframe id="videoPlayer" class="w-full h-full hidden" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          <div id="videoLoader" class="absolute inset-0 flex items-center justify-center bg-slate-900 z-10 hidden">
+            <i class="fa-solid fa-spinner fa-spin text-3xl text-red-500"></i>
+          </div>
+          <iframe id="videoPlayer" class="w-full h-full hidden transition-opacity duration-500 opacity-0" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
       </div>
     </div>
@@ -285,6 +288,7 @@
       document.getElementById('tab-c').innerText = window.TEACHER_NAMES.c;
       
       window.setupSwipeEvents(); 
+      window.setupModalBackdropClicks(); // 💡 [추가] 모달 외부 클릭 이벤트 등록
       
       try {
         await signInAnonymously(auth);
@@ -438,15 +442,33 @@
     window.updateVideoPlayer = function() {
       const data = window.sheetData[window.currentIndex];
       const player = document.getElementById('videoPlayer');
+      const loader = document.getElementById('videoLoader');
       let targetUrl = (window.currentTab === 'a') ? data.youtube_a : (window.currentTab === 'b') ? data.youtube_b : data.youtube_c;
       const videoId = window.extractYouTubeId(targetUrl);
       
       if (videoId) {
-        player.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
-        player.classList.remove('hidden');
+        // 부드러운 전환 효과를 위한 로더 표시 및 페이드 아웃
+        player.classList.remove('opacity-100');
+        player.classList.add('opacity-0');
+        loader.classList.remove('hidden');
+        
+        setTimeout(() => {
+          player.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
+          player.classList.remove('hidden');
+          
+          // 영상 로딩이 완료되면 로더 숨기고 페이드 인
+          player.onload = () => {
+            loader.classList.add('hidden');
+            player.classList.remove('opacity-0');
+            player.classList.add('opacity-100');
+          };
+        }, 200);
       } else {
         player.src = "";
         player.classList.add('hidden');
+        player.classList.remove('opacity-100');
+        player.classList.add('opacity-0');
+        loader.classList.add('hidden');
       }
     };
 
@@ -484,7 +506,8 @@
     // ==========================================
     // 🌟 텍스트(전자책) 및 하이브리드 모달 제어 영역 (확대 오인식 방지 & 비밀번호 제거)
     // ==========================================
-    window.currentTextSize = 18;
+    // 🌟 기기 화면 크기(모바일/PC)에 맞춘 반응형 초기 폰트 크기 자동 설정
+    window.currentTextSize = window.innerWidth < 768 ? 16 : 22;
     window.currentImagePage = 1;
     window.totalImagePages = 14;
 
@@ -849,6 +872,27 @@
         }
       });
       swipeZone.addEventListener('mouseleave', () => { isMouseDown = false; });
+    };
+
+    // 💡 [추가] 모달 바깥쪽(검은색 배경) 클릭 시 모달 닫기 기능
+    window.setupModalBackdropClicks = function() {
+      const modals = [
+        { id: 'discussionModal', closeFunc: window.closeDiscussionModal },
+        { id: 'pdfModal', closeFunc: window.closePdfModal },
+        { id: 'verseListModal', closeFunc: window.closeListModal }
+      ];
+
+      modals.forEach(modalInfo => {
+        const modalElement = document.getElementById(modalInfo.id);
+        if (modalElement) {
+          modalElement.addEventListener('click', function(e) {
+            // 클릭된 요소가 모달 배경(자신)일 때만 닫기 (내부 하얀 창 클릭 시에는 안 닫힘)
+            if (e.target === this) {
+              modalInfo.closeFunc();
+            }
+          });
+        }
+      });
     };
   </script>
 </body>
