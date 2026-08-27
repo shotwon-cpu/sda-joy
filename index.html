@@ -7,10 +7,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    /* 기본 공통 스타일 (PC에서는 정상적으로 자연스러운 마우스 휠 스크롤 지원) */
+    /* 💡 카카오톡 인앱 브라우저 및 모바일/PC 전 기기 수직 스크롤 정상화 */
     html {
       width: 100%;
       overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
     }
     body {
       width: 100%;
@@ -19,16 +20,8 @@
       background-color: #f8fafc;
       font-family: 'Pretendard', sans-serif;
       overflow-x: hidden;
-      overflow-y: auto;
-    }
-
-    /* 터치 지원 모바일 기기에서만 화면 밖 여백 및 바운스 현상 차단 */
-    @media (hover: none) and (pointer: coarse) {
-      html, body {
-        overscroll-behavior-x: none;
-        overscroll-behavior-y: none;
-        -webkit-overflow-scrolling: touch;
-      }
+      overflow-y: auto !important; /* 상하 스크롤 보장 */
+      -webkit-overflow-scrolling: touch;
     }
 
     .nav-header { background-color: #312e81; }
@@ -36,11 +29,11 @@
     .tab-active { background-color: #ef4444; color: white; border-color: #ef4444; }
     .tab-inactive { background-color: #f1f5f9; color: #475569; border-color: #cbd5e1; }
     
+    /* 💡 좌우 스와이프는 지원하되 브라우저 본래의 상하 수직 스크롤은 절대 방해하지 않음 */
     .swipe-area { 
-      touch-action: pan-y; 
+      touch-action: pan-y !important; 
       user-select: none; 
       -webkit-user-select: none; 
-      will-change: transform, opacity;
     }
     
     .loader {
@@ -93,7 +86,7 @@
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto p-2 md:p-4 space-y-3 md:space-y-5 mt-1 md:mt-2 relative flex-1 w-full pb-8">
+  <main class="max-w-4xl mx-auto p-2 md:p-4 space-y-3 md:space-y-5 mt-1 md:mt-2 relative flex-1 w-full pb-10">
     <div id="loadingScreen" class="absolute inset-0 flex flex-col items-center justify-center bg-[#f8fafc] z-50">
       <div class="loader mb-4"></div>
       <p class="text-indigo-900 font-bold text-lg md:text-xl animate-pulse">데이터를 0.1초만에 불러옵니다 🚀</p>
@@ -161,7 +154,7 @@
           <span>교과토의 자료</span>
         </a>
 
-        <!-- 💡 '교과 자료 열기'에서 '교과 열기'로 텍스트 변경 -->
+        <!-- 교과 열기 버튼 -->
         <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl border border-red-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none cursor-pointer">
           <i class="fa-solid fa-book-open-reader text-lg"></i>
           <span id="pdfBtnText">교과 준비중</span>
@@ -217,7 +210,6 @@
   <div id="discussionModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
-        <!-- 💡 주차별 동적 제목 업데이트를 위한 ID 부여 -->
         <h3 id="discussionModalTitle" class="font-bold text-base sm:text-lg flex items-center truncate">
           <i class="fa-solid fa-comments mr-2"></i>이번 주 교과토의 자료
         </h3>
@@ -447,7 +439,6 @@
       const hasSourceUrl = (data && data.source_url && data.source_url.trim() !== '');
       const hasPdfUrl = (data && data.pdf_url && data.pdf_url.trim() !== '');
 
-      // 💡 '교과 자료 열기' 대신 '교과 열기'로 표시
       if (hasText || hasImage || hasSourceUrl || hasPdfUrl) {
         window.currentPdfUrl = (hasSourceUrl ? data.source_url.trim() : (hasPdfUrl ? data.pdf_url.trim() : ""));
         pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
@@ -547,7 +538,6 @@
       document.getElementById('hymnIframe').src = "";
     };
 
-    // 💡 교과토의 모달 상단 제목을 현재 주차("제 ?기 ?과 토의 자료")로 동적 반영
     window.openDiscussionModal = function() {
       const data = window.sheetData[window.currentIndex];
       const iframe = document.getElementById('discussionIframe');
@@ -598,7 +588,6 @@
       if (area) area.style.fontSize = window.currentTextSize + "px";
     };
 
-    // 🌟 13기억절 / 52기억절 목록 글씨 크기 조절 변수 및 함수
     window.currentListTextDelta = 0;
     window.currentListMode = 'quarter';
     window.currentListQuarter = 1;
@@ -894,7 +883,6 @@
         container.innerHTML = '<p class="text-center text-slate-500 py-5 text-lg">해당하는 데이터가 없습니다.</p>'; return;
       }
 
-      // 글씨 크기 오프셋 계산
       const d = window.currentListTextDelta || 0;
       const titleKoSize = (20 + d) + "px";
       const titleEnSize = (14 + d) + "px";
@@ -931,34 +919,37 @@
       });
     };
 
+    // 💡 수직 스크롤(위아래)을 방해하지 않는 정밀 스와이프 제어
     window.setupSwipeEvents = function() {
       const swipeZone = document.getElementById('swipeZone');
       let touchStartX = 0, touchStartY = 0;
-      const minSwipeDistance = 30; 
+      const minSwipeDistance = 45; 
 
       swipeZone.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX; 
-        touchStartY = e.changedTouches[0].screenY; 
+        touchStartX = e.changedTouches[0].clientX; 
+        touchStartY = e.changedTouches[0].clientY; 
       }, {passive: true});
       
       swipeZone.addEventListener('touchend', e => {
-        let touchEndX = e.changedTouches[0].screenX; 
-        let touchEndY = e.changedTouches[0].screenY; 
+        let touchEndX = e.changedTouches[0].clientX; 
+        let touchEndY = e.changedTouches[0].clientY; 
         let dx = touchEndX - touchStartX; 
         let dy = touchEndY - touchStartY; 
-        if (Math.abs(dx) >= minSwipeDistance && Math.abs(dx) > Math.abs(dy) * 0.7) {
+        
+        // 가로 이동 거리가 세로 이동 거리보다 확실히 클 때만 주차 변경 실행
+        if (Math.abs(dx) >= minSwipeDistance && Math.abs(dx) > Math.abs(dy) * 1.5) {
            if (dx > 0) window.changeWeek(-1); 
            else window.changeWeek(1);  
         }
       }, {passive: true});
 
       let isMouseDown = false;
-      swipeZone.addEventListener('mousedown', e => { isMouseDown = true; touchStartX = e.screenX; touchStartY = e.screenY; });
+      swipeZone.addEventListener('mousedown', e => { isMouseDown = true; touchStartX = e.clientX; touchStartY = e.clientY; });
       swipeZone.addEventListener('mouseup', e => {
         if(isMouseDown) {
           isMouseDown = false;
-          let dx = e.screenX - touchStartX; let dy = e.screenY - touchStartY;
-          if (Math.abs(dx) >= minSwipeDistance && Math.abs(dx) > Math.abs(dy) * 0.7) {
+          let dx = e.clientX - touchStartX; let dy = e.clientY - touchStartY;
+          if (Math.abs(dx) >= minSwipeDistance && Math.abs(dx) > Math.abs(dy) * 1.5) {
              if (dx > 0) window.changeWeek(-1); else window.changeWeek(1); 
           }
         }
