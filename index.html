@@ -408,6 +408,15 @@
     // 일일 연속 출석 기록 (매일 실천 스트릭용)
     window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
 
+    // 💡 [UTC 시차 문제 완전 해결] 한국 현지 날짜(YYYY-MM-DD) 반환 함수
+    window.getTodayLocalDateString = function() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js').catch(err => console.log('SW registration failed:', err));
     }
@@ -527,12 +536,12 @@
       if (verseEnElem) verseEnElem.innerText = maskedEn ? `"${maskedEn}"` : "";
     };
 
-    // 💡 [개선된 일일 암송 실천 및 연속 출석 기록 로직]
+    // 💡 [개선] 시차 오차를 완전히 제거한 연속 출석 & 일일 암송 로직
     window.recordDailyRecite = async function() {
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
 
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = window.getTodayLocalDateString();
       const weekKey = String(data.week || (window.currentIndex + 1));
 
       // 주차별 암송 완료 영구 등록 (13기억절 체크마크용)
@@ -545,16 +554,24 @@
         return;
       }
 
-      // 연속일수 계산
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      // 연속일수(스트릭) 정확한 일수 계산 (밀리초 차이 기반)
+      if (window.streakData.lastDate) {
+        const lastDateObj = new Date(window.streakData.lastDate + 'T00:00:00');
+        const todayDateObj = new Date(todayStr + 'T00:00:00');
+        const diffDays = Math.round((todayDateObj - lastDateObj) / (1000 * 60 * 60 * 24));
 
-      if (window.streakData.lastDate === yesterdayStr) {
-        window.streakData.count += 1;
+        if (diffDays === 1) {
+          // 어제 하고 오늘 한 경우 -> +1일 증가
+          window.streakData.count = (window.streakData.count || 0) + 1;
+        } else {
+          // 하루 이상 건너뛴 경우 -> 1일부터 재시작
+          window.streakData.count = 1;
+        }
       } else {
+        // 최초 시작
         window.streakData.count = 1;
       }
+
       window.streakData.lastDate = todayStr;
       localStorage.setItem('streak_data', JSON.stringify(window.streakData));
 
@@ -616,7 +633,7 @@
             localStorage.setItem('streak_data', JSON.stringify(window.streakData));
             window.updateStreakUI();
           }
-          const todayStr = new Date().toISOString().split('T')[0];
+          const todayStr = window.getTodayLocalDateString();
           window.updateDailyReciteButtonUI(window.streakData.lastDate === todayStr);
         }
       } catch (e) {
@@ -698,7 +715,7 @@
       window.applyMainVerseFontSize();
 
       // 오늘 날짜 기준으로 완료 여부 UI 반영
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = window.getTodayLocalDateString();
       window.updateDailyReciteButtonUI(window.streakData.lastDate === todayStr);
 
       const teacherA = (data && data.teacher_a && data.teacher_a.trim() !== '') ? data.teacher_a.trim() : window.DEFAULT_TEACHERS.a;
