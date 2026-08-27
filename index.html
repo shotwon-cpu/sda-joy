@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    /* 💡 카카오톡 인앱 브라우저 및 모바일/PC 전 기기 수직 스크롤 정상화 */
+    /* 카카오톡 인앱 브라우저 및 모바일/PC 전 기기 수직 스크롤 정상화 */
     html {
       width: 100%;
       overflow-x: hidden;
@@ -20,7 +20,7 @@
       background-color: #f8fafc;
       font-family: 'Pretendard', sans-serif;
       overflow-x: hidden;
-      overflow-y: auto !important; /* 상하 스크롤 보장 */
+      overflow-y: auto !important;
       -webkit-overflow-scrolling: touch;
     }
 
@@ -29,7 +29,6 @@
     .tab-active { background-color: #ef4444; color: white; border-color: #ef4444; }
     .tab-inactive { background-color: #f1f5f9; color: #475569; border-color: #cbd5e1; }
     
-    /* 💡 좌우 스와이프는 지원하되 브라우저 본래의 상하 수직 스크롤은 절대 방해하지 않음 */
     .swipe-area { 
       touch-action: pan-y !important; 
       user-select: none; 
@@ -100,17 +99,27 @@
           <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-50 rounded-bl-full -z-10 opacity-70"></div>
           <div class="p-5 md:p-8 relative z-10 pointer-events-none"> 
             
-            <div class="mb-5 flex justify-end items-center gap-2">
-              <button onclick="window.changeWeek(-1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
-                <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
-              </button>
-              <button onclick="window.changeWeek(1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
-                <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
-              </button>
-              <button onclick="window.openListModal('quarter'); event.stopPropagation();" class="pointer-events-auto bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-base sm:text-lg md:text-xl font-extrabold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition shadow-sm inline-flex items-center ml-1 md:ml-2">
-                <span id="displayQuarter">제 ?기 ?과</span>
-                <i class="fa-solid fa-caret-down ml-2 opacity-50 text-sm"></i>
-              </button>
+            <!-- 제목 위 컨트롤 영역: 좌측(A+/A- 글자크기 조절) & 우측(주차 이동 및 분기 선택) -->
+            <div class="mb-5 flex justify-between items-center gap-2 flex-wrap">
+              <!-- 메인 기억절 글자 크기 조절 버튼 -->
+              <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200 pointer-events-auto">
+                <button onclick="window.adjustMainVerseTextSize(2); event.stopPropagation();" class="bg-white hover:bg-slate-50 text-slate-700 font-extrabold px-2.5 py-1 rounded-lg text-xs sm:text-sm shadow-sm transition active:scale-95">A +</button>
+                <button onclick="window.adjustMainVerseTextSize(-2); event.stopPropagation();" class="bg-white hover:bg-slate-50 text-slate-700 font-extrabold px-2.5 py-1 rounded-lg text-xs sm:text-sm shadow-sm transition active:scale-95">A -</button>
+              </div>
+
+              <!-- 주차 이동 및 분기 선택 -->
+              <div class="flex items-center gap-2 pointer-events-auto">
+                <button onclick="window.changeWeek(-1); event.stopPropagation();" class="w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
+                  <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
+                </button>
+                <button onclick="window.changeWeek(1); event.stopPropagation();" class="w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
+                  <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
+                </button>
+                <button onclick="window.openListModal('quarter'); event.stopPropagation();" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-base sm:text-lg md:text-xl font-extrabold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition shadow-sm inline-flex items-center ml-1 md:ml-2">
+                  <span id="displayQuarter">제 ?기 ?과</span>
+                  <i class="fa-solid fa-caret-down ml-2 opacity-50 text-sm"></i>
+                </button>
+              </div>
             </div>
             
             <div class="mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -119,13 +128,13 @@
             </div>
             
             <div class="verse-box text-white p-6 md:p-10 rounded-2xl relative shadow-inner">
-              <p class="text-2xl md:text-3xl md:leading-relaxed leading-snug font-semibold tracking-wide mb-5">
-                <span id="displayVerseKo"></span>
-                <span id="displayBibleKo" class="text-lg md:text-xl font-medium text-indigo-300 ml-2"></span>
+              <p class="leading-snug md:leading-relaxed font-semibold tracking-wide mb-5">
+                <span id="displayVerseKo" class="transition-all duration-150"></span>
+                <span id="displayBibleKo" class="font-medium text-indigo-300 ml-2 transition-all duration-150"></span>
               </p>
-              <p class="text-lg md:text-xl leading-relaxed font-light text-indigo-200 italic mb-8">
-                <span id="displayVerseEn"></span>
-                <span id="displayBibleEn" class="text-sm md:text-base text-indigo-400/80 ml-2 font-normal"></span>
+              <p class="leading-relaxed font-light text-indigo-200 italic mb-8">
+                <span id="displayVerseEn" class="transition-all duration-150"></span>
+                <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150"></span>
               </p>
               
               <div class="flex justify-end gap-1.5 sm:gap-2 pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 flex-wrap">
@@ -149,9 +158,10 @@
 
       <!-- 상단 링크 버튼 영역 -->
       <div class="grid grid-cols-2 gap-3 my-4">
-        <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-2xl border border-emerald-100 transition shadow-sm text-sm md:text-base cursor-pointer">
+        <!-- 💡 교과토의 자료 버튼 (동적 텍스트 및 활성/비활성 제어) -->
+        <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-2xl border border-emerald-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none cursor-pointer">
           <i class="fa-solid fa-comments text-lg"></i>
-          <span>교과토의 자료</span>
+          <span id="discussionBtnText">교과토의 준비중</span>
         </a>
 
         <!-- 교과 열기 버튼 -->
@@ -415,6 +425,35 @@
       window.updateUI();
     };
 
+    // 메인 기억절 글자 크기 조절 변수 및 함수
+    window.mainVerseFontDelta = 0;
+
+    window.adjustMainVerseTextSize = function(delta) {
+      window.mainVerseFontDelta += delta;
+      if (window.mainVerseFontDelta < -6) window.mainVerseFontDelta = -6;
+      if (window.mainVerseFontDelta > 16) window.mainVerseFontDelta = 16;
+      window.applyMainVerseFontSize();
+    };
+
+    window.applyMainVerseFontSize = function() {
+      const isMobile = window.innerWidth < 768;
+      const baseKo = isMobile ? 24 : 30;
+      const baseKoRef = isMobile ? 18 : 20;
+      const baseEn = isMobile ? 18 : 20;
+      const baseEnRef = isMobile ? 14 : 16;
+      const d = window.mainVerseFontDelta || 0;
+
+      const verseKoElem = document.getElementById('displayVerseKo');
+      const bibleKoElem = document.getElementById('displayBibleKo');
+      const verseEnElem = document.getElementById('displayVerseEn');
+      const bibleEnElem = document.getElementById('displayBibleEn');
+
+      if (verseKoElem) verseKoElem.style.fontSize = (baseKo + d) + 'px';
+      if (bibleKoElem) bibleKoElem.style.fontSize = (baseKoRef + d) + 'px';
+      if (verseEnElem) verseEnElem.style.fontSize = (baseEn + d) + 'px';
+      if (bibleEnElem) bibleEnElem.style.fontSize = (baseEnRef + d) + 'px';
+    };
+
     window.updateUI = function(skipVideo = false) {
       if (window.sheetData.length === 0) return;
       const data = window.sheetData[window.currentIndex];
@@ -431,6 +470,22 @@
       document.getElementById('displayVerseEn').innerText = data.verse_en ? `"${data.verse_en}"` : '';
       document.getElementById('displayBibleEn').innerText = bibleEn;
       
+      window.applyMainVerseFontSize();
+
+      // 💡 [추가] 교과토의 버튼 활성/비활성 및 텍스트 전환 처리
+      const discBtn = document.getElementById('discussionBtn');
+      const discBtnText = document.getElementById('discussionBtnText');
+      const hasDiscussion = (data && data.discussion_link && data.discussion_link.trim() !== '');
+
+      if (hasDiscussion) {
+        discBtn.classList.remove('opacity-50', 'pointer-events-none');
+        discBtnText.innerText = "교과토의 자료";
+      } else {
+        discBtn.classList.add('opacity-50', 'pointer-events-none');
+        discBtnText.innerText = "교과토의 준비중";
+      }
+
+      // 교과 열기 버튼 활성/비활성 및 텍스트 전환 처리
       const pdfBtn = document.getElementById('pdfLessonBtn');
       const pdfBtnText = document.getElementById('pdfBtnText');
 
@@ -919,7 +974,6 @@
       });
     };
 
-    // 💡 수직 스크롤(위아래)을 방해하지 않는 정밀 스와이프 제어
     window.setupSwipeEvents = function() {
       const swipeZone = document.getElementById('swipeZone');
       let touchStartX = 0, touchStartY = 0;
@@ -936,7 +990,6 @@
         let dx = touchEndX - touchStartX; 
         let dy = touchEndY - touchStartY; 
         
-        // 가로 이동 거리가 세로 이동 거리보다 확실히 클 때만 주차 변경 실행
         if (Math.abs(dx) >= minSwipeDistance && Math.abs(dx) > Math.abs(dy) * 1.5) {
            if (dx > 0) window.changeWeek(-1); 
            else window.changeWeek(1);  
