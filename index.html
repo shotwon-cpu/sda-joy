@@ -178,7 +178,7 @@
       <!-- 모달 헤더 -->
       <div class="bg-red-800 text-white p-3 md:p-4 flex justify-between items-center">
         <h3 id="modalHeaderTitle" class="font-bold text-base sm:text-lg flex items-center truncate">
-          <i class="fa-solid fa-book-open mr-2"></i>이번 주 교과
+          <i class="fa-solid fa-book-open mr-2"></i>이번 주 교과 자료
         </h3>
         
         <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
@@ -381,7 +381,7 @@
       if (hasText || hasImage || hasSourceUrl || hasPdfUrl) {
         window.currentPdfUrl = (hasSourceUrl ? data.source_url.trim() : (hasPdfUrl ? data.pdf_url.trim() : ""));
         pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
-        pdfBtnText.innerHTML = `교과  열기`;
+        pdfBtnText.innerHTML = `교과 자료 열기`;
       } else {
         window.currentPdfUrl = "";
         pdfBtn.classList.add('opacity-50', 'pointer-events-none');
@@ -506,6 +506,14 @@
       const btnImage = document.getElementById('btnViewImage');
       const btnText = document.getElementById('btnViewText');
       
+      // 상단 모달 제목 동적 업데이트 (예: "제 3기 1과 교과")
+      const headerTitleElem = document.getElementById('modalHeaderTitle');
+      if (headerTitleElem && data && data.quarter) {
+         headerTitleElem.innerHTML = `<i class="fa-solid fa-book-open mr-2"></i>${data.quarter} 교과`;
+      } else if (headerTitleElem) {
+         headerTitleElem.innerHTML = `<i class="fa-solid fa-book-open mr-2"></i>이번 주 교과`;
+      }
+
       // 초기화
       imgContainer.innerHTML = '';
       document.getElementById('textContentArea').innerHTML = '';
