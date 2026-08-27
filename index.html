@@ -292,24 +292,25 @@
     </div>
   </div>
 
-  <!-- 교과 PDF 모달 -->
+  <!-- 교과 PDF, 이미지, 텍스트 하이브리드 모달 -->
   <div id="pdfModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-2 md:p-4">
     <div class="bg-red-800 text-white p-3 md:p-4 flex justify-between items-center">
       <h3 id="modalHeaderTitle" class="font-bold text-base sm:text-lg flex items-center truncate">
         <i class="fa-solid fa-book-open mr-2"></i>이번 주 교과 자료
       </h3>
       
+      <!-- 💡 텍스트/이미지/PDF새창 토글 컨트롤 -->
       <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
         <button id="btnViewImage" onclick="window.switchModalView('image')" class="hidden bg-amber-300 hover:bg-amber-200 text-amber-900 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
-          <i class="fa-solid fa-images"></i> 이미지
+          <i class="fa-solid fa-images mr-1"></i> 이미지
         </button>
         
         <button id="btnViewText" onclick="window.switchModalView('text')" class="hidden bg-blue-600 hover:bg-blue-500 text-white px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
-          <i class="fa-solid fa-font"></i> 텍스트
+          <i class="fa-solid fa-font mr-1"></i> 텍스트
         </button>
 
         <button onclick="window.openPdfSecured()" class="bg-red-700 hover:bg-red-600 text-red-100 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
-          <i class="fa-solid fa-file-pdf"></i> PDF새창
+          <i class="fa-solid fa-file-pdf mr-1"></i> PDF새창
         </button>
         
         <button onclick="window.closePdfModal()" class="text-red-200 hover:text-white transition p-1 ml-1">
@@ -318,17 +319,20 @@
       </div>
     </div>
 
-    <div class="flex-1 w-full bg-slate-100 relative overflow-hidden">
+    <div class="flex-1 w-full bg-slate-100 relative overflow-hidden flex flex-col">
+      <!-- 1. 이미지 슬라이더 영역 -->
       <div id="imageViewerContainer" class="w-full h-full overflow-y-auto p-2 sm:p-4 hidden space-y-3 custom-scrollbar"></div>
       
+      <!-- 2. 텍스트 뷰어 영역 (완전 최적화) -->
       <div id="textViewerContainer" class="hidden w-full h-full bg-[#fdfbf7] p-4 md:p-8 overflow-y-auto relative custom-scrollbar">
         <div class="sticky top-0 right-0 flex justify-end space-x-2 mb-4 z-10">
-          <button onclick="window.adjustTextSize(2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A +</button>
-          <button onclick="window.adjustTextSize(-2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A -</button>
+          <button onclick="window.adjustTextSize(2)" class="bg-white/90 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow hover:bg-slate-100 active:scale-95 transition">A +</button>
+          <button onclick="window.adjustTextSize(-2)" class="bg-white/90 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow hover:bg-slate-100 active:scale-95 transition">A -</button>
         </div>
-        <div id="textContentArea" class="text-[18px] md:text-[22px] leading-[1.8] text-slate-800 break-keep font-medium pb-10"></div>
+        <div id="textContentArea" class="text-slate-800 break-keep font-medium pb-16 whitespace-pre-wrap leading-relaxed"></div>
       </div>
 
+      <!-- 3. 로딩 인디케이터 -->
       <div id="pdfLoadingMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-white">
         <i class="fa-solid fa-spinner fa-spin text-4xl mb-3 text-red-500"></i>
         <p class="text-lg font-bold">자료를 불러오는 중입니다...</p>
@@ -397,7 +401,6 @@
 
     const app = initializeApp(firebaseConfig);
 
-    // IndexedDB 기반 Firestore 오프라인 영구 캐시 활성화
     const db = initializeFirestore(app, {
       localCache: persistentLocalCache({
         tabManager: persistentMultipleTabManager()
@@ -416,7 +419,9 @@
 
     window.currentMaskStep = 1;
 
+    // 주차별 영구 암송 기록 (13기억절 모달 체크용)
     window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
+    // 일일 연속 출석 기록 (매일 실천 스트릭용)
     window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
 
     window.getTodayLocalDateString = function() {
@@ -427,13 +432,11 @@
       return `${year}-${month}-${day}`;
     };
 
-    // 💡 [서비스 워커 안전 등록 및 최신화 제어]
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js', { scope: './' })
           .then((reg) => {
             reg.update();
-            console.log('SW Registered with scope:', reg.scope);
           })
           .catch((err) => console.log('SW registration error:', err));
       });
@@ -471,7 +474,6 @@
         console.log("Auth skipped (Offline mode):", authErr);
       }
 
-      // 💡 Firestore 오프라인 영구 캐시 실시간 수신
       const quarterDataRef = collection(db, 'sabbath_data');
       onSnapshot(quarterDataRef, (snapshot) => {
         let loadedData = [];
@@ -907,16 +909,20 @@
       }
     };
 
-    window.currentTextSize = window.innerWidth < 768 ? 16 : 22;
+    // 💡 [수정] 텍스트 크기 조절 기본값 및 함수 보강
+    window.currentTextSize = window.innerWidth < 768 ? 17 : 21;
     window.currentImagePage = 1;
     window.totalImagePages = 14;
 
     window.adjustTextSize = function(delta) {
       window.currentTextSize += delta;
-      if(window.currentTextSize < 14) window.currentTextSize = 14;
-      if(window.currentTextSize > 40) window.currentTextSize = 40;
+      if (window.currentTextSize < 13) window.currentTextSize = 13;
+      if (window.currentTextSize > 42) window.currentTextSize = 42;
       const area = document.getElementById('textContentArea');
-      if (area) area.style.fontSize = window.currentTextSize + "px";
+      if (area) {
+        area.style.fontSize = window.currentTextSize + "px";
+        area.style.lineHeight = "1.85";
+      }
     };
 
     window.currentListTextDelta = 0;
@@ -930,6 +936,7 @@
       window.renderList(window.currentListMode, window.currentListQuarter);
     };
 
+    // 💡 [수정] 교과 열기 모달 진입 로직 완벽 복구
     window.openPdfModal = function() {
       const data = window.sheetData[window.currentIndex];
       const imgContainer = document.getElementById('imageViewerContainer');
@@ -951,12 +958,19 @@
       loading.classList.remove('hidden');
       document.getElementById('pdfModal').classList.remove('hidden');
 
-      const hasText = (data && data.lesson_text && data.lesson_text.trim() !== '');
-      const hasImage = (data && data.image_count && Number(data.image_count) > 0);
+      const hasText = !!(data && data.lesson_text && data.lesson_text.trim() !== '');
+      const hasImage = !!(data && data.image_count && Number(data.image_count) > 0);
 
-      if (btnImage) { if (hasImage) btnImage.classList.remove('hidden'); else btnImage.classList.add('hidden'); }
-      if (btnText) { if (hasText) btnText.classList.remove('hidden'); else btnText.classList.add('hidden'); }
+      if (btnImage) {
+        if (hasImage) btnImage.classList.remove('hidden');
+        else btnImage.classList.add('hidden');
+      }
+      if (btnText) {
+        if (hasText) btnText.classList.remove('hidden');
+        else btnText.classList.add('hidden');
+      }
 
+      // 기본적으로 텍스트가 있으면 텍스트 우선, 없으면 이미지 뷰어 표시
       if (hasText) {
         window.switchModalView('text');
       } else if (hasImage) {
@@ -966,6 +980,7 @@
       }
     };
 
+    // 💡 [수정] 텍스트 / 이미지 뷰어 스위칭 로직 안정화
     window.switchModalView = function(mode) {
       const data = window.sheetData[window.currentIndex];
       const imgContainer = document.getElementById('imageViewerContainer');
@@ -979,13 +994,15 @@
       if (mode === 'text') {
         textContainer.classList.remove('hidden');
         const textContentArea = document.getElementById('textContentArea');
-        textContentArea.style.whiteSpace = "pre-line";
-        textContentArea.innerHTML = data.lesson_text || "";
-        textContentArea.style.fontSize = window.currentTextSize + "px";
+        if (textContentArea && data) {
+          textContentArea.innerText = data.lesson_text || "등록된 텍스트가 없습니다.";
+          textContentArea.style.fontSize = (window.currentTextSize || 18) + "px";
+          textContentArea.style.lineHeight = "1.85";
+        }
       } else if (mode === 'image') {
         imgContainer.classList.remove('hidden');
         window.currentImagePage = 1;
-        window.totalImagePages = Number(data.image_count) || 14;
+        window.totalImagePages = Number(data?.image_count) || 14;
         window.renderImageSlider();
       }
     };
