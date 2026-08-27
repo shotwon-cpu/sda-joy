@@ -118,7 +118,7 @@
           <span>교과토의 자료</span>
         </a>
 
-        <!-- 교과 열기 -->
+        <!-- 교과 자료 열기 버튼 -->
         <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl border border-red-100 transition shadow-sm text-sm md:text-base opacity-50 pointer-events-none cursor-pointer">
           <i class="fa-solid fa-book-open-reader text-lg"></i>
           <span id="pdfBtnText">교과 자료 준비중</span>
@@ -381,7 +381,7 @@
       if (hasText || hasImage || hasSourceUrl || hasPdfUrl) {
         window.currentPdfUrl = (hasSourceUrl ? data.source_url.trim() : (hasPdfUrl ? data.pdf_url.trim() : ""));
         pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
-        pdfBtnText.innerHTML = `교과 자료 열기`;
+        pdfBtnText.innerHTML = `교과  열기`;
       } else {
         window.currentPdfUrl = "";
         pdfBtn.classList.add('opacity-50', 'pointer-events-none');
