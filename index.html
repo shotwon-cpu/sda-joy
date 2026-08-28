@@ -265,7 +265,7 @@
           <button id="btnToggleProphecy" type="button" onclick="toggleBibleOrProphecy()" class="text-xs sm:text-sm bg-amber-400 hover:bg-amber-300 text-indigo-950 font-black px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
             <i class="fa-solid fa-scroll"></i> <span id="toggleBtnText">예언의 신</span>
           </button>
-          <!-- 💡 시조사 웹 새창 열기 버튼 -->
+          <!-- 💡 웹 새창 열기 버튼 -->
           <button type="button" onclick="openBibleNewTab()" class="text-xs sm:text-sm bg-indigo-800 hover:bg-indigo-700 text-indigo-100 font-bold px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
             <i class="fa-solid fa-arrow-up-right-from-square"></i> 새창 열기
           </button>
@@ -277,7 +277,7 @@
       <div class="flex-1 w-full bg-slate-50 relative flex flex-col">
         <iframe id="bibleIframe" class="w-full flex-1 border-0" src="about:blank"></iframe>
         <div class="bg-slate-100 border-t border-slate-200 px-3 py-2 text-center text-xs text-slate-500 flex justify-between items-center">
-          <span id="bibleFooterNotice">💡 상단 <strong class="text-amber-700">[예언의 신]</strong>을 누르시면 모달 안에서 해당 구절의 화잇 주석으로 즉시 바뀝니다.</span>
+          <span id="bibleFooterNotice">💡 상단 <strong class="text-amber-700">[예언의 신]</strong>을 누르시면 모달 안에서 예언의 신 전집으로 즉시 바뀝니다.</span>
           <button type="button" onclick="openBibleNewTab()" class="text-indigo-600 font-bold hover:underline ml-2 flex-shrink-0">크게보기 ↗</button>
         </div>
       </div>
@@ -493,7 +493,7 @@
 
     window.currentMaskStep = 1;
     window.currentTargetBibleUrl = "";
-    window.currentProphecyUrl = "";
+    window.currentProphecyUrl = "https://www.adventist.or.kr/channel/bbs/content.php?co_id=egw_writings";
     window.currentBibleViewMode = "bible"; // 'bible' 또는 'prophecy'
 
     window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
@@ -672,15 +672,15 @@
       "계": "Revelation", "요한계시록": "Revelation"
     };
 
-    // 💡 구절 텍스트 파싱 및 시조사 URL 생성 함수
+    // 💡 구절 텍스트 파싱 및 시조사 성경 URL 생성 함수
     window.parseBibleTextToUrl = function(bibleText) {
-      if (!bibleText) return { bibleUrl: "https://www.sijosa.com/ch21/bible.php?book_idx=451", prophecyUrl: "https://www.sijosa.com/ch21/egw.php" };
+      if (!bibleText) return "https://www.sijosa.com/ch21/bible.php?book_idx=451";
       const cleanText = bibleText.replace(/[\(\)]/g, '').trim();
       const match = cleanText.match(/^([가-힣]+)\s*(\d+)(?:[:장\s]+(\d+))?/);
       
       if (!match) {
         console.error("올바르지 않은 구절 형식:", bibleText);
-        return { bibleUrl: "https://www.sijosa.com/ch21/bible.php?book_idx=451", prophecyUrl: "https://www.sijosa.com/ch21/egw.php" };
+        return "https://www.sijosa.com/ch21/bible.php?book_idx=451";
       }
 
       const bookName = match[1];
@@ -690,14 +690,11 @@
       const code = SIJOSA_BIBLE_CODE_MAP[bookName];
       if (!code) {
         console.error("매핑되는 성경 코드가 없습니다:", bookName);
-        return { bibleUrl: "https://www.sijosa.com/ch21/bible.php?book_idx=451", prophecyUrl: "https://www.sijosa.com/ch21/egw.php" };
+        return "https://www.sijosa.com/ch21/bible.php?book_idx=451";
       }
 
       const encodedCode = encodeURIComponent(code);
-      const bibleUrl = `https://www.sijosa.com/ch21/bible.php?book_idx=451&code=${encodedCode}&chapter=${chapter}&verse=${verse}`;
-      const prophecyUrl = `https://www.sijosa.com/ch21/egw.php?book_idx=451&code=${encodedCode}&chapter=${chapter}&verse=${verse}`;
-
-      return { bibleUrl, prophecyUrl };
+      return `https://www.sijosa.com/ch21/bible.php?book_idx=451&code=${encodedCode}&chapter=${chapter}&verse=${verse}`;
     };
 
     // 💡 시조사 성경 본문 뷰어 모달 열기 함수
@@ -706,9 +703,9 @@
       const rawText = (data?.bible_ko || "").trim();
       const displayTitle = rawText ? rawText.replace(/[\(\)]/g, '') : "성경";
 
-      const parsed = window.parseBibleTextToUrl(rawText);
-      window.currentTargetBibleUrl = parsed.bibleUrl;
-      window.currentProphecyUrl = parsed.prophecyUrl;
+      window.currentTargetBibleUrl = window.parseBibleTextToUrl(rawText);
+      // 💡 한국연합회 공식 예언의 신 저작물 주소 연결
+      window.currentProphecyUrl = "https://www.adventist.or.kr/channel/bbs/content.php?co_id=egw_writings";
       window.currentBibleViewMode = "bible";
 
       const titleEl = document.getElementById("bibleModalTitle");
@@ -718,7 +715,7 @@
       if (toggleText) toggleText.innerText = "예언의 신";
 
       const footerNotice = document.getElementById("bibleFooterNotice");
-      if (footerNotice) footerNotice.innerHTML = `💡 상단 <strong class="text-amber-700">[예언의 신]</strong>을 누르시면 모달 안에서 해당 구절의 화잇 주석으로 즉시 바뀝니다.`;
+      if (footerNotice) footerNotice.innerHTML = `💡 상단 <strong class="text-amber-700">[예언의 신]</strong>을 누르시면 모달 안에서 예언의 신 전집으로 즉시 바뀝니다.`;
 
       const iframeEl = document.getElementById("bibleIframe");
       if (iframeEl) iframeEl.src = window.currentTargetBibleUrl;
@@ -739,16 +736,16 @@
 
       if (window.currentBibleViewMode === "bible") {
         window.currentBibleViewMode = "prophecy";
-        if (titleEl) titleEl.innerText = `${displayTitle} 예언의 신 보기`;
+        if (titleEl) titleEl.innerText = `예언의 신 저작물 전집`;
         if (toggleText) toggleText.innerText = "성경 본문";
         if (footerNotice) footerNotice.innerHTML = `💡 상단 <strong class="text-indigo-700">[성경 본문]</strong>을 누르시면 다시 성경 구절로 돌아옵니다.`;
-        if (iframeEl && window.currentProphecyUrl) iframeEl.src = window.currentProphecyUrl;
+        if (iframeEl) iframeEl.src = window.currentProphecyUrl;
       } else {
         window.currentBibleViewMode = "bible";
         if (titleEl) titleEl.innerText = `${displayTitle} 본문 보기`;
         if (toggleText) toggleText.innerText = "예언의 신";
-        if (footerNotice) footerNotice.innerHTML = `💡 상단 <strong class="text-amber-700">[예언의 신]</strong>을 누르시면 모달 안에서 해당 구절의 화잇 주석으로 즉시 바뀝니다.`;
-        if (iframeEl && window.currentTargetBibleUrl) iframeEl.src = window.currentTargetBibleUrl;
+        if (footerNotice) footerNotice.innerHTML = `💡 상단 <strong class="text-amber-700">[예언의 신]</strong>을 누르시면 모달 안에서 예언의 신 전집으로 즉시 바뀝니다.`;
+        if (iframeEl) iframeEl.src = window.currentTargetBibleUrl;
       }
     };
 
@@ -760,7 +757,7 @@
       if (modalEl) modalEl.classList.add("hidden");
     };
 
-    // 💡 시조사 웹 새창 열기 (현재 모드에 맞춰 성경/예언의 신 열기)
+    // 💡 웹 새창 열기 (현재 모드에 맞춰 성경/예언의 신 열기)
     window.openBibleNewTab = function() {
       const target = (window.currentBibleViewMode === "prophecy") ? window.currentProphecyUrl : window.currentTargetBibleUrl;
       if (target) {
