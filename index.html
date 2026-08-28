@@ -36,7 +36,7 @@
     .nav-header { background-color: #312e81; }
     .verse-box { background-color: #1e1b4b; }
     .tab-active { background-color: #ef4444; color: white; border-color: #ef4444; }
-    .tab-inactive { background-color: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+    .tab-inactive { background-color: #f1f5f9; color: #334155; border-color: #cbd5e1; }
     
     .swipe-area { 
       touch-action: pan-y !important; 
@@ -94,34 +94,35 @@
 </head>
 <body class="flex flex-col min-h-screen w-full">
 
-  <!-- 상단 네비게이션 -->
-  <header class="nav-header text-white px-3 py-3 md:px-6 md:py-4 flex justify-between items-center shadow-lg gap-2 sm:gap-4 overflow-hidden flex-shrink-0 w-full">
-    <div class="flex flex-col justify-center min-w-0 flex-1 pr-1 sm:pr-2">
-      <h1 class="text-[22px] sm:text-3xl md:text-4xl lg:text-5xl font-black flex items-center tracking-tight truncate">
-        <i class="fa-solid fa-book-bible mr-1.5 sm:mr-3 text-[20px] sm:text-2xl md:text-3xl lg:text-4xl text-yellow-300"></i>세종 행복 교회
+  <!-- 상단 네비게이션: 패딩 축소 & 폰트 최대화 -->
+  <header class="nav-header text-white px-2.5 py-2.5 sm:px-5 sm:py-3.5 flex justify-between items-center shadow-lg gap-1.5 sm:gap-4 overflow-hidden flex-shrink-0 w-full">
+    <div class="flex flex-col justify-center min-w-0 flex-1 pr-1">
+      <h1 class="text-[20px] sm:text-3xl md:text-4xl lg:text-5xl font-black flex items-center tracking-tight truncate">
+        <i class="fa-solid fa-book-bible mr-1.5 sm:mr-3 text-[18px] sm:text-2xl md:text-3xl text-yellow-300"></i>세종 행복 교회
       </h1>
-      <p class="text-[10px] sm:text-sm md:text-base lg:text-lg text-indigo-200 mt-1 md:mt-1.5 truncate pl-4">기억절 & 교과방송 by 고은아빠</p>
+      <p class="text-[10px] sm:text-sm md:text-base text-indigo-200 mt-0.5 truncate pl-3.5 sm:pl-4">기억절 & 교과방송 by 고은아빠</p>
     </div>
     
-    <div class="grid grid-cols-4 gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
-      <button onclick="openHymnModal()" class="w-full bg-rose-600 hover:bg-rose-500 px-1 sm:px-2 md:px-4 py-1.5 sm:py-2.5 rounded-lg text-[11px] sm:text-base md:text-lg font-extrabold transition shadow-md flex flex-col justify-center items-center text-white">
-        <i class="fa-solid fa-music mb-1 text-sm sm:text-xl md:text-2xl"></i>
-        <span class="whitespace-nowrap tracking-tight">찬미가</span>
+    <!-- 상단 4개 버튼: 패딩 최소화 & 폰트 최대화 -->
+    <div class="grid grid-cols-4 gap-1 sm:gap-2 flex-shrink-0">
+      <button onclick="openHymnModal()" class="w-full bg-rose-600 hover:bg-rose-500 p-1 sm:px-3 sm:py-2 rounded-lg text-[13px] sm:text-lg md:text-xl font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95">
+        <i class="fa-solid fa-music mb-0.5 text-sm sm:text-xl"></i>
+        <span class="whitespace-nowrap tracking-tighter sm:tracking-normal">찬미가</span>
       </button>
 
-      <button onclick="goToCurrentWeek()" class="w-full bg-indigo-600 hover:bg-indigo-500 px-1 sm:px-2 md:px-4 py-1.5 sm:py-2.5 rounded-lg text-[11px] sm:text-base md:text-lg font-extrabold transition shadow-md flex flex-col justify-center items-center">
-        <i class="fa-solid fa-calendar-check mb-1 text-sm sm:text-xl md:text-2xl"></i>
-        <span class="whitespace-nowrap tracking-tight">이번 주</span>
+      <button onclick="goToCurrentWeek()" class="w-full bg-indigo-600 hover:bg-indigo-500 p-1 sm:px-3 sm:py-2 rounded-lg text-[13px] sm:text-lg md:text-xl font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95">
+        <i class="fa-solid fa-calendar-check mb-0.5 text-sm sm:text-xl"></i>
+        <span class="whitespace-nowrap tracking-tighter sm:tracking-normal">이번 주</span>
       </button>
 
-      <button onclick="openListModal('quarter')" class="w-full bg-emerald-600 hover:bg-emerald-500 px-1 sm:px-2 md:px-4 py-1.5 sm:py-2.5 rounded-lg text-[11px] sm:text-base md:text-lg font-extrabold transition shadow-md flex flex-col justify-center items-center">
-        <i class="fa-solid fa-layer-group mb-1 text-sm sm:text-xl md:text-2xl"></i>
-        <span class="whitespace-nowrap tracking-tight">13기억절</span>
+      <button onclick="openListModal('quarter')" class="w-full bg-emerald-600 hover:bg-emerald-500 p-1 sm:px-3 sm:py-2 rounded-lg text-[13px] sm:text-lg md:text-xl font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95">
+        <i class="fa-solid fa-layer-group mb-0.5 text-sm sm:text-xl"></i>
+        <span class="whitespace-nowrap tracking-tighter sm:tracking-normal">13기억절</span>
       </button>
 
-      <button onclick="openListModal('year')" class="w-full bg-amber-600 hover:bg-amber-500 px-1 sm:px-2 md:px-4 py-1.5 sm:py-2.5 rounded-lg text-[11px] sm:text-base md:text-lg font-extrabold transition shadow-md flex flex-col justify-center items-center">
-        <i class="fa-solid fa-list-ol mb-1 text-sm sm:text-xl md:text-2xl"></i>
-        <span class="whitespace-nowrap tracking-tight">52기억절</span>
+      <button onclick="openListModal('year')" class="w-full bg-amber-600 hover:bg-amber-500 p-1 sm:px-3 sm:py-2 rounded-lg text-[13px] sm:text-lg md:text-xl font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95">
+        <i class="fa-solid fa-list-ol mb-0.5 text-sm sm:text-xl"></i>
+        <span class="whitespace-nowrap tracking-tighter sm:tracking-normal">52기억절</span>
       </button>
     </div>
   </header>
@@ -139,26 +140,27 @@
         <div id="swipeZone" class="swipe-area bg-white rounded-3xl shadow-md border border-slate-200 overflow-hidden relative transition-transform duration-300 cursor-grab active:cursor-grabbing w-full">
           <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-50 rounded-bl-full -z-10 opacity-70"></div>
           
-          <div class="p-3.5 sm:p-5 md:p-8 relative z-10 pointer-events-none"> 
+          <div class="p-3 sm:p-5 md:p-8 relative z-10 pointer-events-none"> 
             
-            <div class="mb-4 sm:mb-5 flex justify-end items-center gap-1.5 sm:gap-2 flex-wrap">
-              <div id="streakBadge" class="pointer-events-auto flex items-center bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-black shadow-sm mr-auto sm:mr-0">
-                <span class="mr-1 text-sm sm:text-base">🔥</span><span id="streakCount">0</span>일 연속
+            <!-- 과수 & 스트릭 배지: 폰트 최대화 -->
+            <div class="mb-3.5 sm:mb-5 flex justify-end items-center gap-1.5 sm:gap-2 flex-wrap">
+              <div id="streakBadge" class="pointer-events-auto flex items-center bg-amber-50 text-amber-800 border border-amber-300 px-3 py-1.5 sm:py-2 rounded-full text-sm sm:text-base md:text-lg font-black shadow-sm mr-auto sm:mr-0">
+                <span class="mr-1 text-base sm:text-xl">🔥</span><span id="streakCount">0</span>일 연속
               </div>
 
-              <button onclick="window.changeWeek(-1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
-                <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
+              <button onclick="window.changeWeek(-1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-12 sm:h-12 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200 active:scale-95">
+                <i class="fa-solid fa-chevron-left text-base sm:text-lg"></i>
               </button>
-              <button onclick="window.changeWeek(1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
-                <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
+              <button onclick="window.changeWeek(1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-12 sm:h-12 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200 active:scale-95">
+                <i class="fa-solid fa-chevron-right text-base sm:text-lg"></i>
               </button>
-              <button onclick="window.openListModal('quarter'); event.stopPropagation();" class="pointer-events-auto bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-base sm:text-lg md:text-xl font-extrabold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition shadow-sm inline-flex items-center ml-0.5 sm:ml-1">
+              <button onclick="window.openListModal('quarter'); event.stopPropagation();" class="pointer-events-auto bg-yellow-100 hover:bg-yellow-200 text-yellow-900 text-base sm:text-xl md:text-2xl font-black px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-full transition shadow-sm inline-flex items-center ml-0.5 active:scale-95">
                 <span id="displayQuarter">제 ?기 ?과</span>
-                <i class="fa-solid fa-caret-down ml-2 opacity-50 text-sm"></i>
+                <i class="fa-solid fa-caret-down ml-1.5 opacity-60 text-sm sm:text-base"></i>
               </button>
             </div>
             
-            <div class="mb-4 sm:mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <div class="mb-3.5 sm:mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <h2 id="displayTitleKo" class="text-2xl md:text-3xl font-bold text-slate-800 leading-tight">제목을 불러오는 중</h2>
               <span id="displayTitleEn" class="text-base md:text-lg text-slate-400 font-medium italic"></span>
             </div>
@@ -166,49 +168,48 @@
             <div class="verse-box text-white px-2.5 py-4 sm:px-5 sm:py-6 md:p-10 rounded-2xl relative shadow-inner">
               <p class="leading-snug md:leading-relaxed font-semibold tracking-wide mb-4 sm:mb-5">
                 <span id="displayVerseKo" class="transition-all duration-150"></span>
-                <!-- 성경 본문 모달 링크 -->
                 <span id="displayBibleKo" onclick="window.openBibleModal(); event.stopPropagation();" class="font-medium text-indigo-300 ml-2 transition-all duration-150 pointer-events-auto bible-ref-link" title="시조사 성경 본문 보기"></span>
               </p>
               
-              <!-- 단어 원터치 영한사전 연결 영역 -->
-              <p class="leading-relaxed font-light text-indigo-200 italic mb-6 sm:mb-8 pointer-events-auto">
+              <p class="leading-relaxed font-light text-indigo-200 italic mb-5 sm:mb-8 pointer-events-auto">
                 <span id="displayVerseEn" class="transition-all duration-150"></span>
                 <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150"></span>
               </p>
               
+              <!-- 기억절 조작 액션 영역: 여백 최소화 & 폰트 최대화 -->
               <div class="pt-3 sm:pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 space-y-2 sm:space-y-3">
                 
-                <!-- 1행: '오늘 외웠어요' 버튼 반영 -->
+                <!-- 1행 (오늘 외웠어요 | 1. 전체보기 | A+ A-) -->
                 <div class="flex items-center justify-between gap-1 sm:gap-2 w-full flex-nowrap">
-                  <button id="btnReciteToggle" onclick="window.recordDailyRecite(); event.stopPropagation();" class="flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap">
-                    <i id="reciteIcon" class="fa-regular fa-circle-check mr-1 text-base sm:text-lg"></i>
+                  <button id="btnReciteToggle" onclick="window.recordDailyRecite(); event.stopPropagation();" class="flex-1 px-1 sm:px-2.5 py-2.5 sm:py-3 rounded-xl text-[15px] sm:text-lg md:text-xl font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap">
+                    <i id="reciteIcon" class="fa-regular fa-circle-check mr-1 text-base sm:text-xl"></i>
                     <span id="reciteText" class="whitespace-nowrap font-black">오늘 외웠어요</span>
                   </button>
 
-                  <button id="btnMaskStep" onclick="window.cycleMaskStep(); event.stopPropagation();" class="flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-900/90 hover:bg-indigo-800 text-amber-300 border border-amber-400/40 active:scale-95 whitespace-nowrap">
-                    <i id="maskStepIcon" class="fa-regular fa-eye mr-1 text-base sm:text-lg text-amber-300"></i>
+                  <button id="btnMaskStep" onclick="window.cycleMaskStep(); event.stopPropagation();" class="flex-1 px-1 sm:px-2.5 py-2.5 sm:py-3 rounded-xl text-[15px] sm:text-lg md:text-xl font-black transition shadow-md flex items-center justify-center bg-indigo-900/90 hover:bg-indigo-800 text-amber-300 border border-amber-400/40 active:scale-95 whitespace-nowrap">
+                    <i id="maskStepIcon" class="fa-regular fa-eye mr-1 text-base sm:text-xl text-amber-300"></i>
                     <span id="maskStepText" class="whitespace-nowrap font-black">1. 전체보기</span>
                   </button>
 
-                  <div class="flex items-center space-x-0.5 bg-indigo-950/80 p-0.5 rounded-lg border border-indigo-900/80 flex-shrink-0">
-                    <button onclick="window.adjustMainVerseTextSize(2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-black px-2 sm:px-3 py-1.5 rounded text-sm sm:text-base md:text-lg shadow-sm transition active:scale-95">A +</button>
-                    <button onclick="window.adjustMainVerseTextSize(-2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-black px-2 sm:px-3 py-1.5 rounded text-sm sm:text-base md:text-lg shadow-sm transition active:scale-95">A -</button>
+                  <div class="flex items-center space-x-0.5 bg-indigo-950/80 p-0.5 rounded-xl border border-indigo-900/80 flex-shrink-0">
+                    <button onclick="window.adjustMainVerseTextSize(2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-black px-2 sm:px-3.5 py-2 rounded-lg text-sm sm:text-lg md:text-xl shadow-sm transition active:scale-95">A +</button>
+                    <button onclick="window.adjustMainVerseTextSize(-2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-black px-2 sm:px-3.5 py-2 rounded-lg text-sm sm:text-lg md:text-xl shadow-sm transition active:scale-95">A -</button>
                   </div>
                 </div>
 
-                <!-- 2행 (4개 버튼) -->
+                <!-- 2행 (한글 | 영어 | 복사 | 공유) -->
                 <div class="grid grid-cols-4 gap-1 sm:gap-2 w-full">
-                  <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="w-full py-2 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap">
-                    <i class="fa-solid fa-volume-high mr-1 text-sm sm:text-base"></i> 한글
+                  <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="w-full py-2.5 sm:py-3 bg-indigo-950/80 hover:bg-indigo-900 rounded-xl text-[15px] sm:text-lg md:text-xl font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap active:scale-95">
+                    <i class="fa-solid fa-volume-high mr-1 text-sm sm:text-lg"></i> 한글
                   </button>
-                  <button onclick="window.speakVerse('en'); event.stopPropagation();" class="w-full py-2 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap">
-                    <i class="fa-solid fa-volume-high mr-1 text-sm sm:text-base text-blue-400"></i> 영어
+                  <button onclick="window.speakVerse('en'); event.stopPropagation();" class="w-full py-2.5 sm:py-3 bg-indigo-950/80 hover:bg-indigo-900 rounded-xl text-[15px] sm:text-lg md:text-xl font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap active:scale-95">
+                    <i class="fa-solid fa-volume-high mr-1 text-sm sm:text-lg text-blue-400"></i> 영어
                   </button>
-                  <button onclick="window.copyVerse(); event.stopPropagation();" class="w-full py-2 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap">
-                    <i class="fa-solid fa-copy mr-1 text-sm sm:text-base"></i> 복사
+                  <button onclick="window.copyVerse(); event.stopPropagation();" class="w-full py-2.5 sm:py-3 bg-indigo-950/80 hover:bg-indigo-900 rounded-xl text-[15px] sm:text-lg md:text-xl font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap active:scale-95">
+                    <i class="fa-solid fa-copy mr-1 text-sm sm:text-lg"></i> 복사
                   </button>
-                  <button onclick="window.shareVerse(); event.stopPropagation();" class="w-full py-2 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap">
-                    <i class="fa-solid fa-share-nodes mr-1 text-sm sm:text-base text-emerald-400"></i> 공유
+                  <button onclick="window.shareVerse(); event.stopPropagation();" class="w-full py-2.5 sm:py-3 bg-indigo-950/80 hover:bg-indigo-900 rounded-xl text-[15px] sm:text-lg md:text-xl font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap active:scale-95">
+                    <i class="fa-solid fa-share-nodes mr-1 text-sm sm:text-lg text-emerald-400"></i> 공유
                   </button>
                 </div>
 
@@ -218,28 +219,28 @@
         </div>
       </div>
 
-      <!-- 💡 3분할 비대칭 버튼 바 (내부 여백 축소 & 글자 크기 최대화) -->
+      <!-- 3분할 비대칭 버튼 바 (퍼즐 | 교과토의 | 교 과) -->
       <div class="flex gap-1.5 sm:gap-2.5 my-2 sm:my-3 items-stretch w-full">
-        <!-- 1. 퍼즐 버튼: 글자 크기 최대화 -->
+        <!-- 1. 퍼즐 -->
         <button onclick="openPuzzleModal()" class="flex-none w-[24%] sm:w-[22%] flex items-center justify-center gap-1 sm:gap-1.5 py-3 px-1 bg-amber-50 hover:bg-amber-100 text-amber-900 font-black rounded-2xl border border-amber-200 shadow-sm transition active:scale-95 text-[17px] sm:text-xl md:text-2xl">
           <i class="fa-solid fa-puzzle-piece text-lg sm:text-2xl text-amber-600 flex-shrink-0"></i>
           <span class="tracking-tighter sm:tracking-normal whitespace-nowrap">퍼즐</span>
         </button>
 
-        <!-- 2. 교과토의 자료: 글자 크기 최대화 -->
-        <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 px-1.5 sm:px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-black rounded-2xl border border-emerald-100 transition shadow-sm text-[17px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer">
+        <!-- 2. 교과토의 -->
+        <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 px-1.5 sm:px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-black rounded-2xl border border-emerald-100 transition shadow-sm text-[17px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer active:scale-95">
           <i class="fa-solid fa-comments text-lg sm:text-2xl flex-shrink-0"></i>
           <span id="discussionBtnText" class="tracking-tighter sm:tracking-normal whitespace-nowrap">교과토의</span>
         </a>
 
-        <!-- 3. 교 과: 글자 크기 최대화 -->
-        <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 px-1.5 sm:px-3 bg-red-50 hover:bg-red-100 text-red-700 font-black rounded-2xl border border-red-100 transition shadow-sm text-[17px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer">
+        <!-- 3. 교 과 -->
+        <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 px-1.5 sm:px-3 bg-red-50 hover:bg-red-100 text-red-700 font-black rounded-2xl border border-red-100 transition shadow-sm text-[17px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer active:scale-95">
           <i class="fa-solid fa-book-open-reader text-lg sm:text-2xl flex-shrink-0"></i>
           <span id="pdfBtnText" class="tracking-tighter sm:tracking-normal whitespace-nowrap">교 과</span>
         </a>
       </div>
 
-      <!-- 💡 유튜브 영상 섹션: 여백 축소 및 좌우 와이드 확장 -->
+      <!-- 유튜브 영상 섹션: 여백 축소 & 강사 탭 폰트 최대화 -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-3 sm:p-4 md:p-5">
         <div class="flex justify-between items-center mb-3 sm:mb-4 flex-wrap gap-2 px-1">
           <h3 class="text-lg sm:text-xl md:text-2xl font-bold flex items-center text-slate-800">
@@ -250,12 +251,14 @@
           </button>
         </div>
         
+        <!-- 강사 A, B, C 탭: 폰트 최대화 -->
         <div class="flex space-x-1.5 sm:space-x-2 mb-3 sm:mb-4 overflow-x-auto pb-1 custom-scrollbar px-1">
-          <button onclick="changeVideoTab('a')" id="tab-a" class="tab-active border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 A</button>
-          <button onclick="changeVideoTab('b')" id="tab-b" class="tab-inactive border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 B</button>
-          <button onclick="changeVideoTab('c')" id="tab-c" class="tab-inactive border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 C</button>
+          <button onclick="changeVideoTab('a')" id="tab-a" class="tab-active border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl font-black text-base sm:text-lg md:text-xl whitespace-nowrap transition shadow-sm active:scale-95">강사 A</button>
+          <button onclick="changeVideoTab('b')" id="tab-b" class="tab-inactive border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl font-black text-base sm:text-lg md:text-xl whitespace-nowrap transition shadow-sm active:scale-95">강사 B</button>
+          <button onclick="changeVideoTab('c')" id="tab-c" class="tab-inactive border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl font-black text-base sm:text-lg md:text-xl whitespace-nowrap transition shadow-sm active:scale-95">강사 C</button>
         </div>
 
+        <!-- 꽉 찬 16:9 플레이어 -->
         <div class="aspect-video w-full bg-slate-900 rounded-xl sm:rounded-2xl overflow-hidden relative shadow-inner border border-slate-800">
           <div id="videoLoader" class="absolute inset-0 flex items-center justify-center bg-slate-900 z-10 hidden">
             <i class="fa-solid fa-spinner fa-spin text-3xl text-red-500"></i>
@@ -714,7 +717,7 @@
 
       if (btnText && btnIcon) {
         btnText.innerText = stepNames[window.currentMaskStep].text;
-        btnIcon.className = stepNames[window.currentMaskStep].icon + " mr-1 text-base sm:text-lg text-amber-300";
+        btnIcon.className = stepNames[window.currentMaskStep].icon + " mr-1 text-base sm:text-xl text-amber-300";
       }
 
       let maskedKo = originalKo;
@@ -1145,12 +1148,12 @@
       if (!btn || !icon || !text) return;
 
       if (isDoneToday) {
-        btn.className = "flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 active:scale-95 whitespace-nowrap";
-        icon.className = "fa-solid fa-circle-check mr-1 text-base sm:text-lg text-yellow-300";
+        btn.className = "flex-1 px-1 sm:px-2.5 py-2.5 sm:py-3 rounded-xl text-[15px] sm:text-lg md:text-xl font-black transition shadow-md flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 active:scale-95 whitespace-nowrap";
+        icon.className = "fa-solid fa-circle-check mr-1 text-base sm:text-xl text-yellow-300";
         text.innerText = "오늘 외웠어요! ✨";
       } else {
-        btn.className = "flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap";
-        icon.className = "fa-regular fa-circle-check mr-1 text-base sm:text-lg";
+        btn.className = "flex-1 px-1 sm:px-2.5 py-2.5 sm:py-3 rounded-xl text-[15px] sm:text-lg md:text-xl font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap";
+        icon.className = "fa-regular fa-circle-check mr-1 text-base sm:text-xl";
         text.innerText = "오늘 외웠어요";
       }
     };
@@ -1348,7 +1351,7 @@
       if(window.currentTab === tabName) return; 
       window.currentTab = tabName;
       ['a', 'b', 'c'].forEach(t => {
-        document.getElementById(`tab-${t}`).className = (t === tabName) ? "tab-active border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base md:text-lg whitespace-nowrap transition shadow-sm" : "tab-inactive border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base md:text-lg whitespace-nowrap transition shadow-sm";
+        document.getElementById(`tab-${t}`).className = (t === tabName) ? "tab-active border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl font-black text-base sm:text-lg md:text-xl whitespace-nowrap transition shadow-sm active:scale-95" : "tab-inactive border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl font-black text-base sm:text-lg md:text-xl whitespace-nowrap transition shadow-sm active:scale-95";
       });
       window.updateVideoPlayer();
     };
