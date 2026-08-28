@@ -276,7 +276,6 @@
       </div>
       <div class="flex-1 w-full bg-slate-50 relative flex flex-col">
         <iframe id="bibleIframe" class="w-full flex-1 border-0" src=""></iframe>
-        <!-- 하단 안내 바 -->
         <div class="bg-slate-100 border-t border-slate-200 px-3 py-2 text-center text-xs text-slate-500">
           💡 화면이 보이지 않으시면 상단의 <span class="font-bold text-indigo-700">[새창 열기]</span> 또는 <span class="font-bold text-amber-700">[재림성경 앱]</span> 버튼을 눌러주세요.
         </div>
@@ -350,7 +349,7 @@
             <i class="fa-solid fa-download mr-1"></i> 앱 설치
           </button>
 
-          <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 px-3 py-1.5 rounded">
+          <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded">
             <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 새창 열기
           </button>
           <button onclick="closeDiscussionModal()" class="text-slate-300 hover:text-white transition p-1">
@@ -597,30 +596,74 @@
       window.applyVerseMasking();
     };
 
-    // 💡 시조사 66권 한글 매핑 테이블
+    // 💡 시조사(sijosa.com) 66권 정확한 매핑 테이블 (약칭 및 풀네임 모두 대응)
     const BIBLE_SIJOSA_MAP = {
-      "창": { code: "Genesis", idx: 401 }, "출": { code: "Exodus", idx: 402 }, "레": { code: "Leviticus", idx: 403 },
-      "민": { code: "Numbers", idx: 404 }, "신": { code: "Deuteronomy", idx: 405 }, "수": { code: "Joshua", idx: 406 },
-      "삿": { code: "Judges", idx: 407 }, "룻": { code: "Ruth", idx: 408 }, "삼상": { code: "1Samuel", idx: 409 },
-      "삼하": { code: "2Samuel", idx: 410 }, "왕상": { code: "1Kings", idx: 411 }, "왕하": { code: "2Kings", idx: 412 },
-      "대상": { code: "1Chronicles", idx: 413 }, "대하": { code: "2Chronicles", idx: 414 }, "스": { code: "Ezra", idx: 415 },
-      "느": { code: "Nehemiah", idx: 416 }, "에": { code: "Esther", idx: 417 }, "욥": { code: "Job", idx: 418 },
-      "시": { code: "Psalms", idx: 419 }, "잠": { code: "Proverbs", idx: 420 }, "전": { code: "Ecclesiastes", idx: 421 },
-      "아": { code: "SongofSolomon", idx: 422 }, "사": { code: "Isaiah", idx: 423 }, "렘": { code: "Jeremiah", idx: 424 },
-      "애": { code: "Lamentations", idx: 425 }, "겔": { code: "Ezekiel", idx: 426 }, "단": { code: "Daniel", idx: 427 },
-      "호": { code: "Hosea", idx: 428 }, "욜": { code: "Joel", idx: 429 }, "암": { code: "Amos", idx: 430 },
-      "옵": { code: "Obadiah", idx: 431 }, "욘": { code: "Jonah", idx: 432 }, "미": { code: "Micah", idx: 433 },
-      "나": { code: "Nahum", idx: 434 }, "합": { code: "Habakkuk", idx: 435 }, "습": { code: "Zephaniah", idx: 436 },
-      "학": { code: "Haggai", idx: 437 }, "슥": { code: "Zechariah", idx: 438 }, "말": { code: "Malachi", idx: 439 },
-      "마": { code: "Matthew", idx: 451 }, "막": { code: "Mark", idx: 452 }, "눅": { code: "Luke", idx: 453 },
-      "요": { code: "John", idx: 454 }, "행": { code: "Acts", idx: 455 }, "롬": { code: "Romans", idx: 456 },
-      "고전": { code: "1Corinthians", idx: 457 }, "고후": { code: "2Corinthians", idx: 458 }, "갈": { code: "Galatians", idx: 459 },
-      "엡": { code: "Ephesians", idx: 460 }, "빌": { code: "Philippians", idx: 461 }, "골": { code: "Colossians", idx: 462 },
-      "살전": { code: "1Thessalonians", idx: 463 }, "살후": { code: "2Thessalonians", idx: 464 }, "딤전": { code: "1Timothy", idx: 465 },
-      "딤후": { code: "2Timothy", idx: 466 }, "딛": { code: "Titus", idx: 467 }, "몬": { code: "Philemon", idx: 468 },
-      "히": { code: "Hebrews", idx: 469 }, "약": { code: "James", idx: 470 }, "벧전": { code: "1Peter", idx: 471 },
-      "벧후": { code: "2Peter", idx: 472 }, "요일": { code: "1John", idx: 473 }, "요이": { code: "2John", idx: 474 },
-      "요삼": { code: "3John", idx: 475 }, "유": { code: "Jude", idx: 476 }, "계": { code: "Revelation", idx: 477 }
+      "창": { code: "Genesis", idx: 401 }, "창세기": { code: "Genesis", idx: 401 },
+      "출": { code: "Exodus", idx: 402 }, "출애굽기": { code: "Exodus", idx: 402 },
+      "레": { code: "Leviticus", idx: 403 }, "레위기": { code: "Leviticus", idx: 403 },
+      "민": { code: "Numbers", idx: 404 }, "민수기": { code: "Numbers", idx: 404 },
+      "신": { code: "Deuteronomy", idx: 405 }, "신명기": { code: "Deuteronomy", idx: 405 },
+      "수": { code: "Joshua", idx: 406 }, "여호수아": { code: "Joshua", idx: 406 },
+      "삿": { code: "Judges", idx: 407 }, "사사기": { code: "Judges", idx: 407 },
+      "룻": { code: "Ruth", idx: 408 }, "룻기": { code: "Ruth", idx: 408 },
+      "삼상": { code: "1 Samuel", idx: 409 }, "사무엘상": { code: "1 Samuel", idx: 409 },
+      "삼하": { code: "2 Samuel", idx: 410 }, "사무엘하": { code: "2 Samuel", idx: 410 },
+      "왕상": { code: "1 Kings", idx: 411 }, "열왕기상": { code: "1 Kings", idx: 411 },
+      "왕하": { code: "2 Kings", idx: 412 }, "열왕기하": { code: "2 Kings", idx: 412 },
+      "대상": { code: "1 Chronicles", idx: 413 }, "역대상": { code: "1 Chronicles", idx: 413 },
+      "대하": { code: "2 Chronicles", idx: 414 }, "역대하": { code: "2 Chronicles", idx: 414 },
+      "스": { code: "Ezra", idx: 415 }, "에스라": { code: "Ezra", idx: 415 },
+      "느": { code: "Nehemiah", idx: 416 }, "느헤미야": { code: "Nehemiah", idx: 416 },
+      "에": { code: "Esther", idx: 417 }, "에스더": { code: "Esther", idx: 417 },
+      "욥": { code: "Job", idx: 418 }, "욥기": { code: "Job", idx: 418 },
+      "시": { code: "Psalms", idx: 419 }, "시편": { code: "Psalms", idx: 419 },
+      "잠": { code: "Proverbs", idx: 420 }, "잠언": { code: "Proverbs", idx: 420 },
+      "전": { code: "Ecclesiastes", idx: 421 }, "전도서": { code: "Ecclesiastes", idx: 421 },
+      "아": { code: "Song of Solomon", idx: 422 }, "아가": { code: "Song of Solomon", idx: 422 },
+      "사": { code: "Isaiah", idx: 423 }, "이사야": { code: "Isaiah", idx: 423 },
+      "렘": { code: "Jeremiah", idx: 424 }, "예레미야": { code: "Jeremiah", idx: 424 },
+      "애": { code: "Lamentations", idx: 425 }, "예레미야애가": { code: "Lamentations", idx: 425 },
+      "겔": { code: "Ezekiel", idx: 426 }, "에스겔": { code: "Ezekiel", idx: 426 },
+      "단": { code: "Daniel", idx: 427 }, "다니엘": { code: "Daniel", idx: 427 },
+      "호": { code: "Hosea", idx: 428 }, "호세아": { code: "Hosea", idx: 428 },
+      "욜": { code: "Joel", idx: 429 }, "요엘": { code: "Joel", idx: 429 },
+      "암": { code: "Amos", idx: 430 }, "아모스": { code: "Amos", idx: 430 },
+      "옵": { code: "Obadiah", idx: 431 }, "오바댜": { code: "Obadiah", idx: 431 },
+      "욘": { code: "Jonah", idx: 432 }, "요나": { code: "Jonah", idx: 432 },
+      "미": { code: "Micah", idx: 433 }, "미가": { code: "Micah", idx: 433 },
+      "나": { code: "Nahum", idx: 434 }, "나훔": { code: "Nahum", idx: 434 },
+      "합": { code: "Habakkuk", idx: 435 }, "하박국": { code: "Habakkuk", idx: 435 },
+      "습": { code: "Zephaniah", idx: 436 }, "스바냐": { code: "Zephaniah", idx: 436 },
+      "학": { code: "Haggai", idx: 437 }, "학개": { code: "Haggai", idx: 437 },
+      "슥": { code: "Zechariah", idx: 438 }, "스가랴": { code: "Zechariah", idx: 438 },
+      "말": { code: "Malachi", idx: 439 }, "말라기": { code: "Malachi", idx: 439 },
+      "마": { code: "Matthew", idx: 451 }, "마태복음": { code: "Matthew", idx: 451 },
+      "막": { code: "Mark", idx: 452 }, "마가복음": { code: "Mark", idx: 452 },
+      "눅": { code: "Luke", idx: 453 }, "누가복음": { code: "Luke", idx: 453 },
+      "요": { code: "John", idx: 454 }, "요한복음": { code: "John", idx: 454 },
+      "행": { code: "Acts", idx: 455 }, "사도행전": { code: "Acts", idx: 455 },
+      "롬": { code: "Romans", idx: 456 }, "로마서": { code: "Romans", idx: 456 },
+      "고전": { code: "1 Corinthians", idx: 457 }, "고린도전서": { code: "1 Corinthians", idx: 457 },
+      "고후": { code: "2 Corinthians", idx: 458 }, "고린도후서": { code: "2 Corinthians", idx: 458 },
+      "갈": { code: "Galatians", idx: 459 }, "갈라디아서": { code: "Galatians", idx: 459 },
+      "엡": { code: "Ephesians", idx: 460 }, "에베소서": { code: "Ephesians", idx: 460 },
+      "빌": { code: "Philippians", idx: 461 }, "빌립보서": { code: "Philippians", idx: 461 },
+      "골": { code: "Colossians", idx: 462 }, "골로새서": { code: "Colossians", idx: 462 },
+      "살전": { code: "1 Thessalonians", idx: 463 }, "데살로니가전서": { code: "1 Thessalonians", idx: 463 },
+      "살후": { code: "2 Thessalonians", idx: 464 }, "데살로니가후서": { code: "2 Thessalonians", idx: 464 },
+      "딤전": { code: "1 Timothy", idx: 465 }, "디모데전서": { code: "1 Timothy", idx: 465 },
+      "딤후": { code: "2 Timothy", idx: 466 }, "디모데후서": { code: "2 Timothy", idx: 466 },
+      "딛": { code: "Titus", idx: 467 }, "디도서": { code: "Titus", idx: 467 },
+      "몬": { code: "Philemon", idx: 468 }, "빌레몬서": { code: "Philemon", idx: 468 },
+      "히": { code: "Hebrews", idx: 469 }, "히브리서": { code: "Hebrews", idx: 469 },
+      "약": { code: "James", idx: 470 }, "야고보서": { code: "James", idx: 470 },
+      "벧전": { code: "1 Peter", idx: 471 }, "베드로전서": { code: "1 Peter", idx: 471 },
+      "벧후": { code: "2 Peter", idx: 472 }, "베드로후서": { code: "2 Peter", idx: 472 },
+      "요일": { code: "1 John", idx: 473 }, "요한일서": { code: "1 John", idx: 473 },
+      "요이": { code: "2 John", idx: 474 }, "요한이서": { code: "2 John", idx: 474 },
+      "요삼": { code: "3 John", idx: 475 }, "요한삼서": { code: "3 John", idx: 475 },
+      "유": { code: "Jude", idx: 476 }, "유다서": { code: "Jude", idx: 476 },
+      "계": { code: "Revelation", idx: 477 }, "요한계시록": { code: "Revelation", idx: 477 }
     };
 
     // 💡 시조사 공식 성경 뷰어 연동 함수
@@ -633,9 +676,10 @@
       const bibleRef = (data?.bible_ko || "").trim();
       if (titleElem) titleElem.innerHTML = `<i class="fa-solid fa-book-bible text-yellow-300 mr-2"></i>${bibleRef || '성경'} 본문 보기`;
       
-      let bookKey = "마", ch = "1", vs = "1";
+      // 구절 파싱 ("고후 2:4" 또는 "고후 2장 4절" 또는 "고후 4:2")
+      let bookKey = "고후", ch = "2", vs = "4";
       if (bibleRef) {
-        const match = bibleRef.match(/([가-힣]+)\s*(\d+)(?::(\d+))?/);
+        const match = bibleRef.match(/([가-힣]+)\s*(\d+)(?:[:장\s]+(\d+))?/);
         if (match) {
           bookKey = match[1];
           ch = match[2] || "1";
@@ -643,8 +687,10 @@
         }
       }
 
-      const bookInfo = BIBLE_SIJOSA_MAP[bookKey] || { code: "Matthew", idx: 451 };
-      window.currentBibleTargetUrl = `https://www.sijosa.com/ch21/bible.php?book_idx=${bookInfo.idx}&code=${bookInfo.code}&chapter=${ch}&verse=${vs}`;
+      const bookInfo = BIBLE_SIJOSA_MAP[bookKey] || { code: "2 Corinthians", idx: 458 };
+      
+      // 💡 공백 인코딩 처리(2%20Corinthians)로 시조사 웹서버와 100% 일치
+      window.currentBibleTargetUrl = `https://www.sijosa.com/ch21/bible.php?book_idx=${bookInfo.idx}&code=${encodeURIComponent(bookInfo.code)}&chapter=${ch}&verse=${vs}`;
 
       iframe.src = window.currentBibleTargetUrl;
       modal.classList.remove('hidden');
