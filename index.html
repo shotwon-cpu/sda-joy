@@ -43,6 +43,7 @@
       -webkit-user-select: none; 
     }
 
+    /* 단어 터치 인터랙션 */
     .dict-tap-word {
       cursor: pointer;
       display: inline-block;
@@ -56,6 +57,17 @@
       color: #fef08a;
       text-decoration: underline;
       text-underline-offset: 3px;
+    }
+
+    /* 성경 출처 터치 버튼 */
+    .bible-ref-link {
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.15s ease;
+    }
+    .bible-ref-link:hover, .bible-ref-link:active {
+      color: #fef08a !important;
     }
     
     .loader {
@@ -143,9 +155,11 @@
             <div class="verse-box text-white px-2.5 py-4 sm:px-5 sm:py-6 md:p-10 rounded-2xl relative shadow-inner">
               <p class="leading-snug md:leading-relaxed font-semibold tracking-wide mb-4 sm:mb-5">
                 <span id="displayVerseKo" class="transition-all duration-150"></span>
-                <span id="displayBibleKo" class="font-medium text-indigo-300 ml-2 transition-all duration-150"></span>
+                <!-- 💡 성경 본문 모달을 띄우는 터치 링크 -->
+                <span id="displayBibleKo" onclick="window.openBibleModal(); event.stopPropagation();" class="font-medium text-indigo-300 ml-2 transition-all duration-150 pointer-events-auto bible-ref-link" title="성경 본문 보기"></span>
               </p>
               
+              <!-- 💡 단어 원터치 영한사전 연결 영역 -->
               <p class="leading-relaxed font-light text-indigo-200 italic mb-6 sm:mb-8 pointer-events-auto">
                 <span id="displayVerseEn" class="transition-all duration-150"></span>
                 <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150"></span>
@@ -238,6 +252,30 @@
     </div>
   </main>
 
+  <!-- 📖 성경 본문 뷰어 모달 (재림성경 앱 딥링크 포함) -->
+  <div id="bibleModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[75] p-2 md:p-4">
+    <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
+      <div class="bg-indigo-950 text-white p-3.5 sm:p-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-book-bible text-yellow-300 text-lg"></i>
+          <h3 id="bibleModalTitle" class="font-black text-base sm:text-lg truncate">성경 본문 보기</h3>
+        </div>
+        <div class="flex items-center space-x-2">
+          <!-- 💡 스마트폰 재림성경 앱 호출 버튼 -->
+          <a href="intent://#Intent;package=kr.adventist.bible;end" class="text-xs sm:text-sm bg-yellow-400 hover:bg-yellow-300 text-indigo-950 font-black px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
+            <i class="fa-solid fa-mobile-screen"></i> 재림성경 앱 열기
+          </a>
+          <button onclick="closeBibleModal()" class="text-slate-300 hover:text-white transition p-1">
+            <i class="fa-solid fa-xmark text-2xl sm:text-3xl"></i>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 w-full bg-slate-50 relative">
+        <iframe id="bibleIframe" class="w-full h-full border-0" src=""></iframe>
+      </div>
+    </div>
+  </div>
+
   <!-- 📖 100% 정상 작동하는 원터치 영한사전 모달 -->
   <div id="dictModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-[80] p-3 sm:p-4">
     <div class="bg-white rounded-3xl w-full max-w-md p-5 sm:p-6 shadow-2xl animate-fade-in border border-slate-100 flex flex-col max-h-[80vh]">
@@ -256,9 +294,7 @@
         </button>
       </div>
 
-      <div id="dictContentArea" class="overflow-y-auto flex-1 custom-scrollbar pr-1 space-y-3 my-1 text-slate-700 leading-relaxed min-h-[140px]">
-        <!-- 검색 결과가 동적으로 렌더링됩니다 -->
-      </div>
+      <div id="dictContentArea" class="overflow-y-auto flex-1 custom-scrollbar pr-1 space-y-3 my-1 text-slate-700 leading-relaxed min-h-[140px]"></div>
 
       <div class="pt-3 border-t border-slate-100 flex justify-between items-center text-xs mt-3">
         <div class="flex items-center space-x-2">
@@ -306,7 +342,7 @@
             <i class="fa-solid fa-download mr-1"></i> 앱 설치
           </button>
 
-          <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded">
+          <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 px-3 py-1.5 rounded">
             <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 새창 열기
           </button>
           <button onclick="closeDiscussionModal()" class="text-slate-300 hover:text-white transition p-1">
@@ -552,6 +588,28 @@
       window.applyVerseMasking();
     };
 
+    // 💡 성경 본문 모달 제어 함수 (한국연합회 공식 성경 웹 서비스 연동)
+    window.openBibleModal = function() {
+      const data = window.sheetData[window.currentIndex];
+      const modal = document.getElementById('bibleModal');
+      const titleElem = document.getElementById('bibleModalTitle');
+      const iframe = document.getElementById('bibleIframe');
+
+      const bibleRef = data?.bible_ko || "성경";
+      if (titleElem) titleElem.innerHTML = `<i class="fa-solid fa-book-bible text-yellow-300 mr-2"></i>${bibleRef} 본문 보기`;
+      
+      // 공식 웹 성경 뷰어 주소 연결
+      iframe.src = "https://www.adventist.or.kr/bible/?referer=channel";
+      modal.classList.remove('hidden');
+    };
+
+    window.closeBibleModal = function() {
+      const modal = document.getElementById('bibleModal');
+      const iframe = document.getElementById('bibleIframe');
+      modal.classList.add('hidden');
+      iframe.src = "";
+    };
+
     // 💡 100% 정상 작동하는 구글 영한 사전 엔진
     window.lookupDictWord = async function(cleanWord) {
       if (!cleanWord) return;
@@ -591,7 +649,6 @@
         if (!res.ok) throw new Error('API request failed');
         const data = await res.json();
 
-        // 번역된 대표 한글 뜻
         let primaryMeaning = data[0]?.[0]?.[0] || '';
         
         let html = `
@@ -601,12 +658,11 @@
           </div>
         `;
 
-        // 품사별 상세 뜻 및 동의어 (data[1]에 품사별 목록이 들어있음)
         if (data[1] && Array.isArray(data[1]) && data[1].length > 0) {
           html += `<div class="space-y-2 mt-3">`;
           data[1].forEach(item => {
-            const pos = item[0]; // 품사 (noun, verb 등)
-            const meanings = item[1]?.slice(0, 5).join(', ') || ''; // 해당 품사의 세부 뜻들
+            const pos = item[0];
+            const meanings = item[1]?.slice(0, 5).join(', ') || '';
             if (meanings) {
               html += `
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/70 text-sm">
@@ -1455,7 +1511,8 @@
         { id: 'discussionModal', closeFunc: window.closeDiscussionModal },
         { id: 'pdfModal', closeFunc: window.closePdfModal },
         { id: 'verseListModal', closeFunc: window.closeListModal },
-        { id: 'dictModal', closeFunc: window.closeDictModal }
+        { id: 'dictModal', closeFunc: window.closeDictModal },
+        { id: 'bibleModal', closeFunc: window.closeBibleModal }
       ];
 
       modals.forEach(modalInfo => {
