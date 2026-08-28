@@ -1,471 +1,1600 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>세종 행복 교회</title>
-  <style>
-    :root {
-      --primary-color: #272161;
-      --secondary-color: #3b3582;
-      --accent-yellow: #f8c226;
-      --accent-blue: #3d70b2;
-      --bg-light: #f7f8fa;
-      --text-dark: #222;
-      --text-gray: #666;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>세종행복교회 안식일학교</title>
+  
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#312e81">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="세종행복교회">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='512' height='512'%3E%3Crect width='512' height='512' rx='115' fill='%235c3a21'/%3E%3Cpath d='M96 64h272c26.5 0 48 21.5 48 48v288c0 26.5-21.5 48-48 48H96c-17.7 0-32-14.3-32-32V96c0-17.7 14.3-32 32-32z' fill='%23784421'/%3E%3Cpath d='M368 448H112c-8.8 0-16-7.2-16-16s7.2-16 16-16h256c8.8 0 16 7.2 16 16s-7.2 16-16 16z' fill='%23e2d9c8'/%3E%3Cpath d='M232 144h48v64h64v48h-64v128h-48V256h-64v-48h64v-64z' fill='%23f59e0b'/%3E%3C/svg%3E">
 
-    * {
-      box-sizing: border-box;
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    html {
+      width: 100%;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+    }
+    body {
+      width: 100%;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
+      background-color: #f8fafc;
+      font-family: 'Pretendard', sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
     }
 
-    body {
-      background-color: #1a1a24;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+    .nav-header { background-color: #312e81; }
+    .verse-box { background-color: #1e1b4b; }
+    .tab-active { background-color: #ef4444; color: white; border-color: #ef4444; }
+    .tab-inactive { background-color: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+    
+    .swipe-area { 
+      touch-action: pan-y !important; 
+      user-select: none; 
+      -webkit-user-select: none; 
     }
 
-    /* 모바일 프레임 컨테이너 */
-    .app-container {
-      width: 100%;
-      max-width: 430px;
-      height: 100vh;
-      max-height: 932px;
-      background-color: #fff;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    }
-
-    /* 상단 앱바 */
-    .app-header {
-      background-color: var(--primary-color);
-      color: #fff;
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 18px;
-      font-weight: bold;
-    }
-    .app-header .title {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .app-header .header-icons {
-      display: flex;
-      gap: 8px;
-    }
-    .header-btn {
-      background: rgba(255, 255, 255, 0.15);
-      border: none;
-      color: white;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 12px;
+    /* 단어 터치 인터랙션 */
+    .dict-tap-word {
       cursor: pointer;
+      display: inline-block;
+      padding: 0 1px;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+    .dict-tap-word:hover, .dict-tap-word:active {
+      background-color: rgba(253, 224, 71, 0.25);
+      color: #fef08a;
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
 
-    /* 본문 영역 */
-    .app-content {
-      flex: 1;
-      padding: 20px 16px;
-      overflow-y: auto;
-      background-color: var(--bg-light);
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 18px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    .card-title {
-      font-size: 15px;
-      font-weight: bold;
-      color: var(--primary-color);
-      margin-bottom: 10px;
-    }
-    .verse-box {
-      font-size: 15px;
-      line-height: 1.6;
-      color: #333;
-      background-color: #f1f3f7;
-      padding: 14px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
-    .btn-open-bible {
-      width: 100%;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: bold;
+    /* 성경 출처 터치 링크 */
+    .bible-ref-link {
       cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 6px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.15s ease;
     }
-    .btn-open-bible:active {
-      background-color: var(--secondary-color);
+    .bible-ref-link:hover, .bible-ref-link:active {
+      color: #fef08a !important;
     }
-
-    /* 하단 네비게이션 바 */
-    .bottom-nav {
-      height: 60px;
-      background: #fff;
-      border-top: 1px solid #e2e4e8;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
+    
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #312e81; 
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
     }
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 11px;
-      color: var(--text-gray);
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .nav-item.active {
-      color: var(--primary-color);
-      font-weight: bold;
-    }
-
-    /* ================================================= */
-    /* 성경 모달 레이어 (스크린샷 스타일 완벽 구현) */
-    /* ================================================= */
-    .bible-modal-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      display: none;
-      flex-direction: column;
-      z-index: 1000;
-    }
-    .bible-modal-overlay.open {
-      display: flex;
-    }
-
-    /* 모달 헤더 */
-    .modal-header {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 12px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    .modal-title-wrap {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 15px;
-      font-weight: bold;
-      max-width: 50%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .modal-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .btn-badge-yellow {
-      background-color: var(--accent-yellow);
-      color: #222;
-      font-size: 11px;
-      font-weight: bold;
-      border: none;
-      padding: 6px 9px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .btn-badge-blue {
-      background-color: #3b5998;
-      color: white;
-      font-size: 11px;
-      font-weight: 500;
-      border: none;
-      padding: 6px 9px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-    }
-    .btn-modal-close {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 20px;
-      font-weight: bold;
-      margin-left: 4px;
-      cursor: pointer;
-      line-height: 1;
-    }
-
-    /* 모달 본문 (아이프레임 웹뷰) */
-    .modal-body {
-      flex: 1;
-      background: #fff;
-      position: relative;
-    }
-    .bible-iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background-color: #ffffff;
-    }
-
-    /* 안내 하단 바 */
-    .modal-footer-notice {
-      background: #fafafa;
-      border-top: 1px solid #eee;
-      padding: 8px 12px;
-      font-size: 11px;
-      color: #666;
-      text-align: center;
-    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
-<body>
+<body class="flex flex-col min-h-screen w-full">
 
-<div class="app-container">
-  <header class="app-header">
-    <div class="title">
-      <span>📖</span> 세종 행복 교회
+  <!-- 상단 네비게이션 -->
+  <header class="nav-header text-white px-3 py-3 md:px-6 md:py-4 flex justify-between items-center shadow-lg gap-2 sm:gap-4 overflow-hidden flex-shrink-0 w-full">
+    <div class="flex flex-col justify-center min-w-0 flex-1 pr-1 sm:pr-2">
+      <h1 class="text-[22px] sm:text-3xl md:text-4xl lg:text-5xl font-black flex items-center tracking-tight truncate">
+        <i class="fa-solid fa-book-bible mr-1.5 sm:mr-3 text-[20px] sm:text-2xl md:text-3xl lg:text-4xl text-yellow-300"></i>세종 행복 교회
+      </h1>
+      <p class="text-[10px] sm:text-sm md:text-base lg:text-lg text-indigo-200 mt-1 md:mt-1.5 truncate pl-4">기억절 & 교과방송 by 고은아빠</p>
     </div>
-    <div class="header-icons">
-      <button class="header-btn">🎵</button>
-      <button class="header-btn">📅</button>
-      <button class="header-btn">📚</button>
+    
+    <div class="grid grid-cols-4 gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
+      <button onclick="openHymnModal()" class="w-full bg-rose-600 hover:bg-rose-500 px-1 sm:px-2 md:px-4 py-1.5 sm:py-2.5 rounded-lg text-[11px] sm:text-base md:text-lg font-extrabold transition shadow-md flex flex-col justify-center items-center text-white">
+        <i class="fa-solid fa-music mb-1 text-sm sm:text-xl md:text-2xl"></i>
+        <span class="whitespace-nowrap tracking-tight">찬미가</span>
+      </button>
+
+      <button onclick="goToCurrentWeek()" class="w-full bg-indigo-600 hover:bg-indigo-500 px-1 sm:px-2 md:px-4 py-1.5 sm:py-2.5 rounded-lg text-[11px] sm:text-base md:text-lg font-extrabold transition shadow-md flex flex-col justify-center items-center">
+        <i class="fa-solid fa-calendar-check mb-1 text-sm sm:text-xl md:text-2xl"></i>
+        <span class="whitespace-nowrap tracking-tight">이번 주</span>
+      </button>
+
+      <button onclick="openListModal('quarter')" class="w-full bg-emerald-600 hover:bg-emerald-500 px-1 sm:px-2 md:px-4 py-1.5 sm:py-2.5 rounded-lg text-[11px] sm:text-base md:text-lg font-extrabold transition shadow-md flex flex-col justify-center items-center">
+        <i class="fa-solid fa-layer-group mb-1 text-sm sm:text-xl md:text-2xl"></i>
+        <span class="whitespace-nowrap tracking-tight">13기억절</span>
+      </button>
+
+      <button onclick="openListModal('year')" class="w-full bg-amber-600 hover:bg-amber-500 px-1 sm:px-2 md:px-4 py-1.5 sm:py-2.5 rounded-lg text-[11px] sm:text-base md:text-lg font-extrabold transition shadow-md flex flex-col justify-center items-center">
+        <i class="fa-solid fa-list-ol mb-1 text-sm sm:text-xl md:text-2xl"></i>
+        <span class="whitespace-nowrap tracking-tight">52기억절</span>
+      </button>
     </div>
   </header>
 
-  <main class="app-content">
-    <div class="card">
-      <div class="card-title">오늘의 기억절</div>
-      <div class="verse-box">
-        <strong>고린도후서 2장 4절</strong><br/>
-        "내가 마음에 큰 눌림과 걱정이 있어 많은 눈물로 너희에게 썼노니 이는 너희로 근심하게 하려 한 것이 아니요..."
-      </div>
-      <button class="btn-open-bible" onclick="openBibleModal('고후 2:4')">
-        <span>📖</span> 고후 2:4 본문 보기
-      </button>
+  <main class="max-w-4xl mx-auto p-2 md:p-4 space-y-3 md:space-y-5 mt-1 md:mt-2 relative flex-1 w-full pb-10">
+    <div id="loadingScreen" class="absolute inset-0 flex flex-col items-center justify-center bg-[#f8fafc] z-50">
+      <div class="loader mb-4"></div>
+      <p class="text-indigo-900 font-bold text-lg md:text-xl animate-pulse">데이터를 0.1초만에 불러옵니다 🚀</p>
+      <p class="text-slate-500 text-sm mt-2">Firebase 초고속 서버 연동 완료</p>
     </div>
 
-    <div class="card">
-      <div class="card-title">성경 구절 바로가기 테스트</div>
-      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-        <button class="header-btn" style="background:#4a457a;" onclick="openBibleModal('창세기 1:1')">창세기 1:1</button>
-        <button class="header-btn" style="background:#4a457a;" onclick="openBibleModal('마태복음 1:1')">마태복음 1:1</button>
-        <button class="header-btn" style="background:#4a457a;" onclick="openBibleModal('요 3:16')">요한복음 3:16</button>
+    <!-- 콘텐츠 영역 -->
+    <div id="contentArea" class="hidden space-y-4 md:space-y-6 w-full">
+      <div class="w-full overflow-hidden rounded-3xl">
+        <div id="swipeZone" class="swipe-area bg-white rounded-3xl shadow-md border border-slate-200 overflow-hidden relative transition-transform duration-300 cursor-grab active:cursor-grabbing w-full">
+          <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-50 rounded-bl-full -z-10 opacity-70"></div>
+          
+          <div class="p-3.5 sm:p-5 md:p-8 relative z-10 pointer-events-none"> 
+            
+            <div class="mb-4 sm:mb-5 flex justify-end items-center gap-1.5 sm:gap-2 flex-wrap">
+              <div id="streakBadge" class="pointer-events-auto flex items-center bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-black shadow-sm mr-auto sm:mr-0">
+                <span class="mr-1 text-sm sm:text-base">🔥</span><span id="streakCount">0</span>일 연속
+              </div>
+
+              <button onclick="window.changeWeek(-1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
+                <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
+              </button>
+              <button onclick="window.changeWeek(1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200">
+                <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
+              </button>
+              <button onclick="window.openListModal('quarter'); event.stopPropagation();" class="pointer-events-auto bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-base sm:text-lg md:text-xl font-extrabold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition shadow-sm inline-flex items-center ml-0.5 sm:ml-1">
+                <span id="displayQuarter">제 ?기 ?과</span>
+                <i class="fa-solid fa-caret-down ml-2 opacity-50 text-sm"></i>
+              </button>
+            </div>
+            
+            <div class="mb-4 sm:mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <h2 id="displayTitleKo" class="text-2xl md:text-3xl font-bold text-slate-800 leading-tight">제목을 불러오는 중</h2>
+              <span id="displayTitleEn" class="text-base md:text-lg text-slate-400 font-medium italic"></span>
+            </div>
+            
+            <div class="verse-box text-white px-2.5 py-4 sm:px-5 sm:py-6 md:p-10 rounded-2xl relative shadow-inner">
+              <p class="leading-snug md:leading-relaxed font-semibold tracking-wide mb-4 sm:mb-5">
+                <span id="displayVerseKo" class="transition-all duration-150"></span>
+                <!-- 💡 성경 본문 모달을 띄우는 터치 링크 -->
+                <span id="displayBibleKo" onclick="window.openBibleModal(); event.stopPropagation();" class="font-medium text-indigo-300 ml-2 transition-all duration-150 pointer-events-auto bible-ref-link" title="시조사 성경 본문 보기"></span>
+              </p>
+              
+              <!-- 💡 단어 원터치 영한사전 연결 영역 -->
+              <p class="leading-relaxed font-light text-indigo-200 italic mb-6 sm:mb-8 pointer-events-auto">
+                <span id="displayVerseEn" class="transition-all duration-150"></span>
+                <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150"></span>
+              </p>
+              
+              <div class="pt-3 sm:pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 space-y-2 sm:space-y-3">
+                
+                <!-- 1행 (3개 버튼) -->
+                <div class="flex items-center justify-between gap-1 sm:gap-2 w-full flex-nowrap">
+                  <button id="btnReciteToggle" onclick="window.recordDailyRecite(); event.stopPropagation();" class="flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap">
+                    <i id="reciteIcon" class="fa-regular fa-circle-check mr-1 text-base sm:text-lg"></i>
+                    <span id="reciteText" class="whitespace-nowrap font-black">오늘 암송 실천하기</span>
+                  </button>
+
+                  <button id="btnMaskStep" onclick="window.cycleMaskStep(); event.stopPropagation();" class="flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-900/90 hover:bg-indigo-800 text-amber-300 border border-amber-400/40 active:scale-95 whitespace-nowrap">
+                    <i id="maskStepIcon" class="fa-regular fa-eye mr-1 text-base sm:text-lg text-amber-300"></i>
+                    <span id="maskStepText" class="whitespace-nowrap font-black">1. 전체보기</span>
+                  </button>
+
+                  <div class="flex items-center space-x-0.5 bg-indigo-950/80 p-0.5 rounded-lg border border-indigo-900/80 flex-shrink-0">
+                    <button onclick="window.adjustMainVerseTextSize(2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-black px-2 sm:px-3 py-1.5 rounded text-sm sm:text-base md:text-lg shadow-sm transition active:scale-95">A +</button>
+                    <button onclick="window.adjustMainVerseTextSize(-2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-black px-2 sm:px-3 py-1.5 rounded text-sm sm:text-base md:text-lg shadow-sm transition active:scale-95">A -</button>
+                  </div>
+                </div>
+
+                <!-- 2행 (4개 버튼) -->
+                <div class="grid grid-cols-4 gap-1 sm:gap-2 w-full">
+                  <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="w-full py-2 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap">
+                    <i class="fa-solid fa-volume-high mr-1 text-sm sm:text-base"></i> 한글
+                  </button>
+                  <button onclick="window.speakVerse('en'); event.stopPropagation();" class="w-full py-2 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap">
+                    <i class="fa-solid fa-volume-high mr-1 text-sm sm:text-base text-blue-400"></i> 영어
+                  </button>
+                  <button onclick="window.copyVerse(); event.stopPropagation();" class="w-full py-2 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap">
+                    <i class="fa-solid fa-copy mr-1 text-sm sm:text-base"></i> 복사
+                  </button>
+                  <button onclick="window.shareVerse(); event.stopPropagation();" class="w-full py-2 sm:py-2.5 bg-indigo-950/80 hover:bg-indigo-900 rounded-lg text-sm sm:text-base md:text-lg font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap">
+                    <i class="fa-solid fa-share-nodes mr-1 text-sm sm:text-base text-emerald-400"></i> 공유
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 교과토의 자료 / 교과 열기 버튼 -->
+      <div class="grid grid-cols-2 gap-2 sm:gap-3 my-3 sm:my-4">
+        <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-2 sm:px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-black rounded-2xl border border-emerald-100 transition shadow-sm text-base sm:text-lg md:text-xl opacity-50 pointer-events-none cursor-pointer">
+          <i class="fa-solid fa-comments text-xl sm:text-2xl"></i>
+          <span id="discussionBtnText">교과토의 준비중</span>
+        </a>
+
+        <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-2 sm:px-4 bg-red-50 hover:bg-red-100 text-red-600 font-black rounded-2xl border border-red-100 transition shadow-sm text-base sm:text-lg md:text-xl opacity-50 pointer-events-none cursor-pointer">
+          <i class="fa-solid fa-book-open-reader text-xl sm:text-2xl"></i>
+          <span id="pdfBtnText">교과 준비중</span>
+        </a>
+      </div>
+
+      <!-- 영상 카드 -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-6 md:pb-8">
+        <div class="flex justify-between items-center mb-5 flex-wrap gap-2">
+          <h3 class="text-xl md:text-2xl font-bold flex items-center text-slate-800">
+            <i class="fa-brands fa-youtube text-red-500 mr-2 text-2xl"></i> 이번 주 교과 해설 영상
+          </h3>
+          <button id="videoNewTabBtn" onclick="openVideoNewTab()" class="text-sm md:text-base bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg font-bold transition flex items-center border border-red-200 shadow-sm opacity-50 pointer-events-none">
+            <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> 새창/앱 열기
+          </button>
+        </div>
+        <div class="flex space-x-2 mb-5 overflow-x-auto pb-2 custom-scrollbar">
+          <button onclick="changeVideoTab('a')" id="tab-a" class="tab-active border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 A</button>
+          <button onclick="changeVideoTab('b')" id="tab-b" class="tab-inactive border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 B</button>
+          <button onclick="changeVideoTab('c')" id="tab-c" class="tab-inactive border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 C</button>
+        </div>
+        <div class="aspect-video bg-slate-900 rounded-2xl overflow-hidden relative shadow-inner border border-slate-800">
+          <div id="videoLoader" class="absolute inset-0 flex items-center justify-center bg-slate-900 z-10 hidden">
+            <i class="fa-solid fa-spinner fa-spin text-3xl text-red-500"></i>
+          </div>
+
+          <div id="noVideoMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-900 p-4 text-center z-10 hidden">
+            <i class="fa-brands fa-youtube text-5xl md:text-6xl text-slate-600 mb-3"></i>
+            <p class="text-base md:text-lg font-bold text-slate-300">해당 강사의 교과 해설 영상 준비 중입니다.</p>
+            <p class="text-xs md:text-sm text-slate-500 mt-1">다른 강사 탭을 선택해 영상을 확인해 보세요.</p>
+          </div>
+
+          <iframe id="videoPlayer" class="w-full h-full hidden transition-opacity duration-500 opacity-0" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
       </div>
     </div>
   </main>
 
-  <footer class="bottom-nav">
-    <div class="nav-item active">
-      <span>📖</span>
-      <span>성경</span>
-    </div>
-    <div class="nav-item">
-      <span>⛪</span>
-      <span>소모임</span>
-    </div>
-    <div class="nav-item">
-      <span>🔍</span>
-      <span>구절탐색</span>
-    </div>
-    <div class="nav-item">
-      <span>👤</span>
-      <span>MY</span>
-    </div>
-    <div class="nav-item">
-      <span>☰</span>
-      <span>메뉴</span>
-    </div>
-  </footer>
-
-  <div id="bibleModal" class="bible-modal-overlay">
-    <div class="modal-header">
-      <div class="modal-title-wrap">
-        <span>📖</span>
-        <span id="bibleModalTitle">고후 2:4 본문 보기</span>
+  <!-- 📖 시조사 성경 본문 뷰어 모달 (공식 재림성경 앱 딥링크 & 새창 열기 완벽 지원) -->
+  <div id="bibleModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[75] p-2 md:p-4">
+    <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
+      <div class="bg-indigo-950 text-white p-3.5 sm:p-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2 truncate">
+          <i class="fa-solid fa-book-bible text-yellow-300 text-lg flex-shrink-0"></i>
+          <h3 id="bibleModalTitle" class="font-black text-base sm:text-lg truncate">성경 본문 보기</h3>
+        </div>
+        <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
+          <!-- 💡 공식 시조사 재림성경 앱(com.sijosa.channel) 실행 버튼 -->
+          <button onclick="openSijosaApp()" class="text-xs sm:text-sm bg-yellow-400 hover:bg-yellow-300 text-indigo-950 font-black px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
+            <i class="fa-solid fa-mobile-screen"></i> 재림성경 앱
+          </button>
+          <!-- 💡 시조사 웹 성경 새창 열기 버튼 -->
+          <button onclick="openBibleNewTab()" class="text-xs sm:text-sm bg-indigo-800 hover:bg-indigo-700 text-indigo-100 font-bold px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> 새창 열기
+          </button>
+          <button onclick="closeBibleModal()" class="text-slate-300 hover:text-white transition p-1 ml-1">
+            <i class="fa-solid fa-xmark text-2xl sm:text-3xl"></i>
+          </button>
+        </div>
       </div>
-      <div class="modal-actions">
-        <button type="button" class="btn-badge-yellow" onclick="handleOpenExternal()">재림성경 앱</button>
-        <button type="button" class="btn-badge-blue" onclick="handleOpenExternal()">⎘ 새창 열기</button>
-        <button type="button" class="btn-modal-close" onclick="closeBibleModal()">✕</button>
+      <div class="flex-1 w-full bg-slate-50 relative flex flex-col">
+        <iframe id="bibleIframe" class="w-full flex-1 border-0" src=""></iframe>
+        <!-- 하단 안내 바 -->
+        <div class="bg-slate-100 border-t border-slate-200 px-3 py-2 text-center text-xs text-slate-500">
+          💡 화면이 보이지 않으시면 상단의 <span class="font-bold text-indigo-700">[새창 열기]</span> 또는 <span class="font-bold text-amber-700">[재림성경 앱]</span> 버튼을 눌러주세요.
+        </div>
       </div>
-    </div>
-
-    <div class="modal-body">
-      <iframe id="bibleIframe" class="bible-iframe" src="about:blank"></iframe>
-    </div>
-
-    <div class="modal-footer-notice">
-      💡 화면이 보이지 않으시면 상단의 <strong>[새창 열기]</strong> 또는 <strong>[재림성경 앱]</strong> 버튼을 눌러주세요.
     </div>
   </div>
-</div>
 
-<script>
-  // =========================================================
-  // 1. 시조사 성경 66권 전체 영문 코드 매핑 테이블
-  // (book_idx=451 고정 규격 완벽 대응)
-  // =========================================================
-  const SIJOSA_BIBLE_CODE_MAP = {
-    // 구약 39권
-    "창": "Genesis", "창세기": "Genesis",
-    "출": "Exodus", "출애굽기": "Exodus",
-    "레": "Leviticus", "레위기": "Leviticus",
-    "민": "Numbers", "민수기": "Numbers",
-    "신": "Deuteronomy", "신명기": "Deuteronomy",
-    "수": "Joshua", "여호수아": "Joshua",
-    "삿": "Judges", "사사기": "Judges",
-    "룻": "Ruth", "룻기": "Ruth",
-    "삼상": "1 Samuel", "사무엘상": "1 Samuel",
-    "삼하": "2 Samuel", "사무엘하": "2 Samuel",
-    "왕상": "1 Kings", "열왕기상": "1 Kings",
-    "왕하": "2 Kings", "열왕기하": "2 Kings",
-    "대상": "1 Chronicles", "역대상": "1 Chronicles",
-    "대하": "2 Chronicles", "역대하": "2 Chronicles",
-    "스": "Ezra", "에스라": "Ezra",
-    "느": "Nehemiah", "느헤미야": "Nehemiah",
-    "에": "Esther", "에스더": "Esther",
-    "욥": "Job", "욥기": "Job",
-    "시": "Psalms", "시편": "Psalms",
-    "잠": "Proverbs", "잠언": "Proverbs",
-    "전": "Ecclesiastes", "전도서": "Ecclesiastes",
-    "아": "Song of Songs", "아가": "Song of Songs",
-    "사": "Isaiah", "이사야": "Isaiah",
-    "렘": "Jeremiah", "예레미야": "Jeremiah",
-    "애": "Lamentations", "예레미야애가": "Lamentations",
-    "겔": "Ezekiel", "에스겔": "Ezekiel",
-    "단": "Daniel", "다니엘": "Daniel",
-    "호": "Hosea", "호세아": "Hosea",
-    "욜": "Joel", "요엘": "Joel",
-    "암": "Amos", "아모스": "Amos",
-    "옵": "Obadiah", "오바댜": "Obadiah",
-    "욘": "Jonah", "요나": "Jonah",
-    "미": "Micah", "미가": "Micah",
-    "나": "Nahum", "나훔": "Nahum",
-    "합": "Habakkuk", "하박국": "Habakkuk",
-    "습": "Zephaniah", "스바냐": "Zephaniah",
-    "학": "Haggai", "학개": "Haggai",
-    "슥": "Zechariah", "스가랴": "Zechariah",
-    "말": "Malachi", "말라기": "Malachi",
+  <!-- 📖 100% 정상 작동하는 원터치 영한사전 모달 -->
+  <div id="dictModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-[80] p-3 sm:p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md p-5 sm:p-6 shadow-2xl animate-fade-in border border-slate-100 flex flex-col max-h-[80vh]">
+      <div class="flex justify-between items-start mb-4 border-b border-slate-100 pb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 id="dictWordTitle" class="text-2xl font-black text-indigo-950">Word</h3>
+            <button id="dictSpeakBtn" class="text-indigo-600 hover:text-indigo-800 p-1.5 rounded-full bg-indigo-50 transition active:scale-95" title="발음 듣기">
+              <i class="fa-solid fa-volume-high text-base"></i>
+            </button>
+          </div>
+          <p id="dictPhonetic" class="text-xs text-slate-400 font-mono mt-0.5"></p>
+        </div>
+        <button onclick="closeDictModal()" class="text-slate-300 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-2xl"></i>
+        </button>
+      </div>
 
-    // 신약 27권
-    "마": "Matthew", "마태복음": "Matthew",
-    "막": "Mark", "마가복음": "Mark",
-    "눅": "Luke", "누가복음": "Luke",
-    "요": "John", "요한복음": "John",
-    "행": "Acts", "사도행전": "Acts",
-    "롬": "Romans", "로마서": "Romans",
-    "고전": "1 Corinthians", "고린도전서": "1 Corinthians",
-    "고후": "2 Corinthians", "고린도후서": "2 Corinthians",
-    "갈": "Galatians", "갈라디아서": "Galatians",
-    "엡": "Ephesians", "에베소서": "Ephesians",
-    "빌": "Philippians", "빌립보서": "Philippians",
-    "골": "Colossians", "골로새서": "Colossians",
-    "살전": "1 Thessalonians", "데살로니가전서": "1 Thessalonians",
-    "살후": "2 Thessalonians", "데살로니가후서": "2 Thessalonians",
-    "딤전": "1 Timothy", "디모데전서": "1 Timothy",
-    "딤후": "2 Timothy", "디모데후서": "2 Timothy",
-    "딛": "Titus", "디도서": "Titus",
-    "몬": "Philemon", "빌레몬서": "Philemon",
-    "히": "Hebrews", "히브리서": "Hebrews",
-    "약": "James", "야고보서": "James",
-    "벧전": "1 Peter", "베드로전서": "1 Peter",
-    "벧후": "2 Peter", "베드로후서": "2 Peter",
-    "요일": "1 John", "요한일서": "1 John",
-    "요이": "2 John", "요한이서": "2 John",
-    "요삼": "3 John", "요한삼서": "3 John",
-    "유": "Jude", "유다서": "Jude",
-    "계": "Revelation", "요한계시록": "Revelation"
-  };
+      <div id="dictContentArea" class="overflow-y-auto flex-1 custom-scrollbar pr-1 space-y-3 my-1 text-slate-700 leading-relaxed min-h-[140px]"></div>
 
-  // 현재 열려 있는 시조사 URL 보관 변수
-  let currentTargetBibleUrl = "";
+      <div class="pt-3 border-t border-slate-100 flex justify-between items-center text-xs mt-3">
+        <div class="flex items-center space-x-2">
+          <a id="btnNaverDict" href="#" target="_blank" class="text-emerald-700 hover:bg-emerald-100 font-bold bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition">
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> 네이버사전
+          </a>
+          <a id="btnDaumDict" href="#" target="_blank" class="text-blue-700 hover:bg-blue-100 font-bold bg-blue-50 border border-blue-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition">
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> 다음사전
+          </a>
+        </div>
+        <button onclick="closeDictModal()" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition">닫기</button>
+      </div>
+    </div>
+  </div>
 
-  // =========================================================
-  // 2. 구절 문자열 파싱 & 시조사 URL 생성 함수
-  // =========================================================
-  function parseBibleTextToUrl(bibleText) {
-    // 한글명 + 장 + (선택)절 정규식 매칭
-    const match = bibleText.trim().match(/^([가-힣]+)\s*(\d+)(?::(\d+))?/);
+  <!-- 찬미가 모달 -->
+  <div id="hymnModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 md:p-4">
+    <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
+      <div class="bg-rose-800 text-white p-4 flex justify-between items-center">
+        <h3 class="font-bold text-lg"><i class="fa-solid fa-music mr-2"></i>찬미가</h3>
+        <div class="flex items-center space-x-3">
+          <a href="https://www.adventist.or.kr/hymn/?referer=channel" target="_blank" class="text-rose-200 hover:text-white transition flex items-center text-sm bg-rose-700 px-3 py-1.5 rounded">
+            <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 새창 열기
+          </a>
+          <button onclick="closeHymnModal()" class="text-slate-300 hover:text-white transition p-1">
+            <i class="fa-solid fa-xmark text-3xl"></i>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 w-full bg-slate-50 relative">
+        <iframe id="hymnIframe" class="w-full h-full border-0" src=""></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- 교과토의 모달 -->
+  <div id="discussionModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 md:p-4">
+    <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
+      <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
+        <h3 id="discussionModalTitle" class="font-bold text-base sm:text-lg flex items-center truncate">
+          <i class="fa-solid fa-comments mr-2"></i>이번 주 교과토의 자료
+        </h3>
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <button id="pwaInstallBtn" class="hidden text-emerald-200 hover:text-white transition items-center text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded">
+            <i class="fa-solid fa-download mr-1"></i> 앱 설치
+          </button>
+
+          <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 px-3 py-1.5 rounded">
+            <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 새창 열기
+          </button>
+          <button onclick="closeDiscussionModal()" class="text-slate-300 hover:text-white transition p-1">
+            <i class="fa-solid fa-xmark text-3xl"></i>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 w-full bg-slate-50 relative">
+        <iframe id="discussionIframe" class="w-full h-full border-0 hidden" src=""></iframe>
+        <div id="noDiscussionMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white hidden">
+          <i class="fa-regular fa-folder-open text-6xl mb-4 text-slate-300"></i>
+          <p class="text-lg">등록된 토의 자료 링크가 없습니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 교과 PDF, 이미지, 텍스트 하이브리드 모달 -->
+  <div id="pdfModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-2 md:p-4">
+    <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
+      <div class="bg-red-800 text-white p-3 md:p-4 flex justify-between items-center">
+        <h3 id="modalHeaderTitle" class="font-bold text-base sm:text-lg flex items-center truncate">
+          <i class="fa-solid fa-book-open mr-2"></i>이번 주 교과 자료
+        </h3>
+        
+        <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
+          <button id="btnViewImage" onclick="window.switchModalView('image')" class="hidden bg-amber-300 hover:bg-amber-200 text-amber-900 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
+            <i class="fa-solid fa-images"></i> 이미지
+          </button>
+          
+          <button id="btnViewText" onclick="window.switchModalView('text')" class="hidden bg-blue-600 hover:bg-blue-500 text-white px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
+            <i class="fa-solid fa-font"></i> 텍스트
+          </button>
+
+          <button onclick="window.openPdfSecured()" class="bg-red-700 hover:bg-red-600 text-red-100 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-black shadow-sm transition">
+            <i class="fa-solid fa-file-pdf"></i> PDF새창
+          </button>
+          
+          <button onclick="window.closePdfModal()" class="text-red-200 hover:text-white transition p-1 ml-1">
+            <i class="fa-solid fa-xmark text-2xl sm:text-3xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 w-full bg-slate-100 relative overflow-hidden">
+        <div id="imageViewerContainer" class="w-full h-full overflow-y-auto p-2 sm:p-4 hidden space-y-3 custom-scrollbar"></div>
+        
+        <div id="textViewerContainer" class="hidden w-full h-full bg-[#fdfbf7] p-4 md:p-8 overflow-y-auto relative custom-scrollbar">
+          <div class="sticky top-0 right-0 flex justify-end space-x-2 mb-4 z-10">
+            <button onclick="window.adjustTextSize(2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A +</button>
+            <button onclick="window.adjustTextSize(-2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A -</button>
+          </div>
+          <div id="textContentArea" class="text-[18px] md:text-[22px] leading-[1.8] text-slate-800 break-keep font-medium pb-10"></div>
+        </div>
+
+        <div id="pdfLoadingMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-white">
+          <i class="fa-solid fa-spinner fa-spin text-4xl mb-3 text-red-500"></i>
+          <p class="text-lg font-bold">자료를 불러오는 중입니다...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .animate-fade-in { animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    .slide-left { transform: translateX(-100%); opacity: 0; }
+    .slide-right { transform: translateX(100%); opacity: 0; }
+  </style>
+
+  <!-- 목록 보기 모달 -->
+  <div id="verseListModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-3 md:p-4">
+    <div class="bg-white rounded-3xl p-5 md:p-8 w-full max-w-2xl shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex justify-between items-center mb-5">
+        <h3 id="modalTitle" class="text-2xl font-bold text-slate-800">목록</h3>
+        
+        <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <button onclick="window.adjustListTextSize(1)" class="bg-white hover:bg-slate-50 text-slate-700 font-extrabold px-2.5 py-1 rounded-lg text-xs sm:text-sm shadow-sm transition active:scale-95">A +</button>
+            <button onclick="window.adjustListTextSize(-1)" class="bg-white hover:bg-slate-50 text-slate-700 font-extrabold px-2.5 py-1 rounded-lg text-xs sm:text-sm shadow-sm transition active:scale-95">A -</button>
+          </div>
+          <button onclick="closeListModal()" class="text-slate-400 hover:text-slate-700 transition p-1 ml-1">
+            <i class="fa-solid fa-xmark text-3xl"></i>
+          </button>
+        </div>
+      </div>
+      <div id="quarterSelectorContainer" class="mb-5 hidden">
+        <select id="modalQuarterSelector" onchange="renderList('quarter', this.value)" class="w-full border-slate-300 rounded-xl p-3 bg-slate-50 text-lg font-bold focus:ring-indigo-500">
+        </select>
+      </div>
+      <div id="verseListContainer" class="overflow-y-auto flex-1 space-y-4 pr-2 custom-scrollbar">
+      </div>
+    </div>
+  </div>
+
+  <!-- 🚀 Firebase 연동 및 스크립트 영역 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { 
+      initializeFirestore, 
+      persistentLocalCache, 
+      persistentMultipleTabManager, 
+      collection, 
+      doc, 
+      setDoc, 
+      getDoc, 
+      onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBXM-QBYDZuOKpZXFXtwK5fpTGTL2uFHCE",
+      authDomain: "sabbathschool-8586d.firebaseapp.com",
+      projectId: "sabbathschool-8586d",
+      storageBucket: "sabbathschool-8586d.appspot.com",
+      messagingSenderId: "891053713701",
+      appId: "1:891053713701:web:5e49997a29e1b5432852cc"
+    };
+
+    const app = initializeApp(firebaseConfig);
+
+    const db = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager()
+      })
+    });
+
+    const auth = getAuth(app);
+
+    window.DEFAULT_TEACHERS = { a: "장석원 목사", b: "권정행 목사", c: "이주환 목사" };
+    window.sheetData = [];
+    window.currentIndex = 0;
+    window.currentTab = 'a';
+    window.currentPdfUrl = ""; 
+    window.currentModalMode = 'pdf';
+    window.currentUser = null;
+
+    window.currentMaskStep = 1;
+    window.currentBibleTargetUrl = "";
+
+    window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
+    window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
+
+    window.getTodayLocalDateString = function() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js', { scope: './' })
+          .catch((err) => console.log('SW registration error:', err));
+      });
+    }
+
+    let deferredPrompt = null;
+    const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (pwaInstallBtn) {
+        pwaInstallBtn.classList.remove('hidden');
+        pwaInstallBtn.classList.add('flex');
+      }
+    });
+
+    if (pwaInstallBtn) {
+      pwaInstallBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+          alert('이미 앱이 설치되어 있거나 홈 화면 추가를 지원하지 않는 브라우저입니다.');
+          return;
+        }
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('PWA 설치 완료');
+        }
+        deferredPrompt = null;
+        pwaInstallBtn.classList.add('hidden');
+        pwaInstallBtn.classList.remove('flex');
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      if (pwaInstallBtn) {
+        pwaInstallBtn.classList.add('hidden');
+        pwaInstallBtn.classList.remove('flex');
+      }
+      deferredPrompt = null;
+    });
+
+    window.onload = async () => {
+      window.setupSwipeEvents(); 
+      window.setupModalBackdropClicks();
+      window.updateStreakUI();
+      
+      try {
+        const userCred = await signInAnonymously(auth);
+        window.currentUser = userCred.user;
+        window.loadUserReciteDataFromCloud();
+      } catch (authErr) {
+        console.log("Auth skipped (Offline mode):", authErr);
+      }
+
+      const quarterDataRef = collection(db, 'sabbath_data');
+      onSnapshot(quarterDataRef, (snapshot) => {
+        let loadedData = [];
+        
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (data && Array.isArray(data.lessons)) {
+            loadedData = loadedData.concat(data.lessons);
+          }
+        });
+        
+        if (loadedData.length > 0) {
+          loadedData.sort((a, b) => Number(a.week || a.index || 0) - Number(b.week || b.index || 0));
+          window.sheetData = loadedData;
+          
+          if(window.currentIndex === 0) { window.autoSelectCurrentWeek(); }
+          window.updateUI(true); 
+          
+          document.getElementById('loadingScreen').classList.add('hidden');
+          document.getElementById('contentArea').classList.remove('hidden');
+
+          setTimeout(() => { window.updateVideoPlayer(); }, 100);
+        } else {
+          document.getElementById('loadingScreen').innerHTML = "<p class='text-amber-600 font-bold'>아직 최적화 수신 데이터가 준비되지 않았습니다.<br>구글 시트에서 [⚡ 최적화 데이터 전송]을 눌러주세요.</p>";
+        }
+      }, (error) => {
+        console.log("Firestore snapshot error (Offline handled):", error);
+      });
+    };
+
+    window.cycleMaskStep = function() {
+      window.currentMaskStep = (window.currentMaskStep % 4) + 1;
+      window.applyVerseMasking();
+    };
+
+    // 💡 시조사 66권 한글 매핑 테이블
+    const BIBLE_SIJOSA_MAP = {
+      "창": { code: "Genesis", idx: 401 }, "출": { code: "Exodus", idx: 402 }, "레": { code: "Leviticus", idx: 403 },
+      "민": { code: "Numbers", idx: 404 }, "신": { code: "Deuteronomy", idx: 405 }, "수": { code: "Joshua", idx: 406 },
+      "삿": { code: "Judges", idx: 407 }, "룻": { code: "Ruth", idx: 408 }, "삼상": { code: "1Samuel", idx: 409 },
+      "삼하": { code: "2Samuel", idx: 410 }, "왕상": { code: "1Kings", idx: 411 }, "왕하": { code: "2Kings", idx: 412 },
+      "대상": { code: "1Chronicles", idx: 413 }, "대하": { code: "2Chronicles", idx: 414 }, "스": { code: "Ezra", idx: 415 },
+      "느": { code: "Nehemiah", idx: 416 }, "에": { code: "Esther", idx: 417 }, "욥": { code: "Job", idx: 418 },
+      "시": { code: "Psalms", idx: 419 }, "잠": { code: "Proverbs", idx: 420 }, "전": { code: "Ecclesiastes", idx: 421 },
+      "아": { code: "SongofSolomon", idx: 422 }, "사": { code: "Isaiah", idx: 423 }, "렘": { code: "Jeremiah", idx: 424 },
+      "애": { code: "Lamentations", idx: 425 }, "겔": { code: "Ezekiel", idx: 426 }, "단": { code: "Daniel", idx: 427 },
+      "호": { code: "Hosea", idx: 428 }, "욜": { code: "Joel", idx: 429 }, "암": { code: "Amos", idx: 430 },
+      "옵": { code: "Obadiah", idx: 431 }, "욘": { code: "Jonah", idx: 432 }, "미": { code: "Micah", idx: 433 },
+      "나": { code: "Nahum", idx: 434 }, "합": { code: "Habakkuk", idx: 435 }, "습": { code: "Zephaniah", idx: 436 },
+      "학": { code: "Haggai", idx: 437 }, "슥": { code: "Zechariah", idx: 438 }, "말": { code: "Malachi", idx: 439 },
+      "마": { code: "Matthew", idx: 451 }, "막": { code: "Mark", idx: 452 }, "눅": { code: "Luke", idx: 453 },
+      "요": { code: "John", idx: 454 }, "행": { code: "Acts", idx: 455 }, "롬": { code: "Romans", idx: 456 },
+      "고전": { code: "1Corinthians", idx: 457 }, "고후": { code: "2Corinthians", idx: 458 }, "갈": { code: "Galatians", idx: 459 },
+      "엡": { code: "Ephesians", idx: 460 }, "빌": { code: "Philippians", idx: 461 }, "골": { code: "Colossians", idx: 462 },
+      "살전": { code: "1Thessalonians", idx: 463 }, "살후": { code: "2Thessalonians", idx: 464 }, "딤전": { code: "1Timothy", idx: 465 },
+      "딤후": { code: "2Timothy", idx: 466 }, "딛": { code: "Titus", idx: 467 }, "몬": { code: "Philemon", idx: 468 },
+      "히": { code: "Hebrews", idx: 469 }, "약": { code: "James", idx: 470 }, "벧전": { code: "1Peter", idx: 471 },
+      "벧후": { code: "2Peter", idx: 472 }, "요일": { code: "1John", idx: 473 }, "요이": { code: "2John", idx: 474 },
+      "요삼": { code: "3John", idx: 475 }, "유": { code: "Jude", idx: 476 }, "계": { code: "Revelation", idx: 477 }
+    };
+
+    // 💡 시조사 공식 성경 뷰어 연동 함수
+    window.openBibleModal = function() {
+      const data = window.sheetData[window.currentIndex];
+      const modal = document.getElementById('bibleModal');
+      const titleElem = document.getElementById('bibleModalTitle');
+      const iframe = document.getElementById('bibleIframe');
+
+      const bibleRef = (data?.bible_ko || "").trim();
+      if (titleElem) titleElem.innerHTML = `<i class="fa-solid fa-book-bible text-yellow-300 mr-2"></i>${bibleRef || '성경'} 본문 보기`;
+      
+      let bookKey = "마", ch = "1", vs = "1";
+      if (bibleRef) {
+        const match = bibleRef.match(/([가-힣]+)\s*(\d+)(?::(\d+))?/);
+        if (match) {
+          bookKey = match[1];
+          ch = match[2] || "1";
+          vs = match[3] || "1";
+        }
+      }
+
+      const bookInfo = BIBLE_SIJOSA_MAP[bookKey] || { code: "Matthew", idx: 451 };
+      window.currentBibleTargetUrl = `https://www.sijosa.com/ch21/bible.php?book_idx=${bookInfo.idx}&code=${bookInfo.code}&chapter=${ch}&verse=${vs}`;
+
+      iframe.src = window.currentBibleTargetUrl;
+      modal.classList.remove('hidden');
+    };
+
+    window.closeBibleModal = function() {
+      const modal = document.getElementById('bibleModal');
+      const iframe = document.getElementById('bibleIframe');
+      modal.classList.add('hidden');
+      iframe.src = "";
+    };
+
+    // 💡 시조사 웹 성경 새창 열기
+    window.openBibleNewTab = function() {
+      if (window.currentBibleTargetUrl) {
+        window.open(window.currentBibleTargetUrl, '_blank');
+      } else {
+        window.open("https://www.sijosa.com/ch21/bible.php", '_blank');
+      }
+    };
+
+    // 💡 재림성경 공식 앱(com.sijosa.channel) 실행 / 미설치 시 플레이스토어로 자동 이동
+    window.openSijosaApp = function() {
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isAndroid) {
+        window.location.href = "intent://#Intent;package=com.sijosa.channel;scheme=package;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.sijosa.channel;end";
+      } else if (isIOS) {
+        window.open("https://apps.apple.com/kr/app/%EC%9E%AC%EB%A6%BC%EC%84%B1%EA%B2%BD/id1450284422", "_blank");
+      } else {
+        window.open("https://play.google.com/store/apps/details?id=com.sijosa.channel", "_blank");
+      }
+    };
+
+    // 💡 100% 정상 작동하는 구글 영한 사전 엔진
+    window.lookupDictWord = async function(cleanWord) {
+      if (!cleanWord) return;
+      const lower = cleanWord.toLowerCase();
+      const modal = document.getElementById('dictModal');
+      const titleElem = document.getElementById('dictWordTitle');
+      const phoneticElem = document.getElementById('dictPhonetic');
+      const contentElem = document.getElementById('dictContentArea');
+      const speakBtn = document.getElementById('dictSpeakBtn');
+      const naverBtn = document.getElementById('btnNaverDict');
+      const daumBtn = document.getElementById('btnDaumDict');
+
+      titleElem.innerText = cleanWord;
+      phoneticElem.innerText = "";
+      
+      if (naverBtn) naverBtn.href = `https://en.dict.naver.com/#/search?query=${encodeURIComponent(lower)}`;
+      if (daumBtn) daumBtn.href = `https://dic.daum.net/search.do?q=${encodeURIComponent(lower)}&dic=eng`;
+
+      contentElem.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-8 text-slate-400">
+          <i class="fa-solid fa-spinner fa-spin text-3xl mb-3 text-indigo-600"></i>
+          <p class="text-sm font-bold text-slate-500">'${cleanWord}' 한국어 뜻을 검색 중...</p>
+        </div>
+      `;
+      modal.classList.remove('hidden');
+
+      speakBtn.onclick = () => {
+        window.speechSynthesis.cancel();
+        const utt = new SpeechSynthesisUtterance(cleanWord);
+        utt.lang = 'en-US';
+        window.speechSynthesis.speak(utt);
+      };
+
+      try {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&dt=bd&dt=rm&q=${encodeURIComponent(cleanWord)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('API request failed');
+        const data = await res.json();
+
+        let primaryMeaning = data[0]?.[0]?.[0] || '';
+        
+        let html = `
+          <div class="bg-indigo-50/80 p-4 rounded-2xl border border-indigo-100">
+            <span class="text-xs font-extrabold text-indigo-500 uppercase tracking-wider block mb-1">대표 한국어 뜻</span>
+            <p class="text-xl font-black text-indigo-950">${primaryMeaning}</p>
+          </div>
+        `;
+
+        if (data[1] && Array.isArray(data[1]) && data[1].length > 0) {
+          html += `<div class="space-y-2 mt-3">`;
+          data[1].forEach(item => {
+            const pos = item[0];
+            const meanings = item[1]?.slice(0, 5).join(', ') || '';
+            if (meanings) {
+              html += `
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/70 text-sm">
+                  <span class="inline-block bg-slate-200 text-slate-700 text-xs font-bold px-2 py-0.5 rounded mr-1.5">${pos}</span>
+                  <span class="font-medium text-slate-800">${meanings}</span>
+                </div>
+              `;
+            }
+          });
+          html += `</div>`;
+        }
+
+        contentElem.innerHTML = html;
+      } catch (err) {
+        contentElem.innerHTML = `
+          <div class="text-center py-6 space-y-3">
+            <i class="fa-solid fa-circle-exclamation text-3xl text-amber-500"></i>
+            <p class="text-slate-700 font-bold text-sm">기본 뜻을 불러오지 못했습니다.</p>
+            <p class="text-xs text-slate-400">하단의 네이버 또는 다음 사전 바로가기를 이용해 주세요.</p>
+          </div>
+        `;
+      }
+    };
+
+    window.closeDictModal = function() {
+      document.getElementById('dictModal').classList.add('hidden');
+    };
+
+    window.formatInteractiveEnglishVerse = function(text) {
+      if (!text) return "";
+      const words = text.split(' ');
+      return words.map(w => {
+        const clean = w.replace(/[^a-zA-Z]/g, '');
+        if (clean.length > 0) {
+          return `<span class="dict-tap-word" onclick="window.lookupDictWord('${clean}'); event.stopPropagation();">${w}</span>`;
+        }
+        return w;
+      }).join(' ');
+    };
+
+    window.applyVerseMasking = function() {
+      const data = window.sheetData[window.currentIndex];
+      if (!data) return;
+
+      const btnText = document.getElementById('maskStepText');
+      const btnIcon = document.getElementById('maskStepIcon');
+      const verseKoElem = document.getElementById('displayVerseKo');
+      const verseEnElem = document.getElementById('displayVerseEn');
+
+      const originalKo = data.verse_ko ? data.verse_ko.trim() : "";
+      const originalEn = data.verse_en ? data.verse_en.trim() : "";
+
+      const stepNames = {
+        1: { text: "1. 전체보기", icon: "fa-regular fa-eye" },
+        2: { text: "2. 빈칸모드", icon: "fa-solid fa-puzzle-piece" },
+        3: { text: "3. 첫글자만", icon: "fa-solid fa-font" },
+        4: { text: "4. 전체가림", icon: "fa-solid fa-eye-slash" }
+      };
+
+      if (btnText && btnIcon) {
+        btnText.innerText = stepNames[window.currentMaskStep].text;
+        btnIcon.className = stepNames[window.currentMaskStep].icon + " mr-1 text-base sm:text-lg text-amber-300";
+      }
+
+      let maskedKo = originalKo;
+      let maskedEn = originalEn;
+
+      if (window.currentMaskStep === 2) {
+        maskedKo = originalKo.split(' ').map((w, idx) => (w.length >= 3 && idx % 2 === 1) ? '[ ___ ]' : w).join(' ');
+        maskedEn = originalEn.split(' ').map((w, idx) => (w.length >= 4 && idx % 2 === 1) ? '[ ___ ]' : w).join(' ');
+      } else if (window.currentMaskStep === 3) {
+        maskedKo = originalKo.split(' ').map(word => {
+          if (word.length <= 1) return word;
+          return word[0] + '○'.repeat(word.length - 1);
+        }).join(' ');
+        maskedEn = originalEn.split(' ').map(word => {
+          if (word.length <= 1) return word;
+          return word[0] + '•'.repeat(word.length - 1);
+        }).join(' ');
+      } else if (window.currentMaskStep === 4) {
+        maskedKo = "••••••••••••••••••••••••••••••••••••••••";
+        maskedEn = "••••••••••••••••••••••••••••••••••••••••";
+      }
+
+      if (verseKoElem) verseKoElem.innerText = maskedKo ? `"${maskedKo}"` : "";
+      
+      if (verseEnElem) {
+        if (window.currentMaskStep === 1 && originalEn) {
+          verseEnElem.innerHTML = `"${window.formatInteractiveEnglishVerse(originalEn)}"`;
+        } else {
+          verseEnElem.innerText = maskedEn ? `"${maskedEn}"` : "";
+        }
+      }
+    };
+
+    window.recordDailyRecite = async function() {
+      const data = window.sheetData[window.currentIndex];
+      if (!data) return;
+
+      const todayStr = window.getTodayLocalDateString();
+      const weekKey = String(data.week || (window.currentIndex + 1));
+
+      window.recitedWeeks[weekKey] = true;
+      localStorage.setItem('recited_weeks', JSON.stringify(window.recitedWeeks));
+
+      if (window.streakData.lastDate === todayStr) {
+        alert("오늘 암송 실천을 이미 완료하셨습니다! 🔥 (" + window.streakData.count + "일 연속 달성 중)");
+        return;
+      }
+
+      if (window.streakData.lastDate) {
+        const lastDateObj = new Date(window.streakData.lastDate + 'T00:00:00');
+        const todayDateObj = new Date(todayStr + 'T00:00:00');
+        const diffDays = Math.round((todayDateObj - lastDateObj) / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          window.streakData.count = (window.streakData.count || 0) + 1;
+        } else {
+          window.streakData.count = 1;
+        }
+      } else {
+        window.streakData.count = 1;
+      }
+
+      window.streakData.lastDate = todayStr;
+      localStorage.setItem('streak_data', JSON.stringify(window.streakData));
+
+      window.updateDailyReciteButtonUI(true);
+      window.updateStreakUI();
+
+      if (window.currentUser) {
+        try {
+          const userDocRef = doc(db, 'user_records', window.currentUser.uid);
+          await setDoc(userDocRef, {
+            recited_weeks: window.recitedWeeks,
+            streak_data: window.streakData,
+            last_updated: new Date().toISOString()
+          }, { merge: true });
+        } catch (e) {
+          console.log("Cloud sync error:", e);
+        }
+      }
+    };
+
+    window.updateDailyReciteButtonUI = function(isDoneToday) {
+      const btn = document.getElementById('btnReciteToggle');
+      const icon = document.getElementById('reciteIcon');
+      const text = document.getElementById('reciteText');
+      if (!btn || !icon || !text) return;
+
+      if (isDoneToday) {
+        btn.className = "flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 active:scale-95 whitespace-nowrap";
+        icon.className = "fa-solid fa-circle-check mr-1 text-base sm:text-lg text-yellow-300";
+        text.innerText = "오늘 암송 완료! ✨";
+      } else {
+        btn.className = "flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap";
+        icon.className = "fa-regular fa-circle-check mr-1 text-base sm:text-lg";
+        text.innerText = "오늘 암송 실천하기";
+      }
+    };
+
+    window.updateStreakUI = function() {
+      const streakElem = document.getElementById('streakCount');
+      if (streakElem) {
+        streakElem.innerText = window.streakData.count || 0;
+      }
+    };
+
+    window.loadUserReciteDataFromCloud = async function() {
+      if (!window.currentUser) return;
+      try {
+        const userDocRef = doc(db, 'user_records', window.currentUser.uid);
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists()) {
+          const cloudData = docSnap.data();
+          if (cloudData.recited_weeks) {
+            window.recitedWeeks = { ...window.recitedWeeks, ...cloudData.recited_weeks };
+            localStorage.setItem('recited_weeks', JSON.stringify(window.recitedWeeks));
+          }
+          if (cloudData.streak_data) {
+            window.streakData = cloudData.streak_data;
+            localStorage.setItem('streak_data', JSON.stringify(window.streakData));
+            window.updateStreakUI();
+          }
+          const todayStr = window.getTodayLocalDateString();
+          window.updateDailyReciteButtonUI(window.streakData.lastDate === todayStr);
+        }
+      } catch (e) {
+        console.log("Cloud load failed:", e);
+      }
+    };
     
-    if (!match) {
-      console.error("올바르지 않은 구절 형식:", bibleText);
-      return "https://www.sijosa.com/ch21/bible.php?book_idx=451";
-    }
+    window.getValidDate = function(dateVal) {
+      if (!dateVal) return null;
+      let d = new Date(dateVal);
+      if (!isNaN(d)) return d;
+      let fixedStr = String(dateVal).replace(/[\-\.]/g, '/').replace(/\s+/g, '');
+      if(fixedStr.endsWith('/')) fixedStr = fixedStr.slice(0, -1);
+      d = new Date(fixedStr);
+      return isNaN(d) ? null : d;
+    };
 
-    const bookName = match[1];  // 예: 고후
-    const chapter = match[2];   // 예: 2
-    const verse = match[3] || 1; // 예: 4 (없으면 기본 1절)
+    window.autoSelectCurrentWeek = function() {
+      const today = new Date();
+      let closestIndex = 0, minDiff = Infinity;
+      window.sheetData.forEach((item, index) => {
+        const d = window.getValidDate(item.date);
+        if (d) {
+          const diff = Math.abs(today - d);
+          if (diff < minDiff) { minDiff = diff; closestIndex = index; }
+        }
+      });
+      window.currentIndex = closestIndex;
+    };
 
-    const code = SIJOSA_BIBLE_CODE_MAP[bookName];
-    if (!code) {
-      console.error("매핑되는 성경 코드가 없습니다:", bookName);
-      return "https://www.sijosa.com/ch21/bible.php?book_idx=451";
-    }
+    window.goToCurrentWeek = function() {
+      window.autoSelectCurrentWeek();
+      window.updateUI();
+    };
 
-    // code 공백(%20) 인코딩 처리
-    const encodedCode = encodeURIComponent(code);
-    return `https://www.sijosa.com/ch21/bible.php?book_idx=451&code=${encodedCode}&chapter=${chapter}&verse=${verse}`;
-  }
+    window.mainVerseFontDelta = 0;
 
-  // =========================================================
-  // 3. 모달 제어 함수
-  // =========================================================
-  function openBibleModal(bibleText) {
-    // 1. 정확한 URL 생성
-    currentTargetBibleUrl = parseBibleTextToUrl(bibleText);
+    window.adjustMainVerseTextSize = function(delta) {
+      window.mainVerseFontDelta += delta;
+      if (window.mainVerseFontDelta < -6) window.mainVerseFontDelta = -6;
+      if (window.mainVerseFontDelta > 16) window.mainVerseFontDelta = 16;
+      window.applyMainVerseFontSize();
+    };
 
-    // 2. 모달 타이틀 업데이트
-    document.getElementById("bibleModalTitle").innerText = `${bibleText} 본문 보기`;
+    window.applyMainVerseFontSize = function() {
+      const isMobile = window.innerWidth < 768;
+      const baseKo = isMobile ? 24 : 30;
+      const baseKoRef = isMobile ? 18 : 20;
+      const baseEn = isMobile ? 18 : 20;
+      const baseEnRef = isMobile ? 14 : 16;
+      const d = window.mainVerseFontDelta || 0;
 
-    // 3. iframe에 URL 주입
-    document.getElementById("bibleIframe").src = currentTargetBibleUrl;
+      const verseKoElem = document.getElementById('displayVerseKo');
+      const bibleKoElem = document.getElementById('displayBibleKo');
+      const verseEnElem = document.getElementById('displayVerseEn');
+      const bibleEnElem = document.getElementById('displayBibleEn');
 
-    // 4. 모달 열기
-    document.getElementById("bibleModal").classList.add("open");
-  }
+      if (verseKoElem) verseKoElem.style.fontSize = (baseKo + d) + 'px';
+      if (bibleKoElem) bibleKoElem.style.fontSize = (baseKoRef + d) + 'px';
+      if (verseEnElem) verseEnElem.style.fontSize = (baseEn + d) + 'px';
+      if (bibleEnElem) bibleEnElem.style.fontSize = (baseEnRef + d) + 'px';
+    };
 
-  function closeBibleModal() {
-    // iframe src 초기화 (메모리 해제 및 오디오 정지)
-    document.getElementById("bibleIframe").src = "about:blank";
-    document.getElementById("bibleModal").classList.remove("open");
-  }
+    window.updateUI = function(skipVideo = false) {
+      if (window.sheetData.length === 0) return;
+      const data = window.sheetData[window.currentIndex];
+      
+      document.getElementById('displayQuarter').innerText = data.quarter || '정보 없음';
+      document.getElementById('displayTitleKo').innerText = data.title_ko || '제목 없음';
+      document.getElementById('displayTitleEn').innerText = data.title_en || '';
+      
+      const bibleKo = data.bible_ko ? `(${data.bible_ko})` : '';
+      const bibleEn = data.bible_en ? `(${data.bible_en})` : '';
+      
+      document.getElementById('displayBibleKo').innerText = bibleKo;
+      document.getElementById('displayBibleEn').innerText = bibleEn;
+      
+      window.applyVerseMasking();
+      window.applyMainVerseFontSize();
 
-  // [재림성경 앱] 및 [새창 열기] 버튼 클릭 시 동작
-  function handleOpenExternal() {
-    if (currentTargetBibleUrl) {
-      window.open(currentTargetBibleUrl, "_blank");
-    }
-  }
-</script>
+      const todayStr = window.getTodayLocalDateString();
+      window.updateDailyReciteButtonUI(window.streakData.lastDate === todayStr);
+
+      const teacherA = (data && data.teacher_a && data.teacher_a.trim() !== '') ? data.teacher_a.trim() : window.DEFAULT_TEACHERS.a;
+      const teacherB = (data && data.teacher_b && data.teacher_b.trim() !== '') ? data.teacher_b.trim() : window.DEFAULT_TEACHERS.b;
+      const teacherC = (data && data.teacher_c && data.teacher_c.trim() !== '') ? data.teacher_c.trim() : window.DEFAULT_TEACHERS.c;
+
+      const tabAElem = document.getElementById('tab-a');
+      const tabBElem = document.getElementById('tab-b');
+      const tabCElem = document.getElementById('tab-c');
+
+      if (tabAElem) tabAElem.innerText = teacherA;
+      if (tabBElem) tabBElem.innerText = teacherB;
+      if (tabCElem) tabCElem.innerText = teacherC;
+
+      const discBtn = document.getElementById('discussionBtn');
+      const discBtnText = document.getElementById('discussionBtnText');
+      const hasDiscussion = (data && data.discussion_link && data.discussion_link.trim() !== '');
+
+      if (hasDiscussion) {
+        discBtn.classList.remove('opacity-50', 'pointer-events-none');
+        discBtnText.innerText = "교과토의 자료";
+      } else {
+        discBtn.classList.add('opacity-50', 'pointer-events-none');
+        discBtnText.innerText = "교과토의 준비중";
+      }
+
+      const pdfBtn = document.getElementById('pdfLessonBtn');
+      const pdfBtnText = document.getElementById('pdfBtnText');
+
+      const hasText = (data && data.lesson_text && data.lesson_text.trim() !== '');
+      const hasImage = (data && data.image_count && Number(data.image_count) > 0);
+      const hasSourceUrl = (data && data.source_url && data.source_url.trim() !== '');
+      const hasPdfUrl = (data && data.pdf_url && data.pdf_url.trim() !== '');
+
+      if (hasText || hasImage || hasSourceUrl || hasPdfUrl) {
+        window.currentPdfUrl = (hasSourceUrl ? data.source_url.trim() : (hasPdfUrl ? data.pdf_url.trim() : ""));
+        pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
+        pdfBtnText.innerHTML = `교과 열기`;
+      } else {
+        window.currentPdfUrl = "";
+        pdfBtn.classList.add('opacity-50', 'pointer-events-none');
+        pdfBtnText.innerText = "교과 준비중";
+      }
+      
+      if (!skipVideo) { window.updateVideoPlayer(); }
+    };
+
+    window.changeWeek = function(step) {
+      let newIndex = window.currentIndex + step;
+      if (newIndex >= 0 && newIndex < window.sheetData.length) { 
+        const swipeZone = document.getElementById('swipeZone');
+        if(step > 0) swipeZone.classList.add('slide-left');
+        else swipeZone.classList.add('slide-right');
+
+        setTimeout(() => {
+          window.currentIndex = newIndex; 
+          window.currentMaskStep = 1;
+          window.updateUI();
+          swipeZone.classList.remove('slide-left', 'slide-right');
+          swipeZone.style.transition = 'none'; 
+          if(step > 0) swipeZone.style.transform = 'translateX(100%)';
+          else swipeZone.style.transform = 'translateX(-100%)';
+          swipeZone.offsetHeight;
+          setTimeout(() => {
+            swipeZone.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+            swipeZone.style.transform = 'translateX(0)';
+            swipeZone.style.opacity = '1';
+          }, 10);
+        }, 200);
+      }
+    };
+    
+    window.selectWeek = function(index) { 
+      window.currentIndex = parseInt(index); 
+      window.currentMaskStep = 1; 
+      window.updateUI(); 
+    };
+
+    window.extractYouTubeId = function(url) {
+      if (!url) return null;
+      const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+      return (match && match[2].length === 11) ? match[2] : null;
+    };
+
+    window.changeVideoTab = function(tabName) {
+      if(window.currentTab === tabName) return; 
+      window.currentTab = tabName;
+      ['a', 'b', 'c'].forEach(t => {
+        document.getElementById(`tab-${t}`).className = (t === tabName) ? "tab-active border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm" : "tab-inactive border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm";
+      });
+      window.updateVideoPlayer();
+    };
+
+    window.updateVideoPlayer = function() {
+      const data = window.sheetData[window.currentIndex];
+      const player = document.getElementById('videoPlayer');
+      const loader = document.getElementById('videoLoader');
+      const noVideoMsg = document.getElementById('noVideoMsg');
+      const newTabBtn = document.getElementById('videoNewTabBtn');
+
+      let targetUrl = (window.currentTab === 'a') ? data.youtube_a : (window.currentTab === 'b') ? data.youtube_b : data.youtube_c;
+      const videoId = window.extractYouTubeId(targetUrl);
+      
+      if (videoId) {
+        if (newTabBtn) newTabBtn.classList.remove('opacity-50', 'pointer-events-none');
+        if (noVideoMsg) noVideoMsg.classList.add('hidden');
+        
+        player.classList.remove('opacity-100');
+        player.classList.add('opacity-0');
+        loader.classList.remove('hidden');
+        
+        setTimeout(() => {
+          player.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
+          player.classList.remove('hidden');
+          
+          player.onload = () => {
+            loader.classList.add('hidden');
+            player.classList.remove('opacity-0');
+            player.classList.add('opacity-100');
+          };
+        }, 200);
+      } else {
+        if (newTabBtn) newTabBtn.classList.add('opacity-50', 'pointer-events-none');
+        player.src = "";
+        player.classList.add('hidden');
+        player.classList.remove('opacity-100');
+        player.classList.add('opacity-0');
+        loader.classList.add('hidden');
+        if (noVideoMsg) noVideoMsg.classList.remove('hidden');
+      }
+    };
+
+    window.openHymnModal = function() {
+      const iframe = document.getElementById('hymnIframe');
+      iframe.src = "https://www.adventist.or.kr/hymn/?referer=channel";
+      document.getElementById('hymnModal').classList.remove('hidden');
+    };
+
+    window.closeHymnModal = function() {
+      document.getElementById('hymnModal').classList.add('hidden');
+      document.getElementById('hymnIframe').src = "";
+    };
+
+    window.openDiscussionModal = function() {
+      const data = window.sheetData[window.currentIndex];
+      const iframe = document.getElementById('discussionIframe');
+      const noMsg = document.getElementById('noDiscussionMsg');
+      const titleElem = document.getElementById('discussionModalTitle');
+
+      if (titleElem && data && data.quarter) {
+        titleElem.innerHTML = `<i class="fa-solid fa-comments mr-2"></i>${data.quarter} 토의 자료`;
+      } else if (titleElem) {
+        titleElem.innerHTML = `<i class="fa-solid fa-comments mr-2"></i>이번 주 교과토의 자료`;
+      }
+
+      if (data && data.discussion_link && data.discussion_link.trim() !== '') {
+        iframe.src = data.discussion_link.trim();
+        iframe.classList.remove('hidden');
+        noMsg.classList.add('hidden');
+      } else {
+        iframe.src = "";
+        iframe.classList.add('hidden');
+        noMsg.classList.remove('hidden');
+      }
+      document.getElementById('discussionModal').classList.remove('hidden');
+    };
+
+    window.closeDiscussionModal = function() {
+      document.getElementById('discussionModal').classList.add('hidden');
+      document.getElementById('discussionIframe').src = "";
+    };
+
+    window.openDiscussionNewTab = function() {
+      const data = window.sheetData[window.currentIndex];
+      if (data && data.discussion_link && data.discussion_link.trim() !== '') {
+        window.open(data.discussion_link.trim(), '_blank');
+      } else {
+        alert("등록된 교과토의 자료 링크가 없습니다.");
+      }
+    };
+
+    window.currentTextSize = window.innerWidth < 768 ? 16 : 22;
+    window.currentImagePage = 1;
+    window.totalImagePages = 14;
+
+    window.adjustTextSize = function(delta) {
+      window.currentTextSize += delta;
+      if (window.currentTextSize < 14) window.currentTextSize = 14;
+      if (window.currentTextSize > 40) window.currentTextSize = 40;
+      const area = document.getElementById('textContentArea');
+      if (area) area.style.fontSize = window.currentTextSize + "px";
+    };
+
+    window.currentListTextDelta = 0;
+    window.currentListMode = 'quarter';
+    window.currentListQuarter = 1;
+
+    window.adjustListTextSize = function(delta) {
+      window.currentListTextDelta += delta;
+      if (window.currentListTextDelta < -4) window.currentListTextDelta = -4;
+      if (window.currentListTextDelta > 10) window.currentListTextDelta = 10;
+      window.renderList(window.currentListMode, window.currentListQuarter);
+    };
+
+    window.openPdfModal = function() {
+      const data = window.sheetData[window.currentIndex];
+      const imgContainer = document.getElementById('imageViewerContainer');
+      const textContainer = document.getElementById('textViewerContainer');
+      const loading = document.getElementById('pdfLoadingMsg');
+      
+      const btnImage = document.getElementById('btnViewImage');
+      const btnText = document.getElementById('btnViewText');
+      
+      const headerTitleElem = document.getElementById('modalHeaderTitle');
+      if (headerTitleElem && data && data.quarter) {
+         headerTitleElem.innerHTML = `<i class="fa-solid fa-book-open mr-2"></i>${data.quarter} 교과`;
+      } else if (headerTitleElem) {
+         headerTitleElem.innerHTML = `<i class="fa-solid fa-book-open mr-2"></i>이번 주 교과`;
+      }
+
+      imgContainer.innerHTML = '';
+      document.getElementById('textContentArea').innerHTML = '';
+      loading.classList.remove('hidden');
+      document.getElementById('pdfModal').classList.remove('hidden');
+
+      const hasText = (data && data.lesson_text && data.lesson_text.trim() !== '');
+      const hasImage = (data && data.image_count && Number(data.image_count) > 0);
+
+      if (btnImage) { if (hasImage) btnImage.classList.remove('hidden'); else btnImage.classList.add('hidden'); }
+      if (btnText) { if (hasText) btnText.classList.remove('hidden'); else btnText.classList.add('hidden'); }
+
+      if (hasText) {
+        window.switchModalView('text');
+      } else if (hasImage) {
+        window.switchModalView('image');
+      } else {
+        loading.innerHTML = "<p class='text-slate-500 font-bold mt-4 text-center leading-relaxed'>등록된 교과 텍스트나 이미지가 없습니다.<br>상단 <span class='text-red-500'>[PDF새창]</span> 버튼을 눌러 원본을 확인하세요.</p>";
+      }
+    };
+
+    window.switchModalView = function(mode) {
+      const data = window.sheetData[window.currentIndex];
+      const imgContainer = document.getElementById('imageViewerContainer');
+      const textContainer = document.getElementById('textViewerContainer');
+      const loading = document.getElementById('pdfLoadingMsg');
+      
+      imgContainer.classList.add('hidden');
+      textContainer.classList.add('hidden');
+      loading.classList.add('hidden');
+
+      if (mode === 'text') {
+        textContainer.classList.remove('hidden');
+        const textContentArea = document.getElementById('textContentArea');
+        textContentArea.style.whiteSpace = "pre-line";
+        textContentArea.innerHTML = data.lesson_text || "";
+        textContentArea.style.fontSize = window.currentTextSize + "px";
+      } else if (mode === 'image') {
+        imgContainer.classList.remove('hidden');
+        window.currentImagePage = 1;
+        window.totalImagePages = Number(data.image_count) || 14;
+        window.renderImageSlider();
+      }
+    };
+
+    window.renderImageSlider = function() {
+      const imgContainer = document.getElementById('imageViewerContainer');
+      imgContainer.innerHTML = `
+        <div class="flex flex-col items-center justify-center w-full select-none" id="sliderWrapper">
+          <div class="flex items-center justify-between w-full max-w-lg mb-3 px-2">
+            <button onclick="window.changeImagePage(-1)" class="px-4 py-2 bg-slate-800 text-white rounded-lg font-bold text-sm shadow hover:bg-slate-700 active:scale-95 transition">◀ 이전</button>
+            <span id="pageIndicator" class="font-bold text-slate-700 bg-slate-100 px-4 py-1.5 rounded-full text-sm border border-slate-200">
+              ${window.currentImagePage} / ${window.totalImagePages}
+            </span>
+            <button onclick="window.changeImagePage(1)" class="px-4 py-2 bg-slate-800 text-white rounded-lg font-bold text-sm shadow hover:bg-slate-700 active:scale-95 transition">다음 ▶</button>
+          </div>
+          
+          <div class="w-full flex justify-center relative min-h-[300px] items-center overflow-x-auto touch-pan-y" id="imgBoxArea">
+            <img id="currentLessonImg" class="w-full max-w-2xl rounded-xl shadow-lg border border-slate-200 object-contain transition-opacity duration-200 block mx-auto" src="" alt="교과 이미지" />
+          </div>
+          
+          <p class="text-xs text-slate-400 mt-2">💡 좌우로 시원하게 쓸어넘기거나 상단 버튼으로 페이지를 넘길 수 있습니다.</p>
+        </div>
+      `;
+
+      window.loadImagePage(window.currentImagePage);
+      window.attachSwipeEvents();
+    };
+
+    window.loadImagePage = function(page) {
+      const data = window.sheetData[window.currentIndex];
+      const weekNum = data.week || (window.currentIndex + 1);
+      const bucketName = "sabbathschool-8586d.firebasestorage.app";
+      const pageStr = String(page).padStart(2, '0');
+      const imgUrl = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/lessons%2Flesson_${weekNum}_${pageStr}.webp?alt=media`;
+
+      const imgElem = document.getElementById('currentLessonImg');
+      const indicator = document.getElementById('pageIndicator');
+
+      if (imgElem) {
+        imgElem.style.opacity = '0.3';
+        imgElem.src = imgUrl;
+        imgElem.onload = () => { imgElem.style.opacity = '1'; };
+      }
+      if (indicator) {
+        indicator.innerText = `${page} / ${window.totalImagePages}`;
+      }
+    };
+
+    window.changeImagePage = function(delta) {
+      let newPage = window.currentImagePage + delta;
+      if (newPage < 1) newPage = 1;
+      if (newPage > window.totalImagePages) newPage = window.totalImagePages;
+
+      if (newPage !== window.currentImagePage) {
+        window.currentImagePage = newPage;
+        window.loadImagePage(window.currentImagePage);
+      }
+    };
+
+    window.attachSwipeEvents = function() {
+      const wrapper = document.getElementById('imgBoxArea');
+      if (!wrapper) return;
+
+      let startX = 0;
+      let startY = 0;
+      let isMultiTouch = false;
+
+      wrapper.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1) {
+          isMultiTouch = true;
+          return;
+        }
+        isMultiTouch = false;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }, { passive: true });
+
+      wrapper.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 1) {
+          isMultiTouch = true;
+        }
+      }, { passive: true });
+
+      wrapper.addEventListener('touchend', (e) => {
+        if (isMultiTouch) return;
+
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+
+        const diffX = endX - startX;
+        const diffY = endY - startY;
+
+        if (Math.abs(diffX) > 70 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+          if (diffX < 0) {
+            window.changeImagePage(1);  
+          } else {
+            window.changeImagePage(-1); 
+          }
+        }
+      }, { passive: true });
+    };
+
+    window.closePdfModal = function() {
+      document.getElementById('pdfModal').classList.add('hidden');
+      document.getElementById('imageViewerContainer').innerHTML = "";
+      document.getElementById('textContentArea').innerHTML = "";
+      document.getElementById('imageViewerContainer').classList.add('hidden');
+      document.getElementById('textViewerContainer').classList.add('hidden');
+      document.getElementById('pdfLoadingMsg').classList.remove('hidden');
+    };
+
+    window.openPdfSecured = function() {
+      const data = window.sheetData[window.currentIndex];
+      let targetUrl = (data && data.source_url && data.source_url.trim() !== '') 
+                      ? data.source_url.trim() 
+                      : (data && data.pdf_url && data.pdf_url.trim() !== '') 
+                        ? data.pdf_url.trim() 
+                        : window.currentPdfUrl;
+      if (!targetUrl) {
+        alert("❌ 연결할 원본 PDF 주소가 없습니다.");
+        return;
+      }
+      
+      if (targetUrl.includes('viewer.php') || !targetUrl.toLowerCase().endsWith('.pdf')) {
+        window.open(targetUrl, '_blank');
+      } else {
+        let gviewUrl = "https://docs.google.com/gview?url=" + encodeURIComponent(targetUrl);
+        window.open(gviewUrl, '_blank');
+      }
+    };
+
+    window.openVideoNewTab = function() {
+      const data = window.sheetData[window.currentIndex];
+      let targetUrl = (window.currentTab === 'a') ? data.youtube_a : (window.currentTab === 'b') ? data.youtube_b : data.youtube_c;
+      const videoId = window.extractYouTubeId(targetUrl);
+      if (videoId) {
+        window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+      } else {
+        alert("현재 선택된 강사의 영상 링크가 없습니다.");
+      }
+    };
+
+    window.copyVerse = function() {
+      const data = window.sheetData[window.currentIndex];
+      if (!data) return;
+      const textToCopy = `[${data.quarter || ''}]\nKR: ${data.title_ko || ''}\nEN: ${data.title_en || ''}\n\n📖 ${data.bible_ko || ''} / ${data.bible_en || ''}\n"${data.verse_ko || ''}"\n"${data.verse_en || ''}"`;
+      navigator.clipboard.writeText(textToCopy).then(() => { alert('기억절이 클립보드에 복사되었습니다.'); });
+    };
+
+    window.shareVerse = function() {
+      const data = window.sheetData[window.currentIndex];
+      if (!data) return;
+      const textToShare = `[${data.quarter || ''}]\nKR: ${data.title_ko || ''}\nEN: ${data.title_en || ''}\n\n📖 ${data.bible_ko || ''} / ${data.bible_en || ''}\n"${data.verse_ko || ''}"\n"${data.verse_en || ''}"`;
+      if (navigator.share) {
+        navigator.share({ title: '세종행복교회 안식일학교', text: textToShare }).catch(console.error);
+      } else {
+        navigator.clipboard.writeText(textToShare).then(() => { alert('기억절이 클립보드에 복사되었습니다.'); });
+      }
+    };
+
+    window.speakVerse = function(lang) {
+      if (!('speechSynthesis' in window)) { alert("현재 브라우저에서는 듣기 기능을 지원하지 않습니다."); return; }
+      const data = window.sheetData[window.currentIndex];
+      if (!data) return;
+      const textToSpeak = lang === 'en' ? data.verse_en : data.verse_ko;
+      if (!textToSpeak) { alert(lang === 'en' ? "영어 기억절이 없습니다." : "한글 기억절이 없습니다."); return; }
+      
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.rate = 0.85; utterance.pitch = 1.0;
+      const voices = window.speechSynthesis.getVoices();
+      
+      if (lang === 'en') {
+        utterance.lang = 'en-US';
+        const googleVoice = voices.find(v => v.name.toLowerCase().includes('google') && v.lang.startsWith('en'));
+        if (googleVoice) utterance.voice = googleVoice;
+      } else {
+        utterance.lang = 'ko-KR';
+        const googleVoice = voices.find(v => (v.name.toLowerCase().includes('google') || v.name.includes('구글')) && v.lang.includes('ko'));
+        if (googleVoice) utterance.voice = googleVoice;
+      }
+      window.speechSynthesis.speak(utterance);
+    };
+
+    window.openListModal = function(mode) {
+      if (window.sheetData.length === 0) return;
+      const modal = document.getElementById('verseListModal');
+      const qSelectorContainer = document.getElementById('quarterSelectorContainer');
+      const qSelector = document.getElementById('modalQuarterSelector');
+      modal.classList.remove('hidden');
+      
+      window.currentListMode = mode;
+
+      if (mode === 'quarter') {
+        document.getElementById('modalTitle').innerText = '13기억절 (분기별 보기)';
+        qSelectorContainer.classList.remove('hidden');
+        const currentQuarter = Math.floor(window.currentIndex / 13) + 1;
+        const maxQuarter = Math.ceil(window.sheetData.length / 13) || 1;
+        qSelector.innerHTML = '';
+        for (let i = 1; i <= maxQuarter; i++) {
+          let opt = document.createElement('option');
+          opt.value = i; opt.text = `제 ${i}기 (${(i - 1) * 13 + 1}~${Math.min(i * 13, window.sheetData.length)}주차)`;
+          if (i === currentQuarter) opt.selected = true;
+          qSelector.appendChild(opt);
+        }
+        window.currentListQuarter = currentQuarter;
+        window.renderList('quarter', currentQuarter);
+      } else {
+        document.getElementById('modalTitle').innerText = '52기억절 (1년 보기)';
+        qSelectorContainer.classList.add('hidden');
+        window.renderList('year');
+      }
+    };
+
+    window.closeListModal = function() {
+      document.getElementById('verseListModal').classList.add('hidden');
+    };
+
+    window.renderList = function(mode, quarter = 1) {
+      window.currentListMode = mode;
+      window.currentListQuarter = quarter;
+
+      const container = document.getElementById('verseListContainer');
+      container.innerHTML = '';
+      let filteredData = (mode === 'quarter') ? 
+        window.sheetData.slice((parseInt(quarter) - 1) * 13, (parseInt(quarter) - 1) * 13 + 13).map((item, idx) => ({...item, originalIndex: (parseInt(quarter) - 1) * 13 + idx})) : 
+        window.sheetData.map((item, idx) => ({...item, originalIndex: idx}));
+      
+      if (filteredData.length === 0) {
+        container.innerHTML = '<p class="text-center text-slate-500 py-5 text-lg">해당하는 데이터가 없습니다.</p>'; return;
+      }
+
+      const d = window.currentListTextDelta || 0;
+      const titleKoSize = (20 + d) + "px";
+      const titleEnSize = (14 + d) + "px";
+      const bibleSize = (16 + d) + "px";
+      const verseKoSize = (18 + d) + "px";
+      const verseEnSize = (15 + d) + "px";
+
+      filteredData.forEach(item => {
+        const div = document.createElement('div');
+        const isCurrent = (item.originalIndex === window.currentIndex);
+        const itemWeekKey = String(item.week || (item.originalIndex + 1));
+        const isRecited = !!window.recitedWeeks[itemWeekKey];
+
+        div.className = `p-5 border rounded-2xl cursor-pointer transition relative ${isCurrent ? 'bg-indigo-50 border-indigo-200 shadow-md' : 'bg-slate-50 hover:bg-slate-100 border-slate-200'}`;
+        div.onclick = () => { window.selectWeek(item.originalIndex); window.closeListModal(); };
+        
+        let dObj = window.getValidDate(item.date);
+        let dateStr = '';
+        if(dObj){
+          const month = dObj.getMonth()+1;
+          const date = dObj.getDate();
+          dateStr = `${month}월 ${date}일`;
+        }
+
+        const checkBadgeHtml = isRecited ? `
+          <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xs font-black px-2.5 py-1 rounded-full border border-emerald-200 shadow-sm ml-2">
+            <i class="fa-solid fa-check text-emerald-600"></i> 암송완료
+          </span>
+        ` : '';
+        
+        div.innerHTML = `
+          <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center">
+              <span class="text-sm font-bold ${isCurrent ? 'text-indigo-700' : 'text-indigo-500'}">${item.quarter || ((item.originalIndex + 1) + '주차')}</span>
+              ${checkBadgeHtml}
+            </div>
+            <span class="text-sm text-slate-400">${dateStr}</span>
+          </div>
+          <h4 class="font-bold text-slate-800 leading-snug" style="font-size: ${titleKoSize};">${item.title_ko || '제목 없음'}</h4>
+          <p class="text-slate-400 mb-3 italic" style="font-size: ${titleEnSize};">${item.title_en || ''}</p>
+          <p class="font-semibold text-slate-500 mb-2" style="font-size: ${bibleSize};"><i class="fa-solid fa-book-open text-sm mr-1.5"></i>${item.bible_ko || ''} <span class="font-normal text-slate-400">/ ${item.bible_en || ''}</span></p>
+          <p class="text-slate-800 leading-relaxed font-medium mt-1" style="font-size: ${verseKoSize};">"${item.verse_ko || ''}"</p>
+          <p class="text-slate-500 leading-relaxed font-light italic mt-2" style="font-size: ${verseEnSize};">"${item.verse_en || ''}"</p>
+        `;
+        container.appendChild(div);
+      });
+    };
+
+    window.setupSwipeEvents = function() {
+      const swipeZone = document.getElementById('swipeZone');
+      let touchStartX = 0, touchStartY = 0;
+      const minSwipeDistance = 45; 
+
+      swipeZone.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].clientX; 
+        touchStartY = e.changedTouches[0].clientY; 
+      }, {passive: true});
+      
+      swipeZone.addEventListener('touchend', e => {
+        let touchEndX = e.changedTouches[0].clientX; 
+        let touchEndY = e.changedTouches[0].clientY; 
+        let dx = touchEndX - touchStartX; 
+        let dy = touchEndY - touchStartY; 
+        
+        if (Math.abs(dx) >= minSwipeDistance && Math.abs(dx) > Math.abs(dy) * 1.5) {
+           if (dx > 0) window.changeWeek(-1); 
+           else window.changeWeek(1);  
+        }
+      }, {passive: true});
+
+      let isMouseDown = false;
+      swipeZone.addEventListener('mousedown', e => { isMouseDown = true; touchStartX = e.clientX; touchStartY = e.clientY; });
+      swipeZone.addEventListener('mouseup', e => {
+        if(isMouseDown) {
+          isMouseDown = false;
+          let dx = e.clientX - touchStartX; let dy = e.clientY - touchStartY;
+          if (Math.abs(dx) >= minSwipeDistance && Math.abs(dx) > Math.abs(dy) * 1.5) {
+             if (dx > 0) window.changeWeek(-1); else window.changeWeek(1); 
+          }
+        }
+      });
+      swipeZone.addEventListener('mouseleave', () => { isMouseDown = false; });
+    };
+
+    window.setupModalBackdropClicks = function() {
+      const modals = [
+        { id: 'hymnModal', closeFunc: window.closeHymnModal },
+        { id: 'discussionModal', closeFunc: window.closeDiscussionModal },
+        { id: 'pdfModal', closeFunc: window.closePdfModal },
+        { id: 'verseListModal', closeFunc: window.closeListModal },
+        { id: 'dictModal', closeFunc: window.closeDictModal },
+        { id: 'bibleModal', closeFunc: window.closeBibleModal }
+      ];
+
+      modals.forEach(modalInfo => {
+        const modalElement = document.getElementById(modalInfo.id);
+        if (modalElement) {
+          modalElement.addEventListener('click', function(e) {
+            if (e.target === this) {
+              modalInfo.closeFunc();
+            }
+          });
+        }
+      });
+    };
+  </script>
 </body>
 </html>
