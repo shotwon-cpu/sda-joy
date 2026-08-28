@@ -252,26 +252,34 @@
     </div>
   </main>
 
-  <!-- 📖 시조사 성경 본문 뷰어 모달 (공식 재림성경 앱 딥링크) -->
+  <!-- 📖 시조사 성경 본문 뷰어 모달 (공식 재림성경 앱 딥링크 & 새창 열기 완벽 지원) -->
   <div id="bibleModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[75] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       <div class="bg-indigo-950 text-white p-3.5 sm:p-4 flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <i class="fa-solid fa-book-bible text-yellow-300 text-lg"></i>
+        <div class="flex items-center space-x-2 truncate">
+          <i class="fa-solid fa-book-bible text-yellow-300 text-lg flex-shrink-0"></i>
           <h3 id="bibleModalTitle" class="font-black text-base sm:text-lg truncate">성경 본문 보기</h3>
         </div>
-        <div class="flex items-center space-x-2">
-          <!-- 💡 공식 시조사 재림성경 앱(org.sijosa.bible) 호출 버튼 -->
-          <a href="intent://#Intent;package=org.sijosa.bible;end" class="text-xs sm:text-sm bg-yellow-400 hover:bg-yellow-300 text-indigo-950 font-black px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
-            <i class="fa-solid fa-mobile-screen"></i> 재림성경 앱 열기
-          </a>
-          <button onclick="closeBibleModal()" class="text-slate-300 hover:text-white transition p-1">
+        <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
+          <!-- 💡 공식 시조사 재림성경 앱(com.sijosa.channel) 실행 버튼 -->
+          <button onclick="openSijosaApp()" class="text-xs sm:text-sm bg-yellow-400 hover:bg-yellow-300 text-indigo-950 font-black px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
+            <i class="fa-solid fa-mobile-screen"></i> 재림성경 앱
+          </button>
+          <!-- 💡 시조사 웹 성경 새창 열기 버튼 -->
+          <button onclick="openBibleNewTab()" class="text-xs sm:text-sm bg-indigo-800 hover:bg-indigo-700 text-indigo-100 font-bold px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> 새창 열기
+          </button>
+          <button onclick="closeBibleModal()" class="text-slate-300 hover:text-white transition p-1 ml-1">
             <i class="fa-solid fa-xmark text-2xl sm:text-3xl"></i>
           </button>
         </div>
       </div>
-      <div class="flex-1 w-full bg-slate-50 relative">
-        <iframe id="bibleIframe" class="w-full h-full border-0" src=""></iframe>
+      <div class="flex-1 w-full bg-slate-50 relative flex flex-col">
+        <iframe id="bibleIframe" class="w-full flex-1 border-0" src=""></iframe>
+        <!-- 하단 안내 바 -->
+        <div class="bg-slate-100 border-t border-slate-200 px-3 py-2 text-center text-xs text-slate-500">
+          💡 화면이 보이지 않으시면 상단의 <span class="font-bold text-indigo-700">[새창 열기]</span> 또는 <span class="font-bold text-amber-700">[재림성경 앱]</span> 버튼을 눌러주세요.
+        </div>
       </div>
     </div>
   </div>
@@ -342,7 +350,7 @@
             <i class="fa-solid fa-download mr-1"></i> 앱 설치
           </button>
 
-          <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded">
+          <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 px-3 py-1.5 rounded">
             <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 새창 열기
           </button>
           <button onclick="closeDiscussionModal()" class="text-slate-300 hover:text-white transition p-1">
@@ -484,6 +492,7 @@
     window.currentUser = null;
 
     window.currentMaskStep = 1;
+    window.currentBibleTargetUrl = "";
 
     window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
     window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
@@ -588,7 +597,7 @@
       window.applyVerseMasking();
     };
 
-    // 💡 시조사(재림성경) 66권 한글 매핑 테이블
+    // 💡 시조사 66권 한글 매핑 테이블
     const BIBLE_SIJOSA_MAP = {
       "창": { code: "Genesis", idx: 401 }, "출": { code: "Exodus", idx: 402 }, "레": { code: "Leviticus", idx: 403 },
       "민": { code: "Numbers", idx: 404 }, "신": { code: "Deuteronomy", idx: 405 }, "수": { code: "Joshua", idx: 406 },
@@ -614,7 +623,7 @@
       "요삼": { code: "3John", idx: 475 }, "유": { code: "Jude", idx: 476 }, "계": { code: "Revelation", idx: 477 }
     };
 
-    // 💡 시조사(재림성경) 공식 성경 뷰어 연동 함수
+    // 💡 시조사 공식 성경 뷰어 연동 함수
     window.openBibleModal = function() {
       const data = window.sheetData[window.currentIndex];
       const modal = document.getElementById('bibleModal');
@@ -624,7 +633,6 @@
       const bibleRef = (data?.bible_ko || "").trim();
       if (titleElem) titleElem.innerHTML = `<i class="fa-solid fa-book-bible text-yellow-300 mr-2"></i>${bibleRef || '성경'} 본문 보기`;
       
-      // 구절 파싱 (예: "고후 2:4" -> book="고후", ch="2", vs="4")
       let bookKey = "마", ch = "1", vs = "1";
       if (bibleRef) {
         const match = bibleRef.match(/([가-힣]+)\s*(\d+)(?::(\d+))?/);
@@ -636,9 +644,9 @@
       }
 
       const bookInfo = BIBLE_SIJOSA_MAP[bookKey] || { code: "Matthew", idx: 451 };
-      const targetUrl = `https://www.sijosa.com/ch21/bible.php?book_idx=${bookInfo.idx}&code=${bookInfo.code}&chapter=${ch}&verse=${vs}`;
+      window.currentBibleTargetUrl = `https://www.sijosa.com/ch21/bible.php?book_idx=${bookInfo.idx}&code=${bookInfo.code}&chapter=${ch}&verse=${vs}`;
 
-      iframe.src = targetUrl;
+      iframe.src = window.currentBibleTargetUrl;
       modal.classList.remove('hidden');
     };
 
@@ -647,6 +655,28 @@
       const iframe = document.getElementById('bibleIframe');
       modal.classList.add('hidden');
       iframe.src = "";
+    };
+
+    // 💡 시조사 웹 성경 새창 열기
+    window.openBibleNewTab = function() {
+      if (window.currentBibleTargetUrl) {
+        window.open(window.currentBibleTargetUrl, '_blank');
+      } else {
+        window.open("https://www.sijosa.com/ch21/bible.php", '_blank');
+      }
+    };
+
+    // 💡 재림성경 공식 앱(com.sijosa.channel) 실행 / 미설치 시 플레이스토어로 자동 이동
+    window.openSijosaApp = function() {
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isAndroid) {
+        window.location.href = "intent://#Intent;package=com.sijosa.channel;scheme=package;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.sijosa.channel;end";
+      } else if (isIOS) {
+        window.open("https://apps.apple.com/kr/app/%EC%9E%AC%EB%A6%BC%EC%84%B1%EA%B2%BD/id1450284422", "_blank");
+      } else {
+        window.open("https://play.google.com/store/apps/details?id=com.sijosa.channel", "_blank");
+      }
     };
 
     // 💡 100% 정상 작동하는 구글 영한 사전 엔진
