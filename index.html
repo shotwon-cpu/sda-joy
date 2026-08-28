@@ -218,24 +218,24 @@
         </div>
       </div>
 
-      <!-- 💡 3분할 비대칭 버튼 바 (퍼즐 연한색 적용 | 교과토의 | 교 과) -->
-      <div class="flex gap-2 sm:gap-3 my-2 sm:my-3 items-stretch">
-        <!-- 퍼즐 버튼: 연한 앰버 톤(bg-amber-50)과 심플 명칭 '퍼즐' 반영 -->
-        <button onclick="openPuzzleModal()" class="flex-none w-[24%] sm:w-[22%] flex items-center justify-center gap-1 sm:gap-1.5 py-3 px-2 bg-amber-50 hover:bg-amber-100 text-amber-800 font-black rounded-2xl border border-amber-200 shadow-sm transition active:scale-95 text-sm sm:text-base md:text-xl">
-          <i class="fa-solid fa-puzzle-piece text-base sm:text-xl text-amber-600"></i>
-          <span class="tracking-tight">퍼즐</span>
+      <!-- 💡 3분할 비대칭 버튼 바 (내부 여백 축소 & 글자 크기 최대화) -->
+      <div class="flex gap-1.5 sm:gap-2.5 my-2 sm:my-3 items-stretch w-full">
+        <!-- 1. 퍼즐 버튼: 글자 크기 최대화 -->
+        <button onclick="openPuzzleModal()" class="flex-none w-[24%] sm:w-[22%] flex items-center justify-center gap-1 sm:gap-1.5 py-3 px-1 bg-amber-50 hover:bg-amber-100 text-amber-900 font-black rounded-2xl border border-amber-200 shadow-sm transition active:scale-95 text-[17px] sm:text-xl md:text-2xl">
+          <i class="fa-solid fa-puzzle-piece text-lg sm:text-2xl text-amber-600 flex-shrink-0"></i>
+          <span class="tracking-tighter sm:tracking-normal whitespace-nowrap">퍼즐</span>
         </button>
 
-        <!-- 교과토의 자료 -->
-        <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-3 px-2 sm:px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-black rounded-2xl border border-emerald-100 transition shadow-sm text-sm sm:text-base md:text-xl opacity-50 pointer-events-none cursor-pointer">
-          <i class="fa-solid fa-comments text-lg sm:text-2xl"></i>
-          <span id="discussionBtnText">교과토의</span>
+        <!-- 2. 교과토의 자료: 글자 크기 최대화 -->
+        <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 px-1.5 sm:px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-black rounded-2xl border border-emerald-100 transition shadow-sm text-[17px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer">
+          <i class="fa-solid fa-comments text-lg sm:text-2xl flex-shrink-0"></i>
+          <span id="discussionBtnText" class="tracking-tighter sm:tracking-normal whitespace-nowrap">교과토의</span>
         </a>
 
-        <!-- 교과 열기: '교 과' 명칭 반영 -->
-        <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-3 px-2 sm:px-4 bg-red-50 hover:bg-red-100 text-red-600 font-black rounded-2xl border border-red-100 transition shadow-sm text-sm sm:text-base md:text-xl opacity-50 pointer-events-none cursor-pointer">
-          <i class="fa-solid fa-book-open-reader text-lg sm:text-2xl"></i>
-          <span id="pdfBtnText">교 과</span>
+        <!-- 3. 교 과: 글자 크기 최대화 -->
+        <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 px-1.5 sm:px-3 bg-red-50 hover:bg-red-100 text-red-700 font-black rounded-2xl border border-red-100 transition shadow-sm text-[17px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer">
+          <i class="fa-solid fa-book-open-reader text-lg sm:text-2xl flex-shrink-0"></i>
+          <span id="pdfBtnText" class="tracking-tighter sm:tracking-normal whitespace-nowrap">교 과</span>
         </a>
       </div>
 
@@ -256,7 +256,6 @@
           <button onclick="changeVideoTab('c')" id="tab-c" class="tab-inactive border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 C</button>
         </div>
 
-        <!-- 꽉 찬 16:9 와이드 플레이어 -->
         <div class="aspect-video w-full bg-slate-900 rounded-xl sm:rounded-2xl overflow-hidden relative shadow-inner border border-slate-800">
           <div id="videoLoader" class="absolute inset-0 flex items-center justify-center bg-slate-900 z-10 hidden">
             <i class="fa-solid fa-spinner fa-spin text-3xl text-red-500"></i>
@@ -565,8 +564,7 @@
     window.currentProphecyUrl = "https://www.adventist.or.kr/channel/bbs/content.php?co_id=egw_writings";
     window.currentBibleViewMode = "bible";
 
-    // 🧩 퍼즐 게임 상태 변수
-    window.puzzleRound = 1; // 1 ~ 3회
+    window.puzzleRound = 1;
     window.puzzleTargetWords = [];
     window.puzzlePoolWords = [];
     window.puzzleSelectedWords = [];
@@ -669,13 +667,11 @@
       });
     };
 
-    // 💡 5단계 순환 가림 (초성 퀴즈 포함)
     window.cycleMaskStep = function() {
       window.currentMaskStep = (window.currentMaskStep % 5) + 1;
       window.applyVerseMasking();
     };
 
-    // 💡 한글 초성 추출 알고리즘
     const HANGUL_CHO_SUNG = [
       'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 
       'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
@@ -696,7 +692,6 @@
       return result;
     };
 
-    // 💡 5단계 가림 텍스트 적용 로직
     window.applyVerseMasking = function() {
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
@@ -756,9 +751,6 @@
       }
     };
 
-    // 🧩 =========================================================
-    // 단어 배열 퍼즐 게임 로직 (3회 완주 미션)
-    // =========================================================
     window.openPuzzleModal = function() {
       const data = window.sheetData[window.currentIndex];
       if (!data || !data.verse_ko) {
@@ -890,7 +882,6 @@
       }
     };
 
-    // 💡 시조사 성경 66권 전체 영문 코드 매핑 테이블
     const SIJOSA_BIBLE_CODE_MAP = {
       "창": "Genesis", "창세기": "Genesis", "출": "Exodus", "출애굽기": "Exodus", "레": "Leviticus", "레위기": "Leviticus",
       "민": "Numbers", "민수기": "Numbers", "신": "Deuteronomy", "신명기": "Deuteronomy", "수": "Joshua", "여호수아": "Joshua",
@@ -1096,7 +1087,6 @@
       }).join(' ');
     };
 
-    // 💡 '오늘 외웠어요' 기록 (퍼즐 3회 완료 시 자동 호출 지원)
     window.recordDailyRecite = async function(isFromPuzzle = false) {
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
@@ -1148,7 +1138,6 @@
       }
     };
 
-    // 💡 '오늘 외웠어요' 버튼 UI 업데이트
     window.updateDailyReciteButtonUI = function(isDoneToday) {
       const btn = document.getElementById('btnReciteToggle');
       const icon = document.getElementById('reciteIcon');
