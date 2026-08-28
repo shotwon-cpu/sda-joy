@@ -44,6 +44,13 @@
       -webkit-user-select: none; 
     }
 
+    /* 기억절 및 본문 타이포그래피: 어절 단위 줄바꿈 & 미세 자간(-2%) */
+    .typography-optimized {
+      word-break: keep-all !important;
+      overflow-wrap: break-word !important;
+      letter-spacing: -0.02em !important;
+    }
+
     /* 단어 터치 인터랙션 */
     .dict-tap-word {
       cursor: pointer;
@@ -161,19 +168,20 @@
             </div>
             
             <div class="mb-3.5 sm:mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h2 id="displayTitleKo" class="text-2xl md:text-3xl font-bold text-slate-800 leading-tight">제목을 불러오는 중</h2>
+              <h2 id="displayTitleKo" class="text-2xl md:text-3xl font-bold text-slate-800 leading-tight typography-optimized">제목을 불러오는 중</h2>
               <span id="displayTitleEn" class="text-base md:text-lg text-slate-400 font-medium italic"></span>
             </div>
             
-            <div class="verse-box text-white px-2.5 py-4 sm:px-5 sm:py-6 md:p-10 rounded-2xl relative shadow-inner">
-              <p class="leading-snug md:leading-relaxed font-semibold tracking-wide mb-4 sm:mb-5">
-                <span id="displayVerseKo" class="transition-all duration-150"></span>
-                <span id="displayBibleKo" onclick="window.openBibleModal(); event.stopPropagation();" class="font-medium text-indigo-300 ml-2 transition-all duration-150 pointer-events-auto bible-ref-link" title="시조사 성경 본문 보기"></span>
+            <!-- 💡 기억절 본문 박스: 어절 단위 줄바꿈 및 자간 -0.02em 적용 -->
+            <div class="verse-box text-white px-3 py-4 sm:px-6 sm:py-6 md:p-10 rounded-2xl relative shadow-inner">
+              <p class="leading-snug md:leading-relaxed font-semibold tracking-wide mb-4 sm:mb-5 typography-optimized">
+                <span id="displayVerseKo" class="transition-all duration-150 inline"></span>
+                <span id="displayBibleKo" onclick="window.openBibleModal(); event.stopPropagation();" class="font-medium text-indigo-300 ml-2 transition-all duration-150 pointer-events-auto bible-ref-link inline-block whitespace-nowrap" title="시조사 성경 본문 보기"></span>
               </p>
               
-              <p class="leading-relaxed font-light text-indigo-200 italic mb-5 sm:mb-8 pointer-events-auto">
-                <span id="displayVerseEn" class="transition-all duration-150"></span>
-                <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150"></span>
+              <p class="leading-relaxed font-light text-indigo-200 italic mb-5 sm:mb-8 pointer-events-auto typography-optimized">
+                <span id="displayVerseEn" class="transition-all duration-150 inline"></span>
+                <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150 inline-block whitespace-nowrap"></span>
               </p>
               
               <!-- 기억절 조작 액션 영역: 여백 최소화 & 폰트 최대화 -->
@@ -240,7 +248,7 @@
         </a>
       </div>
 
-      <!-- 유튜브 영상 섹션: 여백 축소 & 강사 탭 폰트 최대화 -->
+      <!-- 유튜브 영상 섹션 -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-3 sm:p-4 md:p-5">
         <div class="flex justify-between items-center mb-3 sm:mb-4 flex-wrap gap-2 px-1">
           <h3 class="text-lg sm:text-xl md:text-2xl font-bold flex items-center text-slate-800">
@@ -251,14 +259,12 @@
           </button>
         </div>
         
-        <!-- 강사 A, B, C 탭: 폰트 최대화 -->
         <div class="flex space-x-1.5 sm:space-x-2 mb-3 sm:mb-4 overflow-x-auto pb-1 custom-scrollbar px-1">
           <button onclick="changeVideoTab('a')" id="tab-a" class="tab-active border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl font-black text-base sm:text-lg md:text-xl whitespace-nowrap transition shadow-sm active:scale-95">강사 A</button>
           <button onclick="changeVideoTab('b')" id="tab-b" class="tab-inactive border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl font-black text-base sm:text-lg md:text-xl whitespace-nowrap transition shadow-sm active:scale-95">강사 B</button>
           <button onclick="changeVideoTab('c')" id="tab-c" class="tab-inactive border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl font-black text-base sm:text-lg md:text-xl whitespace-nowrap transition shadow-sm active:scale-95">강사 C</button>
         </div>
 
-        <!-- 꽉 찬 16:9 플레이어 -->
         <div class="aspect-video w-full bg-slate-900 rounded-xl sm:rounded-2xl overflow-hidden relative shadow-inner border border-slate-800">
           <div id="videoLoader" class="absolute inset-0 flex items-center justify-center bg-slate-900 z-10 hidden">
             <i class="fa-solid fa-spinner fa-spin text-3xl text-red-500"></i>
@@ -469,12 +475,13 @@
       <div class="flex-1 w-full bg-slate-100 relative overflow-hidden">
         <div id="imageViewerContainer" class="w-full h-full overflow-y-auto p-2 sm:p-4 hidden space-y-3 custom-scrollbar"></div>
         
+        <!-- 💡 교과 텍스트 영역: 어절 단위 줄바꿈 & 양끝 맞춤 & 자간 -0.02em 적용 -->
         <div id="textViewerContainer" class="hidden w-full h-full bg-[#fdfbf7] p-4 md:p-8 overflow-y-auto relative custom-scrollbar">
           <div class="sticky top-0 right-0 flex justify-end space-x-2 mb-4 z-10">
             <button onclick="window.adjustTextSize(2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A +</button>
             <button onclick="window.adjustTextSize(-2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A -</button>
           </div>
-          <div id="textContentArea" class="text-[18px] md:text-[22px] leading-[1.8] text-slate-800 break-keep font-medium pb-10"></div>
+          <div id="textContentArea" class="text-[18px] md:text-[22px] leading-[1.8] text-slate-800 font-medium pb-10 typography-optimized text-justify"></div>
         </div>
 
         <div id="pdfLoadingMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-white">
@@ -1793,11 +1800,11 @@
             </div>
             <span class="text-sm text-slate-400">${dateStr}</span>
           </div>
-          <h4 class="font-bold text-slate-800 leading-snug" style="font-size: ${titleKoSize};">${item.title_ko || '제목 없음'}</h4>
+          <h4 class="font-bold text-slate-800 leading-snug typography-optimized" style="font-size: ${titleKoSize};">${item.title_ko || '제목 없음'}</h4>
           <p class="text-slate-400 mb-3 italic" style="font-size: ${titleEnSize};">${item.title_en || ''}</p>
           <p class="font-semibold text-slate-500 mb-2" style="font-size: ${bibleSize};"><i class="fa-solid fa-book-open text-sm mr-1.5"></i>${item.bible_ko || ''} <span class="font-normal text-slate-400">/ ${item.bible_en || ''}</span></p>
-          <p class="text-slate-800 leading-relaxed font-medium mt-1" style="font-size: ${verseKoSize};">"${item.verse_ko || ''}"</p>
-          <p class="text-slate-500 leading-relaxed font-light italic mt-2" style="font-size: ${verseEnSize};">"${item.verse_en || ''}"</p>
+          <p class="text-slate-800 leading-relaxed font-medium mt-1 typography-optimized" style="font-size: ${verseKoSize};">"${item.verse_ko || ''}"</p>
+          <p class="text-slate-500 leading-relaxed font-light italic mt-2 typography-optimized" style="font-size: ${verseEnSize};">"${item.verse_en || ''}"</p>
         `;
         container.appendChild(div);
       });
