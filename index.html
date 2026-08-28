@@ -712,10 +712,16 @@
       }
     };
 
-    // 💡 재림성경 앱 호출
+    // 💡 재림성경 공식 앱(com.sijosa.channel) 실행 / 미설치 시 플레이스토어로 자동 이동
     window.openSijosaApp = function() {
-      if (window.currentTargetBibleUrl) {
-        window.open(window.currentTargetBibleUrl, "_blank");
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isAndroid) {
+        window.location.href = "intent://#Intent;package=com.sijosa.channel;scheme=package;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.sijosa.channel;end";
+      } else if (isIOS) {
+        window.open("https://apps.apple.com/kr/app/%EC%9E%AC%EB%A6%BC%EC%84%B1%EA%B2%BD/id1450284422", "_blank");
+      } else {
+        window.open("https://play.google.com/store/apps/details?id=com.sijosa.channel", "_blank");
       }
     };
 
