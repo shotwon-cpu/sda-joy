@@ -134,7 +134,7 @@
     </div>
 
     <!-- 콘텐츠 영역 -->
-    <div id="contentArea" class="hidden space-y-4 md:space-y-6 w-full">
+    <div id="contentArea" class="hidden space-y-3 md:space-y-5 w-full">
       <div class="w-full overflow-hidden rounded-3xl">
         <div id="swipeZone" class="swipe-area bg-white rounded-3xl shadow-md border border-slate-200 overflow-hidden relative transition-transform duration-300 cursor-grab active:cursor-grabbing w-full">
           <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-50 rounded-bl-full -z-10 opacity-70"></div>
@@ -166,11 +166,11 @@
             <div class="verse-box text-white px-2.5 py-4 sm:px-5 sm:py-6 md:p-10 rounded-2xl relative shadow-inner">
               <p class="leading-snug md:leading-relaxed font-semibold tracking-wide mb-4 sm:mb-5">
                 <span id="displayVerseKo" class="transition-all duration-150"></span>
-                <!-- 💡 성경 본문 모달을 띄우는 터치 링크 -->
+                <!-- 성경 본문 모달 링크 -->
                 <span id="displayBibleKo" onclick="window.openBibleModal(); event.stopPropagation();" class="font-medium text-indigo-300 ml-2 transition-all duration-150 pointer-events-auto bible-ref-link" title="시조사 성경 본문 보기"></span>
               </p>
               
-              <!-- 💡 단어 원터치 영한사전 연결 영역 -->
+              <!-- 단어 원터치 영한사전 연결 영역 -->
               <p class="leading-relaxed font-light text-indigo-200 italic mb-6 sm:mb-8 pointer-events-auto">
                 <span id="displayVerseEn" class="transition-all duration-150"></span>
                 <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150"></span>
@@ -178,11 +178,11 @@
               
               <div class="pt-3 sm:pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 space-y-2 sm:space-y-3">
                 
-                <!-- 1행 (3개 버튼 - 5단계 초성 퀴즈 모드 지원) -->
+                <!-- 1행: '오늘 외웠어요' 버튼 반영 -->
                 <div class="flex items-center justify-between gap-1 sm:gap-2 w-full flex-nowrap">
                   <button id="btnReciteToggle" onclick="window.recordDailyRecite(); event.stopPropagation();" class="flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap">
                     <i id="reciteIcon" class="fa-regular fa-circle-check mr-1 text-base sm:text-lg"></i>
-                    <span id="reciteText" class="whitespace-nowrap font-black">오늘 암송 실천하기</span>
+                    <span id="reciteText" class="whitespace-nowrap font-black">오늘 외웠어요</span>
                   </button>
 
                   <button id="btnMaskStep" onclick="window.cycleMaskStep(); event.stopPropagation();" class="flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-900/90 hover:bg-indigo-800 text-amber-300 border border-amber-400/40 active:scale-95 whitespace-nowrap">
@@ -218,12 +218,12 @@
         </div>
       </div>
 
-      <!-- 💡 3분할 비대칭 버튼 바 (퍼즐 25% | 교과토의 37.5% | 교과열기 37.5%) -->
-      <div class="flex gap-2 sm:gap-3 my-3 sm:my-4 items-stretch">
-        <!-- 단어 퍼즐 버튼 (컴팩트 사각 포인트 버튼) -->
-        <button onclick="openPuzzleModal()" class="flex-none w-[26%] sm:w-[24%] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-2 bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black rounded-2xl shadow-sm transition active:scale-95 text-xs sm:text-base md:text-lg">
-          <i class="fa-solid fa-puzzle-piece text-base sm:text-xl text-yellow-200"></i>
-          <span class="tracking-tight">단어퍼즐</span>
+      <!-- 💡 3분할 비대칭 버튼 바 (퍼즐 연한색 적용 | 교과토의 | 교 과) -->
+      <div class="flex gap-2 sm:gap-3 my-2 sm:my-3 items-stretch">
+        <!-- 퍼즐 버튼: 연한 앰버 톤(bg-amber-50)과 심플 명칭 '퍼즐' 반영 -->
+        <button onclick="openPuzzleModal()" class="flex-none w-[24%] sm:w-[22%] flex items-center justify-center gap-1 sm:gap-1.5 py-3 px-2 bg-amber-50 hover:bg-amber-100 text-amber-800 font-black rounded-2xl border border-amber-200 shadow-sm transition active:scale-95 text-sm sm:text-base md:text-xl">
+          <i class="fa-solid fa-puzzle-piece text-base sm:text-xl text-amber-600"></i>
+          <span class="tracking-tight">퍼즐</span>
         </button>
 
         <!-- 교과토의 자료 -->
@@ -232,37 +232,40 @@
           <span id="discussionBtnText">교과토의</span>
         </a>
 
-        <!-- 교과 열기 -->
+        <!-- 교과 열기: '교 과' 명칭 반영 -->
         <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-3 px-2 sm:px-4 bg-red-50 hover:bg-red-100 text-red-600 font-black rounded-2xl border border-red-100 transition shadow-sm text-sm sm:text-base md:text-xl opacity-50 pointer-events-none cursor-pointer">
           <i class="fa-solid fa-book-open-reader text-lg sm:text-2xl"></i>
-          <span id="pdfBtnText">교과열기</span>
+          <span id="pdfBtnText">교 과</span>
         </a>
       </div>
 
-      <!-- 영상 카드 -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-6 md:pb-8">
-        <div class="flex justify-between items-center mb-5 flex-wrap gap-2">
-          <h3 class="text-xl md:text-2xl font-bold flex items-center text-slate-800">
-            <i class="fa-brands fa-youtube text-red-500 mr-2 text-2xl"></i> 이번 주 교과 해설 영상
+      <!-- 💡 유튜브 영상 섹션: 여백 축소 및 좌우 와이드 확장 -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-3 sm:p-4 md:p-5">
+        <div class="flex justify-between items-center mb-3 sm:mb-4 flex-wrap gap-2 px-1">
+          <h3 class="text-lg sm:text-xl md:text-2xl font-bold flex items-center text-slate-800">
+            <i class="fa-brands fa-youtube text-red-500 mr-2 text-xl sm:text-2xl"></i> 이번 주 교과 해설 영상
           </h3>
-          <button id="videoNewTabBtn" onclick="openVideoNewTab()" class="text-sm md:text-base bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg font-bold transition flex items-center border border-red-200 shadow-sm opacity-50 pointer-events-none">
-            <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> 새창/앱 열기
+          <button id="videoNewTabBtn" onclick="openVideoNewTab()" class="text-xs sm:text-sm md:text-base bg-red-50 text-red-600 hover:bg-red-100 px-2.5 py-1.5 rounded-lg font-bold transition flex items-center border border-red-200 shadow-sm opacity-50 pointer-events-none">
+            <i class="fa-solid fa-arrow-up-right-from-square mr-1 sm:mr-1.5"></i> 새창/앱 열기
           </button>
         </div>
-        <div class="flex space-x-2 mb-5 overflow-x-auto pb-2 custom-scrollbar">
-          <button onclick="changeVideoTab('a')" id="tab-a" class="tab-active border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 A</button>
-          <button onclick="changeVideoTab('b')" id="tab-b" class="tab-inactive border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 B</button>
-          <button onclick="changeVideoTab('c')" id="tab-c" class="tab-inactive border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 C</button>
+        
+        <div class="flex space-x-1.5 sm:space-x-2 mb-3 sm:mb-4 overflow-x-auto pb-1 custom-scrollbar px-1">
+          <button onclick="changeVideoTab('a')" id="tab-a" class="tab-active border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 A</button>
+          <button onclick="changeVideoTab('b')" id="tab-b" class="tab-inactive border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 B</button>
+          <button onclick="changeVideoTab('c')" id="tab-c" class="tab-inactive border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base md:text-lg whitespace-nowrap transition shadow-sm">강사 C</button>
         </div>
-        <div class="aspect-video bg-slate-900 rounded-2xl overflow-hidden relative shadow-inner border border-slate-800">
+
+        <!-- 꽉 찬 16:9 와이드 플레이어 -->
+        <div class="aspect-video w-full bg-slate-900 rounded-xl sm:rounded-2xl overflow-hidden relative shadow-inner border border-slate-800">
           <div id="videoLoader" class="absolute inset-0 flex items-center justify-center bg-slate-900 z-10 hidden">
             <i class="fa-solid fa-spinner fa-spin text-3xl text-red-500"></i>
           </div>
 
           <div id="noVideoMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-900 p-4 text-center z-10 hidden">
-            <i class="fa-brands fa-youtube text-5xl md:text-6xl text-slate-600 mb-3"></i>
-            <p class="text-base md:text-lg font-bold text-slate-300">해당 강사의 교과 해설 영상 준비 중입니다.</p>
-            <p class="text-xs md:text-sm text-slate-500 mt-1">다른 강사 탭을 선택해 영상을 확인해 보세요.</p>
+            <i class="fa-brands fa-youtube text-4xl sm:text-5xl md:text-6xl text-slate-600 mb-2 sm:mb-3"></i>
+            <p class="text-sm sm:text-base md:text-lg font-bold text-slate-300">해당 강사의 교과 해설 영상 준비 중입니다.</p>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">다른 강사 탭을 선택해 영상을 확인해 보세요.</p>
           </div>
 
           <iframe id="videoPlayer" class="w-full h-full hidden transition-opacity duration-500 opacity-0" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -274,7 +277,6 @@
   <!-- 🧩 단어 배열 퍼즐 게임 모달 (3회 완주 미션) -->
   <div id="puzzleModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-[85] p-3 md:p-4">
     <div class="bg-white rounded-3xl w-full max-w-lg p-5 sm:p-6 shadow-2xl animate-fade-in border border-slate-100 flex flex-col max-h-[90vh]">
-      <!-- 퍼즐 헤더 -->
       <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-3">
         <div class="flex items-center space-x-2">
           <span class="text-2xl">🧩</span>
@@ -283,7 +285,6 @@
             <p class="text-xs text-slate-400">단어를 순서대로 눌러 문장을 완성하세요.</p>
           </div>
         </div>
-        <!-- 3회 게이지 배지 -->
         <div class="flex items-center space-x-2">
           <span id="puzzleProgressBadge" class="bg-amber-100 text-amber-800 border border-amber-300 text-xs sm:text-sm font-black px-2.5 py-1 rounded-full shadow-sm">
             🎯 1 / 3회
@@ -294,9 +295,7 @@
         </div>
       </div>
 
-      <!-- 퍼즐 본문 영역 -->
       <div class="flex-1 overflow-y-auto custom-scrollbar space-y-4 py-2">
-        <!-- 1. 완성 중인 슬롯 영역 -->
         <div>
           <div class="flex justify-between items-center mb-1 px-1">
             <span class="text-xs font-bold text-slate-500">내가 맞춘 문장:</span>
@@ -304,24 +303,17 @@
               <i class="fa-solid fa-rotate-left text-[10px]"></i> 다시 놓기
             </button>
           </div>
-          <div id="puzzleSelectedArea" class="min-h-[100px] p-3.5 bg-slate-50 border-2 border-dashed border-indigo-200 rounded-2xl flex flex-wrap gap-1.5 items-start content-start transition-all">
-            <!-- 선택된 단어 태그가 실시간으로 들어옵니다 -->
-          </div>
+          <div id="puzzleSelectedArea" class="min-h-[100px] p-3.5 bg-slate-50 border-2 border-dashed border-indigo-200 rounded-2xl flex flex-wrap gap-1.5 items-start content-start transition-all"></div>
         </div>
 
-        <!-- 2. 선택 가능한 단어 풀 영역 -->
         <div>
           <span class="text-xs font-bold text-slate-500 block mb-1 px-1">아래 단어를 순서대로 터치하세요:</span>
-          <div id="puzzlePoolArea" class="min-h-[90px] p-3.5 bg-indigo-50/50 rounded-2xl flex flex-wrap gap-1.5 items-center content-start">
-            <!-- 섞인 단어 버튼들이 동적으로 들어옵니다 -->
-          </div>
+          <div id="puzzlePoolArea" class="min-h-[90px] p-3.5 bg-indigo-50/50 rounded-2xl flex flex-wrap gap-1.5 items-center content-start"></div>
         </div>
 
-        <!-- 3. 결과 피드백 메시지 -->
         <div id="puzzleFeedbackArea" class="hidden text-center py-2 rounded-xl text-sm font-black transition"></div>
       </div>
 
-      <!-- 퍼즐 하단 액션 바 -->
       <div class="pt-3 border-t border-slate-100 flex justify-between items-center text-xs mt-2">
         <button onclick="showPuzzleHint()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg transition flex items-center gap-1">
           <i class="fa-regular fa-lightbulb text-amber-500"></i> 힌트보기
@@ -331,7 +323,7 @@
     </div>
   </div>
 
-  <!-- 📖 시조사 성경 & 예언의 신 뷰어 모달 (모달 내 원터치 전환) -->
+  <!-- 📖 시조사 성경 & 예언의 신 뷰어 모달 -->
   <div id="bibleModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[75] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       <div class="bg-indigo-950 text-white p-3.5 sm:p-4 flex justify-between items-center">
@@ -361,7 +353,7 @@
     </div>
   </div>
 
-  <!-- 📖 100% 정상 작동하는 원터치 영한사전 모달 -->
+  <!-- 📖 원터치 영한사전 모달 -->
   <div id="dictModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-[80] p-3 sm:p-4">
     <div class="bg-white rounded-3xl w-full max-w-md p-5 sm:p-6 shadow-2xl animate-fade-in border border-slate-100 flex flex-col max-h-[80vh]">
       <div class="flex justify-between items-start mb-4 border-b border-slate-100 pb-3">
@@ -786,24 +778,20 @@
       const data = window.sheetData[window.currentIndex];
       const rawText = data.verse_ko.trim();
 
-      // 단어(어절) 단위 분리 (구두점 보존)
       window.puzzleTargetWords = rawText.split(/\s+/).filter(w => w.length > 0);
       window.puzzleSelectedWords = [];
       
-      // 단어 풀에 ID 부여 및 셔플
       window.puzzlePoolWords = window.puzzleTargetWords.map((word, idx) => ({
         id: `pw_${idx}_${Math.random()}`,
         text: word,
         originalIndex: idx
       }));
 
-      // 무작위 셔플 (Fisher-Yates)
       for (let i = window.puzzlePoolWords.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [window.puzzlePoolWords[i], window.puzzlePoolWords[j]] = [window.puzzlePoolWords[j], window.puzzlePoolWords[i]];
       }
 
-      // 회차 게이지 업데이트
       const badge = document.getElementById('puzzleProgressBadge');
       if (badge) badge.innerText = `🎯 ${window.puzzleRound} / 3회`;
 
@@ -817,7 +805,6 @@
       const selectedArea = document.getElementById('puzzleSelectedArea');
       const poolArea = document.getElementById('puzzlePoolArea');
 
-      // 1. 선택된 단어 슬롯 렌더링
       if (window.puzzleSelectedWords.length === 0) {
         selectedArea.innerHTML = `<span class="text-xs text-slate-400 m-auto select-none">터치한 단어가 여기에 채워집니다.</span>`;
       } else {
@@ -829,7 +816,6 @@
         `).join('');
       }
 
-      // 2. 풀 영역 렌더링
       poolArea.innerHTML = window.puzzlePoolWords.map((item) => `
         <button onclick="window.pickPuzzleWord('${item.id}')" class="puzzle-word-btn bg-white hover:bg-slate-100 text-slate-800 font-bold text-sm sm:text-base px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
           ${item.text}
@@ -868,7 +854,6 @@
       const feedback = document.getElementById('puzzleFeedbackArea');
 
       if (userSentence === targetSentence) {
-        // 정답!
         if (window.puzzleRound < 3) {
           feedback.className = "text-center py-2.5 px-4 rounded-xl text-sm font-black bg-emerald-100 text-emerald-800 border border-emerald-300 block";
           feedback.innerHTML = `🎉 <strong>${window.puzzleRound}회차 완벽 성공!</strong> 다음 회차로 이어집니다. (0.8초 후 자동 전환)`;
@@ -878,23 +863,21 @@
             window.initPuzzleRound();
           }, 800);
         } else {
-          // 3회 완료 축하 폭죽 & 출석체크 자동 완료
           if (typeof confetti === 'function') {
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
           }
 
           feedback.className = "text-center py-3 px-4 rounded-xl text-sm font-black bg-amber-100 text-amber-900 border border-amber-300 block animate-bounce";
-          feedback.innerHTML = `🏆 <strong>3회 완주 대성공!</strong> 오늘의 암송 실천이 완료되었습니다! 🔥`;
+          feedback.innerHTML = `🏆 <strong>3회 완주 대성공!</strong> 오늘 암송을 완벽히 마쳤습니다! 🔥`;
 
           window.recordDailyRecite(true);
 
           setTimeout(() => {
-            alert("축하합니다! 3회 퍼즐을 모두 완주하여 오늘의 암송 실천이 인증되었습니다! ✨");
+            alert("축하합니다! 3회 퍼즐을 모두 완주하여 오늘의 암송이 완료되었습니다! ✨");
             window.closePuzzleModal();
           }, 1200);
         }
       } else {
-        // 오답 안내
         feedback.className = "text-center py-2.5 px-4 rounded-xl text-sm font-black bg-rose-100 text-rose-800 border border-rose-300 block";
         feedback.innerHTML = `⚠️ 순서가 맞지 않는 단어가 있습니다. 틀린 단어를 눌러 다시 시도해 보세요.`;
       }
@@ -1113,7 +1096,7 @@
       }).join(' ');
     };
 
-    // 💡 일일 암송 실천 기록 (퍼즐 3회 완료 시 자동 호출 가능)
+    // 💡 '오늘 외웠어요' 기록 (퍼즐 3회 완료 시 자동 호출 지원)
     window.recordDailyRecite = async function(isFromPuzzle = false) {
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
@@ -1165,6 +1148,7 @@
       }
     };
 
+    // 💡 '오늘 외웠어요' 버튼 UI 업데이트
     window.updateDailyReciteButtonUI = function(isDoneToday) {
       const btn = document.getElementById('btnReciteToggle');
       const icon = document.getElementById('reciteIcon');
@@ -1174,11 +1158,11 @@
       if (isDoneToday) {
         btn.className = "flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 active:scale-95 whitespace-nowrap";
         icon.className = "fa-solid fa-circle-check mr-1 text-base sm:text-lg text-yellow-300";
-        text.innerText = "오늘 암송 완료! ✨";
+        text.innerText = "오늘 외웠어요! ✨";
       } else {
         btn.className = "flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap";
         icon.className = "fa-regular fa-circle-check mr-1 text-base sm:text-lg";
-        text.innerText = "오늘 암송 실천하기";
+        text.innerText = "오늘 외웠어요";
       }
     };
 
@@ -1324,7 +1308,7 @@
       if (hasText || hasImage || hasSourceUrl || hasPdfUrl) {
         window.currentPdfUrl = (hasSourceUrl ? data.source_url.trim() : (hasPdfUrl ? data.pdf_url.trim() : ""));
         pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
-        pdfBtnText.innerHTML = `교과열기`;
+        pdfBtnText.innerHTML = `교 과`;
       } else {
         window.currentPdfUrl = "";
         pdfBtn.classList.add('opacity-50', 'pointer-events-none');
@@ -1375,7 +1359,7 @@
       if(window.currentTab === tabName) return; 
       window.currentTab = tabName;
       ['a', 'b', 'c'].forEach(t => {
-        document.getElementById(`tab-${t}`).className = (t === tabName) ? "tab-active border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm" : "tab-inactive border px-5 py-2.5 rounded-lg font-bold text-base md:text-lg whitespace-nowrap transition shadow-sm";
+        document.getElementById(`tab-${t}`).className = (t === tabName) ? "tab-active border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base md:text-lg whitespace-nowrap transition shadow-sm" : "tab-inactive border px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base md:text-lg whitespace-nowrap transition shadow-sm";
       });
       window.updateVideoPlayer();
     };
