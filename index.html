@@ -59,7 +59,7 @@
       text-underline-offset: 3px;
     }
 
-    /* 성경 출처 터치 버튼 */
+    /* 성경 출처 터치 링크 */
     .bible-ref-link {
       cursor: pointer;
       text-decoration: underline;
@@ -156,7 +156,7 @@
               <p class="leading-snug md:leading-relaxed font-semibold tracking-wide mb-4 sm:mb-5">
                 <span id="displayVerseKo" class="transition-all duration-150"></span>
                 <!-- 💡 성경 본문 모달을 띄우는 터치 링크 -->
-                <span id="displayBibleKo" onclick="window.openBibleModal(); event.stopPropagation();" class="font-medium text-indigo-300 ml-2 transition-all duration-150 pointer-events-auto bible-ref-link" title="성경 본문 보기"></span>
+                <span id="displayBibleKo" onclick="window.openBibleModal(); event.stopPropagation();" class="font-medium text-indigo-300 ml-2 transition-all duration-150 pointer-events-auto bible-ref-link" title="시조사 성경 본문 보기"></span>
               </p>
               
               <!-- 💡 단어 원터치 영한사전 연결 영역 -->
@@ -252,7 +252,7 @@
     </div>
   </main>
 
-  <!-- 📖 성경 본문 뷰어 모달 (재림성경 앱 딥링크 포함) -->
+  <!-- 📖 시조사 성경 본문 뷰어 모달 (공식 재림성경 앱 딥링크) -->
   <div id="bibleModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[75] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
       <div class="bg-indigo-950 text-white p-3.5 sm:p-4 flex justify-between items-center">
@@ -261,8 +261,8 @@
           <h3 id="bibleModalTitle" class="font-black text-base sm:text-lg truncate">성경 본문 보기</h3>
         </div>
         <div class="flex items-center space-x-2">
-          <!-- 💡 스마트폰 재림성경 앱 호출 버튼 -->
-          <a href="intent://#Intent;package=kr.adventist.bible;end" class="text-xs sm:text-sm bg-yellow-400 hover:bg-yellow-300 text-indigo-950 font-black px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
+          <!-- 💡 공식 시조사 재림성경 앱(org.sijosa.bible) 호출 버튼 -->
+          <a href="intent://#Intent;package=org.sijosa.bible;end" class="text-xs sm:text-sm bg-yellow-400 hover:bg-yellow-300 text-indigo-950 font-black px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
             <i class="fa-solid fa-mobile-screen"></i> 재림성경 앱 열기
           </a>
           <button onclick="closeBibleModal()" class="text-slate-300 hover:text-white transition p-1">
@@ -342,7 +342,7 @@
             <i class="fa-solid fa-download mr-1"></i> 앱 설치
           </button>
 
-          <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 px-3 py-1.5 rounded">
+          <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded">
             <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 새창 열기
           </button>
           <button onclick="closeDiscussionModal()" class="text-slate-300 hover:text-white transition p-1">
@@ -588,18 +588,57 @@
       window.applyVerseMasking();
     };
 
-    // 💡 성경 본문 모달 제어 함수 (한국연합회 공식 성경 웹 서비스 연동)
+    // 💡 시조사(재림성경) 66권 한글 매핑 테이블
+    const BIBLE_SIJOSA_MAP = {
+      "창": { code: "Genesis", idx: 401 }, "출": { code: "Exodus", idx: 402 }, "레": { code: "Leviticus", idx: 403 },
+      "민": { code: "Numbers", idx: 404 }, "신": { code: "Deuteronomy", idx: 405 }, "수": { code: "Joshua", idx: 406 },
+      "삿": { code: "Judges", idx: 407 }, "룻": { code: "Ruth", idx: 408 }, "삼상": { code: "1Samuel", idx: 409 },
+      "삼하": { code: "2Samuel", idx: 410 }, "왕상": { code: "1Kings", idx: 411 }, "왕하": { code: "2Kings", idx: 412 },
+      "대상": { code: "1Chronicles", idx: 413 }, "대하": { code: "2Chronicles", idx: 414 }, "스": { code: "Ezra", idx: 415 },
+      "느": { code: "Nehemiah", idx: 416 }, "에": { code: "Esther", idx: 417 }, "욥": { code: "Job", idx: 418 },
+      "시": { code: "Psalms", idx: 419 }, "잠": { code: "Proverbs", idx: 420 }, "전": { code: "Ecclesiastes", idx: 421 },
+      "아": { code: "SongofSolomon", idx: 422 }, "사": { code: "Isaiah", idx: 423 }, "렘": { code: "Jeremiah", idx: 424 },
+      "애": { code: "Lamentations", idx: 425 }, "겔": { code: "Ezekiel", idx: 426 }, "단": { code: "Daniel", idx: 427 },
+      "호": { code: "Hosea", idx: 428 }, "욜": { code: "Joel", idx: 429 }, "암": { code: "Amos", idx: 430 },
+      "옵": { code: "Obadiah", idx: 431 }, "욘": { code: "Jonah", idx: 432 }, "미": { code: "Micah", idx: 433 },
+      "나": { code: "Nahum", idx: 434 }, "합": { code: "Habakkuk", idx: 435 }, "습": { code: "Zephaniah", idx: 436 },
+      "학": { code: "Haggai", idx: 437 }, "슥": { code: "Zechariah", idx: 438 }, "말": { code: "Malachi", idx: 439 },
+      "마": { code: "Matthew", idx: 451 }, "막": { code: "Mark", idx: 452 }, "눅": { code: "Luke", idx: 453 },
+      "요": { code: "John", idx: 454 }, "행": { code: "Acts", idx: 455 }, "롬": { code: "Romans", idx: 456 },
+      "고전": { code: "1Corinthians", idx: 457 }, "고후": { code: "2Corinthians", idx: 458 }, "갈": { code: "Galatians", idx: 459 },
+      "엡": { code: "Ephesians", idx: 460 }, "빌": { code: "Philippians", idx: 461 }, "골": { code: "Colossians", idx: 462 },
+      "살전": { code: "1Thessalonians", idx: 463 }, "살후": { code: "2Thessalonians", idx: 464 }, "딤전": { code: "1Timothy", idx: 465 },
+      "딤후": { code: "2Timothy", idx: 466 }, "딛": { code: "Titus", idx: 467 }, "몬": { code: "Philemon", idx: 468 },
+      "히": { code: "Hebrews", idx: 469 }, "약": { code: "James", idx: 470 }, "벧전": { code: "1Peter", idx: 471 },
+      "벧후": { code: "2Peter", idx: 472 }, "요일": { code: "1John", idx: 473 }, "요이": { code: "2John", idx: 474 },
+      "요삼": { code: "3John", idx: 475 }, "유": { code: "Jude", idx: 476 }, "계": { code: "Revelation", idx: 477 }
+    };
+
+    // 💡 시조사(재림성경) 공식 성경 뷰어 연동 함수
     window.openBibleModal = function() {
       const data = window.sheetData[window.currentIndex];
       const modal = document.getElementById('bibleModal');
       const titleElem = document.getElementById('bibleModalTitle');
       const iframe = document.getElementById('bibleIframe');
 
-      const bibleRef = data?.bible_ko || "성경";
-      if (titleElem) titleElem.innerHTML = `<i class="fa-solid fa-book-bible text-yellow-300 mr-2"></i>${bibleRef} 본문 보기`;
+      const bibleRef = (data?.bible_ko || "").trim();
+      if (titleElem) titleElem.innerHTML = `<i class="fa-solid fa-book-bible text-yellow-300 mr-2"></i>${bibleRef || '성경'} 본문 보기`;
       
-      // 공식 웹 성경 뷰어 주소 연결
-      iframe.src = "https://www.adventist.or.kr/bible/?referer=channel";
+      // 구절 파싱 (예: "고후 2:4" -> book="고후", ch="2", vs="4")
+      let bookKey = "마", ch = "1", vs = "1";
+      if (bibleRef) {
+        const match = bibleRef.match(/([가-힣]+)\s*(\d+)(?::(\d+))?/);
+        if (match) {
+          bookKey = match[1];
+          ch = match[2] || "1";
+          vs = match[3] || "1";
+        }
+      }
+
+      const bookInfo = BIBLE_SIJOSA_MAP[bookKey] || { code: "Matthew", idx: 451 };
+      const targetUrl = `https://www.sijosa.com/ch21/bible.php?book_idx=${bookInfo.idx}&code=${bookInfo.code}&chapter=${ch}&verse=${vs}`;
+
+      iframe.src = targetUrl;
       modal.classList.remove('hidden');
     };
 
