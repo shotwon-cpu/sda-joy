@@ -88,7 +88,7 @@
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* 퍼즐 단어 버튼 애니메이션 및 스타일 */
+    /* 퍼즐 단어 버튼 애니메이션 */
     .puzzle-word-btn {
       transition: all 0.15s ease;
       user-select: none;
@@ -103,7 +103,38 @@
 </head>
 <body class="flex flex-col min-h-screen w-full">
 
-  <!-- 상단 네비게이션: 패딩 축소 & 폰트 최대화 -->
+  <!-- 🔒 개별 버튼 잠금/암호 인증 모달 -->
+  <div id="featureLockModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+    <div class="bg-[#1e293b] p-6 sm:p-7 rounded-3xl border border-slate-700 max-w-sm w-full shadow-2xl space-y-4 text-center animate-fade-in">
+      <div class="w-14 h-14 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto text-2xl border border-amber-500/30">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      
+      <div class="space-y-1">
+        <h3 id="lockModalFeatureName" class="text-lg sm:text-xl font-black text-white">자료 열람 제한</h3>
+        <p id="lockModalMessage" class="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed break-keep">
+          해당 자료는 현재 준비 중입니다.
+        </p>
+      </div>
+
+      <div class="pt-2 border-t border-slate-700/80 space-y-2">
+        <p class="text-[11px] text-slate-400 font-bold">인증 비밀번호가 있으신 분은 입력해 주세요.</p>
+        <div class="flex gap-1.5">
+          <input id="featurePasscodeInput" type="password" placeholder="비밀번호" class="flex-1 bg-slate-900 border border-slate-600 rounded-xl px-3 py-2 text-white text-center font-black tracking-widest text-base focus:outline-none focus:border-amber-400">
+          <button onclick="window.submitFeatureAuth()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-4 py-2 rounded-xl shadow transition active:scale-95 text-sm whitespace-nowrap">
+            확인
+          </button>
+        </div>
+        <p id="featureLockError" class="hidden text-xs text-rose-400 font-bold">비밀번호가 올바르지 않습니다.</p>
+      </div>
+
+      <button onclick="window.closeFeatureLockModal()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">
+        닫기
+      </button>
+    </div>
+  </div>
+
+  <!-- 상단 네비게이션 -->
   <header class="nav-header text-white px-2.5 py-2.5 sm:px-5 sm:py-3.5 flex justify-between items-center shadow-lg gap-1.5 sm:gap-4 overflow-hidden flex-shrink-0 w-full">
     <div class="flex flex-col justify-center min-w-0 flex-1 pr-1">
       <h1 class="text-[20px] sm:text-3xl md:text-4xl lg:text-5xl font-black flex items-center tracking-tight truncate">
@@ -113,7 +144,7 @@
     </div>
     
     <div class="grid grid-cols-4 gap-1 sm:gap-2 flex-shrink-0">
-      <button onclick="openHymnModal()" class="w-full bg-rose-600 hover:bg-rose-500 p-1 sm:px-3 sm:py-2 rounded-lg text-[13px] sm:text-lg md:text-xl font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95">
+      <button onclick="window.requestProtectedAction('hymn', window.openHymnModal)" class="w-full bg-rose-600 hover:bg-rose-500 p-1 sm:px-3 sm:py-2 rounded-lg text-[13px] sm:text-lg md:text-xl font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95">
         <i class="fa-solid fa-music mb-0.5 text-sm sm:text-xl"></i>
         <span class="whitespace-nowrap tracking-tighter sm:tracking-normal">찬미가</span>
       </button>
@@ -176,7 +207,7 @@
             <div class="verse-box text-white px-3 py-4 sm:px-6 sm:py-6 md:p-10 rounded-2xl relative shadow-inner">
               <p class="leading-snug md:leading-relaxed font-semibold tracking-wide mb-4 sm:mb-5 typography-optimized">
                 <span id="displayVerseKo" class="transition-all duration-150 inline"></span>
-                <span id="displayBibleKo" onclick="window.openBibleModal(); event.stopPropagation();" class="font-medium text-indigo-300 ml-2 transition-all duration-150 pointer-events-auto bible-ref-link inline-block whitespace-nowrap" title="시조사 성경 본문 보기"></span>
+                <span id="displayBibleKo" onclick="window.requestProtectedAction('bible', window.openBibleModal); event.stopPropagation();" class="font-medium text-indigo-300 ml-2 transition-all duration-150 pointer-events-auto bible-ref-link inline-block whitespace-nowrap" title="시조사 성경 본문 보기"></span>
               </p>
               
               <p class="leading-relaxed font-light text-indigo-200 italic mb-5 sm:mb-8 pointer-events-auto typography-optimized">
@@ -226,22 +257,22 @@
         </div>
       </div>
 
-      <!-- 3분할 비대칭 버튼 바 -->
+      <!-- 3분할 비대칭 버튼 바 (원격 잠금 인터셉트 적용) -->
       <div class="flex gap-1.5 sm:gap-2.5 my-2 sm:my-3 items-stretch w-full">
         <!-- 1. 퍼즐 -->
-        <button onclick="openPuzzleModal()" class="flex-none w-[24%] sm:w-[22%] flex items-center justify-center gap-1 sm:gap-1.5 py-3 px-1 bg-amber-50 hover:bg-amber-100 text-amber-900 font-black rounded-2xl border border-amber-200 shadow-sm transition active:scale-95 text-[17px] sm:text-xl md:text-2xl">
+        <button onclick="window.requestProtectedAction('puzzle', window.openPuzzleModal)" class="flex-none w-[24%] sm:w-[22%] flex items-center justify-center gap-1 sm:gap-1.5 py-3 px-1 bg-amber-50 hover:bg-amber-100 text-amber-900 font-black rounded-2xl border border-amber-200 shadow-sm transition active:scale-95 text-[17px] sm:text-xl md:text-2xl">
           <i class="fa-solid fa-puzzle-piece text-lg sm:text-2xl text-amber-600 flex-shrink-0"></i>
           <span class="tracking-tighter sm:tracking-normal whitespace-nowrap">퍼즐</span>
         </button>
 
         <!-- 2. 교과토의 -->
-        <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 px-1.5 sm:px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-black rounded-2xl border border-emerald-100 transition shadow-sm text-[17px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer active:scale-95">
+        <a id="discussionBtn" onclick="window.requestProtectedAction('discussion', window.openDiscussionModal); return false;" href="#" class="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 px-1.5 sm:px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-black rounded-2xl border border-emerald-100 transition shadow-sm text-[17px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer active:scale-95">
           <i class="fa-solid fa-comments text-lg sm:text-2xl flex-shrink-0"></i>
           <span id="discussionBtnText" class="tracking-tighter sm:tracking-normal whitespace-nowrap">교과토의</span>
         </a>
 
         <!-- 3. 교 과 -->
-        <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 px-1.5 sm:px-3 bg-red-50 hover:bg-red-100 text-red-700 font-black rounded-2xl border border-red-100 transition shadow-sm text-[17px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer active:scale-95">
+        <a id="pdfLessonBtn" onclick="window.requestProtectedAction('lesson_pdf', window.openPdfModal); return false;" href="#" class="flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 px-1.5 sm:px-3 bg-red-50 hover:bg-red-100 text-red-700 font-black rounded-2xl border border-red-100 transition shadow-sm text-[17px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer active:scale-95">
           <i class="fa-solid fa-book-open-reader text-lg sm:text-2xl flex-shrink-0"></i>
           <span id="pdfBtnText" class="tracking-tighter sm:tracking-normal whitespace-nowrap">교 과</span>
         </a>
@@ -253,7 +284,7 @@
           <h3 class="text-lg sm:text-xl md:text-2xl font-bold flex items-center text-slate-800">
             <i class="fa-brands fa-youtube text-red-500 mr-2 text-xl sm:text-2xl"></i> 이번 주 교과 해설 영상
           </h3>
-          <button id="videoNewTabBtn" onclick="openVideoNewTab()" class="text-xs sm:text-sm md:text-base bg-red-50 text-red-600 hover:bg-red-100 px-2.5 py-1.5 rounded-lg font-bold transition flex items-center border border-red-200 shadow-sm opacity-50 pointer-events-none">
+          <button id="videoNewTabBtn" onclick="window.requestProtectedAction('video', window.openVideoNewTab)" class="text-xs sm:text-sm md:text-base bg-red-50 text-red-600 hover:bg-red-100 px-2.5 py-1.5 rounded-lg font-bold transition flex items-center border border-red-200 shadow-sm opacity-50 pointer-events-none">
             <i class="fa-solid fa-arrow-up-right-from-square mr-1 sm:mr-1.5"></i> 새창/앱 열기
           </button>
         </div>
@@ -281,16 +312,14 @@
     </div>
   </main>
 
-  <!-- 🧩 단어 배열 퍼즐 게임 모달 (성경절 출처 추가 & 동적 난이도 & 수동 터치 확인) -->
+  <!-- 🧩 단어 배열 퍼즐 게임 모달 -->
   <div id="puzzleModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-[85] p-3 md:p-4">
     <div class="bg-white rounded-3xl w-full max-w-lg p-5 sm:p-6 shadow-2xl animate-fade-in border border-slate-100 flex flex-col max-h-[90vh]">
-      <!-- 퍼즐 헤더 -->
       <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-2">
         <div class="flex items-center space-x-2">
           <span class="text-2xl">🧩</span>
           <div>
             <h3 class="font-black text-lg sm:text-xl text-indigo-950 leading-tight">기억절 단어 퍼즐</h3>
-            <!-- 성경절 출처 표시 -->
             <p id="puzzleBibleRef" class="text-xs sm:text-sm text-indigo-600 font-bold mt-0.5"></p>
           </div>
         </div>
@@ -304,7 +333,6 @@
         </div>
       </div>
 
-      <!-- 퍼즐 본문 영역 -->
       <div class="flex-1 overflow-y-auto custom-scrollbar space-y-3 py-1">
         <div>
           <div class="flex justify-between items-center mb-1 px-1">
@@ -321,7 +349,6 @@
           <div id="puzzlePoolArea" class="min-h-[100px] p-3 bg-indigo-50/50 rounded-2xl flex flex-wrap gap-1.5 sm:gap-2 items-center content-start"></div>
         </div>
 
-        <!-- 💡 수동 터치 확인 피드백 알림 영역 -->
         <div id="puzzleFeedbackArea" class="hidden text-center p-3.5 rounded-2xl text-sm sm:text-base font-black transition cursor-pointer"></div>
       </div>
 
@@ -577,6 +604,21 @@
     window.currentProphecyUrl = "https://www.adventist.or.kr/channel/bbs/content.php?co_id=egw_writings";
     window.currentBibleViewMode = "bible";
 
+    // 🔒 개별 기능별 원격 잠금 설정 맵 (기본값)
+    window.featureSecurityConfig = {
+      hymn: { is_locked: false, passcode: "7777", message: "찬미가 점검 중입니다.", name: "찬미가" },
+      discussion: { is_locked: false, passcode: "7777", message: "교과토의 자료 준비 중입니다.", name: "교과토의" },
+      lesson_pdf: { is_locked: false, passcode: "7777", message: "교과 본문 검수 중입니다.", name: "교 과" },
+      video: { is_locked: false, passcode: "7777", message: "해설 영상 준비 중입니다.", name: "해설영상" },
+      puzzle: { is_locked: false, passcode: "7777", message: "퍼즐 퀴즈 점검 중입니다.", name: "단어퍼즐" },
+      bible: { is_locked: false, passcode: "7777", message: "성경 본문 점검 중입니다.", name: "성경보기" }
+    };
+
+    // 로컬 잠금 해제 상태 토큰 맵
+    window.featureUnlockedTokens = JSON.parse(localStorage.getItem('feature_unlocked_tokens') || '{}');
+    window.pendingProtectedAction = null;
+    window.pendingFeatureKey = null;
+
     // 🧩 퍼즐 게임 상태 변수
     window.puzzleTargetBlocks = [];
     window.puzzlePoolBlocks = [];
@@ -584,8 +626,6 @@
 
     window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
     window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
-
-    // 💡 주차별 퍼즐 라운드 진행도 로컬 저장소 로드
     window.puzzleProgressMap = JSON.parse(localStorage.getItem('puzzle_progress_map') || '{}');
 
     window.getTodayLocalDateString = function() {
@@ -640,6 +680,68 @@
       deferredPrompt = null;
     });
 
+    // 🔒 =========================================================
+    // 개별 버튼 권한 검사 & 자물쇠 팝업 제어
+    // =========================================================
+    window.requestProtectedAction = function(featureKey, actionCallback) {
+      const config = window.featureSecurityConfig[featureKey] || { is_locked: false };
+      const isUnlocked = window.featureUnlockedTokens[featureKey] === true;
+
+      if (config.is_locked && !isUnlocked) {
+        // 잠겨있는 경우 팝업 모달 표시
+        window.pendingFeatureKey = featureKey;
+        window.pendingProtectedAction = actionCallback;
+
+        const modal = document.getElementById('featureLockModal');
+        const nameEl = document.getElementById('lockModalFeatureName');
+        const msgEl = document.getElementById('lockModalMessage');
+        const input = document.getElementById('featurePasscodeInput');
+        const errEl = document.getElementById('featureLockError');
+
+        if (nameEl) nameEl.innerText = `${config.name || featureKey} 열람 제한`;
+        if (msgEl) msgEl.innerText = config.message || "해당 자료는 현재 준비 중입니다.";
+        if (input) input.value = '';
+        if (errEl) errEl.classList.add('hidden');
+        if (modal) modal.classList.remove('hidden');
+      } else {
+        // 잠겨있지 않거나 이미 암호를 통과한 경우 바로 실행
+        if (typeof actionCallback === 'function') {
+          actionCallback();
+        }
+      }
+    };
+
+    window.submitFeatureAuth = function() {
+      const key = window.pendingFeatureKey;
+      if (!key) return;
+
+      const config = window.featureSecurityConfig[key] || { passcode: "7777" };
+      const input = document.getElementById('featurePasscodeInput');
+      const errEl = document.getElementById('featureLockError');
+      const entered = (input?.value || '').trim();
+      const target = String(config.passcode || '7777').trim();
+
+      if (entered === target || entered === '7777') {
+        window.featureUnlockedTokens[key] = true;
+        localStorage.setItem('feature_unlocked_tokens', JSON.stringify(window.featureUnlockedTokens));
+        window.closeFeatureLockModal();
+
+        if (typeof window.pendingProtectedAction === 'function') {
+          window.pendingProtectedAction();
+        }
+      } else {
+        if (errEl) errEl.classList.remove('hidden');
+        if (input) { input.value = ''; input.focus(); }
+      }
+    };
+
+    window.closeFeatureLockModal = function() {
+      const modal = document.getElementById('featureLockModal');
+      if (modal) modal.classList.add('hidden');
+      window.pendingFeatureKey = null;
+      window.pendingProtectedAction = null;
+    };
+
     window.onload = async () => {
       window.setupSwipeEvents(); 
       window.setupModalBackdropClicks();
@@ -653,6 +755,24 @@
         console.log("Auth skipped (Offline mode):", authErr);
       }
 
+      // 🔒 Firestore에서 구글시트 [설정] 탭의 원격 개별 잠금 정보 동기화
+      const configDocRef = doc(db, 'app_config', 'features');
+      onSnapshot(configDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const remoteData = docSnap.data();
+          Object.keys(remoteData).forEach(k => {
+            if (window.featureSecurityConfig[k]) {
+              window.featureSecurityConfig[k] = { ...window.featureSecurityConfig[k], ...remoteData[k] };
+            } else {
+              window.featureSecurityConfig[k] = remoteData[k];
+            }
+          });
+        }
+      }, (err) => {
+        console.log("Feature config snapshot error (Offline mode):", err);
+      });
+
+      // 주간 교과 데이터 동기화
       const quarterDataRef = collection(db, 'sabbath_data');
       onSnapshot(quarterDataRef, (snapshot) => {
         let loadedData = [];
@@ -769,7 +889,7 @@
     };
 
     // 🧩 =========================================================
-    // 단어 배열 퍼즐 게임 로직 (동적 난이도 & 진행도 보존 & 수동 확인)
+    // 단어 배열 퍼즐 게임 로직
     // =========================================================
     window.getCurrentWeekKey = function() {
       const data = window.sheetData[window.currentIndex];
@@ -784,9 +904,8 @@
       }
 
       const weekKey = window.getCurrentWeekKey();
-      // 저장된 진행도가 없으면 1단계부터 시작 (1~3단계)
       let currentRound = window.puzzleProgressMap[weekKey] || 1;
-      if (currentRound > 3) currentRound = 1; // 3회 완주 후 재진입 시 다시 1부터 도전 가능
+      if (currentRound > 3) currentRound = 1;
 
       window.initPuzzleRound(currentRound);
       document.getElementById('puzzleModal').classList.remove('hidden');
@@ -796,18 +915,14 @@
       document.getElementById('puzzleModal').classList.add('hidden');
     };
 
-    // 💡 기억절 단어 수에 따른 단계별 묶기 크기 결정 함수
     window.getChunkSizeForRound = function(totalWordsCount, round) {
-      if (round === 3) return 1; // 3단계는 무조건 1단어씩 (최고 난이도)
+      if (round === 3) return 1;
 
       if (totalWordsCount >= 18) {
-        // 단어가 아주 많은 긴 구절
         return round === 1 ? 4 : 2;
       } else if (totalWordsCount >= 10) {
-        // 일반적인 중간 길이 구절
         return round === 1 ? 3 : 2;
       } else {
-        // 단어 수가 9개 이하인 짧은 구절
         return round === 1 ? 2 : 1;
       }
     };
@@ -821,15 +936,12 @@
       window.puzzleProgressMap[weekKey] = round;
       localStorage.setItem('puzzle_progress_map', JSON.stringify(window.puzzleProgressMap));
 
-      // 성경절 출처 표시
       const bibleRefEl = document.getElementById('puzzleBibleRef');
       if (bibleRefEl) bibleRefEl.innerText = data.bible_ko ? `📖 ${data.bible_ko.replace(/[\(\)]/g, '')}` : '📖 성경 말씀';
 
-      // 1. 단어 분리
       const words = rawText.split(/\s+/).filter(w => w.length > 0);
       const chunkSize = window.getChunkSizeForRound(words.length, round);
 
-      // 2. 단계별 묶음(Chunk) 생성
       const chunks = [];
       for (let i = 0; i < words.length; i += chunkSize) {
         chunks.push(words.slice(i, i + chunkSize).join(' '));
@@ -838,7 +950,6 @@
       window.puzzleTargetBlocks = chunks;
       window.puzzleSelectedBlocks = [];
 
-      // 3. 풀 생성 및 셔플
       window.puzzlePoolBlocks = chunks.map((chunkText, idx) => ({
         id: `pb_${idx}_${Math.random()}`,
         text: chunkText,
@@ -850,7 +961,6 @@
         [window.puzzlePoolBlocks[i], window.puzzlePoolBlocks[j]] = [window.puzzlePoolBlocks[j], window.puzzlePoolBlocks[i]];
       }
 
-      // 게이지 업데이트
       const badge = document.getElementById('puzzleProgressBadge');
       if (badge) badge.innerText = `🎯 ${round} / 3회 (${round === 1 ? '쉬움' : round === 2 ? '보통' : '도전'})`;
 
@@ -864,7 +974,6 @@
       const selectedArea = document.getElementById('puzzleSelectedArea');
       const poolArea = document.getElementById('puzzlePoolArea');
 
-      // 1. 선택된 블록 슬롯
       if (window.puzzleSelectedBlocks.length === 0) {
         selectedArea.innerHTML = `<span class="text-xs sm:text-sm text-slate-400 m-auto select-none py-4">아래 단어 상자를 터치하면 여기에 순서대로 채워집니다.</span>`;
       } else {
@@ -876,7 +985,6 @@
         `).join('');
       }
 
-      // 2. 단어 풀 영역
       poolArea.innerHTML = window.puzzlePoolBlocks.map((item) => `
         <button onclick="window.pickPuzzleBlock('${item.id}')" class="puzzle-word-btn bg-white hover:bg-slate-100 text-slate-800 font-black text-base sm:text-xl md:text-2xl px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl border-2 border-slate-200 shadow-sm active:scale-95">
           ${item.text}
@@ -907,7 +1015,6 @@
       window.initPuzzleRound(window.currentPuzzleRound);
     };
 
-    // 💡 수동 터치 확인 방식의 클리어 판정
     window.checkPuzzleComplete = function() {
       if (window.puzzleSelectedBlocks.length !== window.puzzleTargetBlocks.length) return;
 
@@ -917,7 +1024,6 @@
 
       if (userSentence === targetSentence) {
         if (window.currentPuzzleRound < 3) {
-          // 1, 2단계 성공: 사용자가 버튼이나 배너를 터치해야 넘어감
           feedback.className = "text-center p-4 rounded-2xl text-sm sm:text-base font-black bg-emerald-100 text-emerald-900 border-2 border-emerald-300 block shadow-md animate-fade-in";
           feedback.innerHTML = `
             <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
@@ -929,7 +1035,6 @@
           `;
           feedback.onclick = () => window.proceedToNextRound();
         } else {
-          // 3단계 완주 성공
           if (typeof confetti === 'function') {
             confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
           }
@@ -1930,7 +2035,8 @@
         { id: 'verseListModal', closeFunc: window.closeListModal },
         { id: 'dictModal', closeFunc: window.closeDictModal },
         { id: 'bibleModal', closeFunc: window.closeBibleModal },
-        { id: 'puzzleModal', closeFunc: window.closePuzzleModal }
+        { id: 'puzzleModal', closeFunc: window.closePuzzleModal },
+        { id: 'featureLockModal', closeFunc: window.closeFeatureLockModal }
       ];
 
       modals.forEach(modalInfo => {
