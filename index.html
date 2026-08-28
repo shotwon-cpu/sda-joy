@@ -88,11 +88,13 @@
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* 퍼즐 단어 버튼 애니메이션 */
+    /* 퍼즐 단어 버튼 애니메이션 및 스타일 */
     .puzzle-word-btn {
       transition: all 0.15s ease;
       user-select: none;
       -webkit-user-select: none;
+      word-break: keep-all !important;
+      letter-spacing: -0.02em !important;
     }
     .puzzle-word-btn:active {
       transform: scale(0.95);
@@ -110,7 +112,6 @@
       <p class="text-[10px] sm:text-sm md:text-base text-indigo-200 mt-0.5 truncate pl-3.5 sm:pl-4">기억절 & 교과방송 by 고은아빠</p>
     </div>
     
-    <!-- 상단 4개 버튼: 패딩 최소화 & 폰트 최대화 -->
     <div class="grid grid-cols-4 gap-1 sm:gap-2 flex-shrink-0">
       <button onclick="openHymnModal()" class="w-full bg-rose-600 hover:bg-rose-500 p-1 sm:px-3 sm:py-2 rounded-lg text-[13px] sm:text-lg md:text-xl font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95">
         <i class="fa-solid fa-music mb-0.5 text-sm sm:text-xl"></i>
@@ -149,7 +150,6 @@
           
           <div class="p-3 sm:p-5 md:p-8 relative z-10 pointer-events-none"> 
             
-            <!-- 과수 & 스트릭 배지: 폰트 최대화 -->
             <div class="mb-3.5 sm:mb-5 flex justify-end items-center gap-1.5 sm:gap-2 flex-wrap">
               <div id="streakBadge" class="pointer-events-auto flex items-center bg-amber-50 text-amber-800 border border-amber-300 px-3 py-1.5 sm:py-2 rounded-full text-sm sm:text-base md:text-lg font-black shadow-sm mr-auto sm:mr-0">
                 <span class="mr-1 text-base sm:text-xl">🔥</span><span id="streakCount">0</span>일 연속
@@ -172,7 +172,7 @@
               <span id="displayTitleEn" class="text-base md:text-lg text-slate-400 font-medium italic"></span>
             </div>
             
-            <!-- 💡 기억절 본문 박스: 어절 단위 줄바꿈 및 자간 -0.02em 적용 -->
+            <!-- 기억절 본문 박스 -->
             <div class="verse-box text-white px-3 py-4 sm:px-6 sm:py-6 md:p-10 rounded-2xl relative shadow-inner">
               <p class="leading-snug md:leading-relaxed font-semibold tracking-wide mb-4 sm:mb-5 typography-optimized">
                 <span id="displayVerseKo" class="transition-all duration-150 inline"></span>
@@ -184,10 +184,9 @@
                 <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150 inline-block whitespace-nowrap"></span>
               </p>
               
-              <!-- 기억절 조작 액션 영역: 여백 최소화 & 폰트 최대화 -->
               <div class="pt-3 sm:pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 space-y-2 sm:space-y-3">
                 
-                <!-- 1행 (오늘 외웠어요 | 1. 전체보기 | A+ A-) -->
+                <!-- 1행: 오늘 외웠어요 | 1. 전체보기 | A+ A- -->
                 <div class="flex items-center justify-between gap-1 sm:gap-2 w-full flex-nowrap">
                   <button id="btnReciteToggle" onclick="window.recordDailyRecite(); event.stopPropagation();" class="flex-1 px-1 sm:px-2.5 py-2.5 sm:py-3 rounded-xl text-[15px] sm:text-lg md:text-xl font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap">
                     <i id="reciteIcon" class="fa-regular fa-circle-check mr-1 text-base sm:text-xl"></i>
@@ -227,7 +226,7 @@
         </div>
       </div>
 
-      <!-- 3분할 비대칭 버튼 바 (퍼즐 | 교과토의 | 교 과) -->
+      <!-- 3분할 비대칭 버튼 바 -->
       <div class="flex gap-1.5 sm:gap-2.5 my-2 sm:my-3 items-stretch w-full">
         <!-- 1. 퍼즐 -->
         <button onclick="openPuzzleModal()" class="flex-none w-[24%] sm:w-[22%] flex items-center justify-center gap-1 sm:gap-1.5 py-3 px-1 bg-amber-50 hover:bg-amber-100 text-amber-900 font-black rounded-2xl border border-amber-200 shadow-sm transition active:scale-95 text-[17px] sm:text-xl md:text-2xl">
@@ -282,15 +281,17 @@
     </div>
   </main>
 
-  <!-- 🧩 단어 배열 퍼즐 게임 모달 (3회 완주 미션) -->
+  <!-- 🧩 단어 배열 퍼즐 게임 모달 (성경절 출처 추가 & 동적 난이도 & 수동 터치 확인) -->
   <div id="puzzleModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-[85] p-3 md:p-4">
     <div class="bg-white rounded-3xl w-full max-w-lg p-5 sm:p-6 shadow-2xl animate-fade-in border border-slate-100 flex flex-col max-h-[90vh]">
-      <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-3">
+      <!-- 퍼즐 헤더 -->
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-2">
         <div class="flex items-center space-x-2">
           <span class="text-2xl">🧩</span>
           <div>
             <h3 class="font-black text-lg sm:text-xl text-indigo-950 leading-tight">기억절 단어 퍼즐</h3>
-            <p class="text-xs text-slate-400">단어를 순서대로 눌러 문장을 완성하세요.</p>
+            <!-- 성경절 출처 표시 -->
+            <p id="puzzleBibleRef" class="text-xs sm:text-sm text-indigo-600 font-bold mt-0.5"></p>
           </div>
         </div>
         <div class="flex items-center space-x-2">
@@ -303,30 +304,32 @@
         </div>
       </div>
 
-      <div class="flex-1 overflow-y-auto custom-scrollbar space-y-4 py-2">
+      <!-- 퍼즐 본문 영역 -->
+      <div class="flex-1 overflow-y-auto custom-scrollbar space-y-3 py-1">
         <div>
           <div class="flex justify-between items-center mb-1 px-1">
-            <span class="text-xs font-bold text-slate-500">내가 맞춘 문장:</span>
+            <span class="text-xs sm:text-sm font-black text-slate-600">내가 맞춘 문장:</span>
             <button onclick="resetCurrentPuzzleRound()" class="text-xs text-rose-500 hover:underline font-bold flex items-center gap-1">
               <i class="fa-solid fa-rotate-left text-[10px]"></i> 다시 놓기
             </button>
           </div>
-          <div id="puzzleSelectedArea" class="min-h-[100px] p-3.5 bg-slate-50 border-2 border-dashed border-indigo-200 rounded-2xl flex flex-wrap gap-1.5 items-start content-start transition-all"></div>
+          <div id="puzzleSelectedArea" class="min-h-[110px] p-3 bg-slate-50 border-2 border-dashed border-indigo-200 rounded-2xl flex flex-wrap gap-1.5 sm:gap-2 items-start content-start transition-all"></div>
         </div>
 
         <div>
-          <span class="text-xs font-bold text-slate-500 block mb-1 px-1">아래 단어를 순서대로 터치하세요:</span>
-          <div id="puzzlePoolArea" class="min-h-[90px] p-3.5 bg-indigo-50/50 rounded-2xl flex flex-wrap gap-1.5 items-center content-start"></div>
+          <span class="text-xs sm:text-sm font-black text-slate-600 block mb-1 px-1">아래 단어 상자를 순서대로 터치하세요:</span>
+          <div id="puzzlePoolArea" class="min-h-[100px] p-3 bg-indigo-50/50 rounded-2xl flex flex-wrap gap-1.5 sm:gap-2 items-center content-start"></div>
         </div>
 
-        <div id="puzzleFeedbackArea" class="hidden text-center py-2 rounded-xl text-sm font-black transition"></div>
+        <!-- 💡 수동 터치 확인 피드백 알림 영역 -->
+        <div id="puzzleFeedbackArea" class="hidden text-center p-3.5 rounded-2xl text-sm sm:text-base font-black transition cursor-pointer"></div>
       </div>
 
       <div class="pt-3 border-t border-slate-100 flex justify-between items-center text-xs mt-2">
-        <button onclick="showPuzzleHint()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg transition flex items-center gap-1">
+        <button onclick="showPuzzleHint()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition flex items-center gap-1 text-xs sm:text-sm">
           <i class="fa-regular fa-lightbulb text-amber-500"></i> 힌트보기
         </button>
-        <button onclick="closePuzzleModal()" class="px-4 py-1.5 bg-indigo-900 hover:bg-indigo-800 text-white font-bold rounded-lg transition">닫기</button>
+        <button onclick="closePuzzleModal()" class="px-4 py-1.5 bg-indigo-900 hover:bg-indigo-800 text-white font-bold rounded-lg transition text-xs sm:text-sm">닫기</button>
       </div>
     </div>
   </div>
@@ -475,7 +478,7 @@
       <div class="flex-1 w-full bg-slate-100 relative overflow-hidden">
         <div id="imageViewerContainer" class="w-full h-full overflow-y-auto p-2 sm:p-4 hidden space-y-3 custom-scrollbar"></div>
         
-        <!-- 💡 교과 텍스트 영역: 어절 단위 줄바꿈 & 양끝 맞춤 & 자간 -0.02em 적용 -->
+        <!-- 교과 텍스트 영역 -->
         <div id="textViewerContainer" class="hidden w-full h-full bg-[#fdfbf7] p-4 md:p-8 overflow-y-auto relative custom-scrollbar">
           <div class="sticky top-0 right-0 flex justify-end space-x-2 mb-4 z-10">
             <button onclick="window.adjustTextSize(2)" class="bg-white/80 backdrop-blur border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-black shadow-sm hover:bg-slate-100">A +</button>
@@ -574,13 +577,16 @@
     window.currentProphecyUrl = "https://www.adventist.or.kr/channel/bbs/content.php?co_id=egw_writings";
     window.currentBibleViewMode = "bible";
 
-    window.puzzleRound = 1;
-    window.puzzleTargetWords = [];
-    window.puzzlePoolWords = [];
-    window.puzzleSelectedWords = [];
+    // 🧩 퍼즐 게임 상태 변수
+    window.puzzleTargetBlocks = [];
+    window.puzzlePoolBlocks = [];
+    window.puzzleSelectedBlocks = [];
 
     window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
     window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
+
+    // 💡 주차별 퍼즐 라운드 진행도 로컬 저장소 로드
+    window.puzzleProgressMap = JSON.parse(localStorage.getItem('puzzle_progress_map') || '{}');
 
     window.getTodayLocalDateString = function() {
       const now = new Date();
@@ -677,6 +683,7 @@
       });
     };
 
+    // 💡 5단계 순환 가림 (초성 퀴즈 포함)
     window.cycleMaskStep = function() {
       window.currentMaskStep = (window.currentMaskStep % 5) + 1;
       window.applyVerseMasking();
@@ -761,14 +768,27 @@
       }
     };
 
+    // 🧩 =========================================================
+    // 단어 배열 퍼즐 게임 로직 (동적 난이도 & 진행도 보존 & 수동 확인)
+    // =========================================================
+    window.getCurrentWeekKey = function() {
+      const data = window.sheetData[window.currentIndex];
+      return String(data?.week || (window.currentIndex + 1));
+    };
+
     window.openPuzzleModal = function() {
       const data = window.sheetData[window.currentIndex];
       if (!data || !data.verse_ko) {
         alert("기억절 데이터가 없습니다.");
         return;
       }
-      window.puzzleRound = 1;
-      window.initPuzzleRound();
+
+      const weekKey = window.getCurrentWeekKey();
+      // 저장된 진행도가 없으면 1단계부터 시작 (1~3단계)
+      let currentRound = window.puzzleProgressMap[weekKey] || 1;
+      if (currentRound > 3) currentRound = 1; // 3회 완주 후 재진입 시 다시 1부터 도전 가능
+
+      window.initPuzzleRound(currentRound);
       document.getElementById('puzzleModal').classList.remove('hidden');
     };
 
@@ -776,29 +796,66 @@
       document.getElementById('puzzleModal').classList.add('hidden');
     };
 
-    window.initPuzzleRound = function() {
+    // 💡 기억절 단어 수에 따른 단계별 묶기 크기 결정 함수
+    window.getChunkSizeForRound = function(totalWordsCount, round) {
+      if (round === 3) return 1; // 3단계는 무조건 1단어씩 (최고 난이도)
+
+      if (totalWordsCount >= 18) {
+        // 단어가 아주 많은 긴 구절
+        return round === 1 ? 4 : 2;
+      } else if (totalWordsCount >= 10) {
+        // 일반적인 중간 길이 구절
+        return round === 1 ? 3 : 2;
+      } else {
+        // 단어 수가 9개 이하인 짧은 구절
+        return round === 1 ? 2 : 1;
+      }
+    };
+
+    window.initPuzzleRound = function(round = 1) {
       const data = window.sheetData[window.currentIndex];
       const rawText = data.verse_ko.trim();
+      const weekKey = window.getCurrentWeekKey();
 
-      window.puzzleTargetWords = rawText.split(/\s+/).filter(w => w.length > 0);
-      window.puzzleSelectedWords = [];
-      
-      window.puzzlePoolWords = window.puzzleTargetWords.map((word, idx) => ({
-        id: `pw_${idx}_${Math.random()}`,
-        text: word,
+      window.currentPuzzleRound = round;
+      window.puzzleProgressMap[weekKey] = round;
+      localStorage.setItem('puzzle_progress_map', JSON.stringify(window.puzzleProgressMap));
+
+      // 성경절 출처 표시
+      const bibleRefEl = document.getElementById('puzzleBibleRef');
+      if (bibleRefEl) bibleRefEl.innerText = data.bible_ko ? `📖 ${data.bible_ko.replace(/[\(\)]/g, '')}` : '📖 성경 말씀';
+
+      // 1. 단어 분리
+      const words = rawText.split(/\s+/).filter(w => w.length > 0);
+      const chunkSize = window.getChunkSizeForRound(words.length, round);
+
+      // 2. 단계별 묶음(Chunk) 생성
+      const chunks = [];
+      for (let i = 0; i < words.length; i += chunkSize) {
+        chunks.push(words.slice(i, i + chunkSize).join(' '));
+      }
+
+      window.puzzleTargetBlocks = chunks;
+      window.puzzleSelectedBlocks = [];
+
+      // 3. 풀 생성 및 셔플
+      window.puzzlePoolBlocks = chunks.map((chunkText, idx) => ({
+        id: `pb_${idx}_${Math.random()}`,
+        text: chunkText,
         originalIndex: idx
       }));
 
-      for (let i = window.puzzlePoolWords.length - 1; i > 0; i--) {
+      for (let i = window.puzzlePoolBlocks.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [window.puzzlePoolWords[i], window.puzzlePoolWords[j]] = [window.puzzlePoolWords[j], window.puzzlePoolWords[i]];
+        [window.puzzlePoolBlocks[i], window.puzzlePoolBlocks[j]] = [window.puzzlePoolBlocks[j], window.puzzlePoolBlocks[i]];
       }
 
+      // 게이지 업데이트
       const badge = document.getElementById('puzzleProgressBadge');
-      if (badge) badge.innerText = `🎯 ${window.puzzleRound} / 3회`;
+      if (badge) badge.innerText = `🎯 ${round} / 3회 (${round === 1 ? '쉬움' : round === 2 ? '보통' : '도전'})`;
 
       const feedback = document.getElementById('puzzleFeedbackArea');
-      if (feedback) { feedback.classList.add('hidden'); feedback.innerText = ''; }
+      if (feedback) { feedback.classList.add('hidden'); feedback.innerHTML = ''; }
 
       window.renderPuzzleUI();
     };
@@ -807,37 +864,39 @@
       const selectedArea = document.getElementById('puzzleSelectedArea');
       const poolArea = document.getElementById('puzzlePoolArea');
 
-      if (window.puzzleSelectedWords.length === 0) {
-        selectedArea.innerHTML = `<span class="text-xs text-slate-400 m-auto select-none">터치한 단어가 여기에 채워집니다.</span>`;
+      // 1. 선택된 블록 슬롯
+      if (window.puzzleSelectedBlocks.length === 0) {
+        selectedArea.innerHTML = `<span class="text-xs sm:text-sm text-slate-400 m-auto select-none py-4">아래 단어 상자를 터치하면 여기에 순서대로 채워집니다.</span>`;
       } else {
-        selectedArea.innerHTML = window.puzzleSelectedWords.map((item, idx) => `
-          <button onclick="window.unpickPuzzleWord(${idx})" class="puzzle-word-btn bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm sm:text-base px-3 py-1.5 rounded-xl shadow-sm flex items-center gap-1">
+        selectedArea.innerHTML = window.puzzleSelectedBlocks.map((item, idx) => `
+          <button onclick="window.unpickPuzzleBlock(${idx})" class="puzzle-word-btn bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base sm:text-xl md:text-2xl px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl shadow-sm flex items-center gap-1.5 active:scale-95">
             <span>${item.text}</span>
-            <i class="fa-solid fa-xmark text-xs opacity-70"></i>
+            <i class="fa-solid fa-xmark text-xs sm:text-sm opacity-75"></i>
           </button>
         `).join('');
       }
 
-      poolArea.innerHTML = window.puzzlePoolWords.map((item) => `
-        <button onclick="window.pickPuzzleWord('${item.id}')" class="puzzle-word-btn bg-white hover:bg-slate-100 text-slate-800 font-bold text-sm sm:text-base px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+      // 2. 단어 풀 영역
+      poolArea.innerHTML = window.puzzlePoolBlocks.map((item) => `
+        <button onclick="window.pickPuzzleBlock('${item.id}')" class="puzzle-word-btn bg-white hover:bg-slate-100 text-slate-800 font-black text-base sm:text-xl md:text-2xl px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl border-2 border-slate-200 shadow-sm active:scale-95">
           ${item.text}
         </button>
       `).join('');
     };
 
-    window.pickPuzzleWord = function(wordId) {
-      const poolIdx = window.puzzlePoolWords.findIndex(w => w.id === wordId);
+    window.pickPuzzleBlock = function(blockId) {
+      const poolIdx = window.puzzlePoolBlocks.findIndex(b => b.id === blockId);
       if (poolIdx === -1) return;
 
-      const item = window.puzzlePoolWords.splice(poolIdx, 1)[0];
-      window.puzzleSelectedWords.push(item);
+      const item = window.puzzlePoolBlocks.splice(poolIdx, 1)[0];
+      window.puzzleSelectedBlocks.push(item);
       window.renderPuzzleUI();
       window.checkPuzzleComplete();
     };
 
-    window.unpickPuzzleWord = function(selectedIdx) {
-      const item = window.puzzleSelectedWords.splice(selectedIdx, 1)[0];
-      window.puzzlePoolWords.push(item);
+    window.unpickPuzzleBlock = function(selectedIdx) {
+      const item = window.puzzleSelectedBlocks.splice(selectedIdx, 1)[0];
+      window.puzzlePoolBlocks.push(item);
       window.renderPuzzleUI();
       
       const feedback = document.getElementById('puzzleFeedbackArea');
@@ -845,50 +904,67 @@
     };
 
     window.resetCurrentPuzzleRound = function() {
-      window.initPuzzleRound();
+      window.initPuzzleRound(window.currentPuzzleRound);
     };
 
+    // 💡 수동 터치 확인 방식의 클리어 판정
     window.checkPuzzleComplete = function() {
-      if (window.puzzleSelectedWords.length !== window.puzzleTargetWords.length) return;
+      if (window.puzzleSelectedBlocks.length !== window.puzzleTargetBlocks.length) return;
 
-      const userSentence = window.puzzleSelectedWords.map(w => w.text).join(' ');
-      const targetSentence = window.puzzleTargetWords.join(' ');
+      const userSentence = window.puzzleSelectedBlocks.map(b => b.text).join(' ');
+      const targetSentence = window.puzzleTargetBlocks.join(' ');
       const feedback = document.getElementById('puzzleFeedbackArea');
 
       if (userSentence === targetSentence) {
-        if (window.puzzleRound < 3) {
-          feedback.className = "text-center py-2.5 px-4 rounded-xl text-sm font-black bg-emerald-100 text-emerald-800 border border-emerald-300 block";
-          feedback.innerHTML = `🎉 <strong>${window.puzzleRound}회차 완벽 성공!</strong> 다음 회차로 이어집니다. (0.8초 후 자동 전환)`;
-          
-          setTimeout(() => {
-            window.puzzleRound += 1;
-            window.initPuzzleRound();
-          }, 800);
+        if (window.currentPuzzleRound < 3) {
+          // 1, 2단계 성공: 사용자가 버튼이나 배너를 터치해야 넘어감
+          feedback.className = "text-center p-4 rounded-2xl text-sm sm:text-base font-black bg-emerald-100 text-emerald-900 border-2 border-emerald-300 block shadow-md animate-fade-in";
+          feedback.innerHTML = `
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
+              <span class="text-base sm:text-lg">🎉 <strong>${window.currentPuzzleRound}단계 완벽 성공!</strong></span>
+              <button onclick="window.proceedToNextRound(); event.stopPropagation();" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-sm sm:text-base shadow-sm active:scale-95">
+                다음 단계로 계속하기 ▶
+              </button>
+            </div>
+          `;
+          feedback.onclick = () => window.proceedToNextRound();
         } else {
+          // 3단계 완주 성공
           if (typeof confetti === 'function') {
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
           }
 
-          feedback.className = "text-center py-3 px-4 rounded-xl text-sm font-black bg-amber-100 text-amber-900 border border-amber-300 block animate-bounce";
-          feedback.innerHTML = `🏆 <strong>3회 완주 대성공!</strong> 오늘 암송을 완벽히 마쳤습니다! 🔥`;
+          feedback.className = "text-center p-4 rounded-2xl text-sm sm:text-base font-black bg-amber-100 text-amber-950 border-2 border-amber-400 block shadow-md animate-bounce";
+          feedback.innerHTML = `
+            <div class="space-y-2">
+              <p class="text-lg sm:text-xl">🏆 <strong>3회 완주 대성공!</strong></p>
+              <p class="text-xs sm:text-sm text-amber-800">오늘의 암송 실천이 완벽하게 인증되었습니다! 🔥</p>
+              <button onclick="window.closePuzzleModal(); event.stopPropagation();" class="mt-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-black rounded-xl text-sm sm:text-base shadow active:scale-95">
+                암송 완료하고 닫기 ✨
+              </button>
+            </div>
+          `;
+          feedback.onclick = () => window.closePuzzleModal();
 
           window.recordDailyRecite(true);
-
-          setTimeout(() => {
-            alert("축하합니다! 3회 퍼즐을 모두 완주하여 오늘의 암송이 완료되었습니다! ✨");
-            window.closePuzzleModal();
-          }, 1200);
         }
       } else {
-        feedback.className = "text-center py-2.5 px-4 rounded-xl text-sm font-black bg-rose-100 text-rose-800 border border-rose-300 block";
-        feedback.innerHTML = `⚠️ 순서가 맞지 않는 단어가 있습니다. 틀린 단어를 눌러 다시 시도해 보세요.`;
+        feedback.className = "text-center p-3 rounded-2xl text-sm sm:text-base font-black bg-rose-100 text-rose-800 border-2 border-rose-300 block";
+        feedback.innerHTML = `⚠️ 순서가 맞지 않는 상자가 있습니다. 잘못 놓인 상자를 터치해 다시 시도해 보세요.`;
+        feedback.onclick = null;
+      }
+    };
+
+    window.proceedToNextRound = function() {
+      if (window.currentPuzzleRound < 3) {
+        window.initPuzzleRound(window.currentPuzzleRound + 1);
       }
     };
 
     window.showPuzzleHint = function() {
       const data = window.sheetData[window.currentIndex];
       if (data && data.verse_ko) {
-        alert(`📖 [기억절 힌트]\n"${data.verse_ko}"`);
+        alert(`📖 [기억절 힌트 - ${data.bible_ko || '성경'}]\n\n"${data.verse_ko}"`);
       }
     };
 
