@@ -15,6 +15,7 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     html {
       width: 100%;
@@ -79,6 +80,16 @@
       animation: spin 1s linear infinite;
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* 퍼즐 단어 버튼 애니메이션 */
+    .puzzle-word-btn {
+      transition: all 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .puzzle-word-btn:active {
+      transform: scale(0.95);
+    }
   </style>
 </head>
 <body class="flex flex-col min-h-screen w-full">
@@ -167,7 +178,7 @@
               
               <div class="pt-3 sm:pt-4 border-t border-indigo-900/60 pointer-events-auto relative z-20 space-y-2 sm:space-y-3">
                 
-                <!-- 1행 (3개 버튼) -->
+                <!-- 1행 (3개 버튼 - 5단계 초성 퀴즈 모드 지원) -->
                 <div class="flex items-center justify-between gap-1 sm:gap-2 w-full flex-nowrap">
                   <button id="btnReciteToggle" onclick="window.recordDailyRecite(); event.stopPropagation();" class="flex-1 px-1.5 py-2 sm:px-3 sm:py-2.5 rounded-lg text-sm sm:text-base md:text-lg font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap">
                     <i id="reciteIcon" class="fa-regular fa-circle-check mr-1 text-base sm:text-lg"></i>
@@ -207,16 +218,24 @@
         </div>
       </div>
 
-      <!-- 교과토의 자료 / 교과 열기 버튼 -->
-      <div class="grid grid-cols-2 gap-2 sm:gap-3 my-3 sm:my-4">
-        <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-2 sm:px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-black rounded-2xl border border-emerald-100 transition shadow-sm text-base sm:text-lg md:text-xl opacity-50 pointer-events-none cursor-pointer">
-          <i class="fa-solid fa-comments text-xl sm:text-2xl"></i>
-          <span id="discussionBtnText">교과토의 준비중</span>
+      <!-- 💡 3분할 비대칭 버튼 바 (퍼즐 25% | 교과토의 37.5% | 교과열기 37.5%) -->
+      <div class="flex gap-2 sm:gap-3 my-3 sm:my-4 items-stretch">
+        <!-- 단어 퍼즐 버튼 (컴팩트 사각 포인트 버튼) -->
+        <button onclick="openPuzzleModal()" class="flex-none w-[26%] sm:w-[24%] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 px-2 bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black rounded-2xl shadow-sm transition active:scale-95 text-xs sm:text-base md:text-lg">
+          <i class="fa-solid fa-puzzle-piece text-base sm:text-xl text-yellow-200"></i>
+          <span class="tracking-tight">단어퍼즐</span>
+        </button>
+
+        <!-- 교과토의 자료 -->
+        <a id="discussionBtn" onclick="openDiscussionModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-3 px-2 sm:px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-black rounded-2xl border border-emerald-100 transition shadow-sm text-sm sm:text-base md:text-xl opacity-50 pointer-events-none cursor-pointer">
+          <i class="fa-solid fa-comments text-lg sm:text-2xl"></i>
+          <span id="discussionBtnText">교과토의</span>
         </a>
 
-        <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex items-center justify-center gap-2 py-3 px-2 sm:px-4 bg-red-50 hover:bg-red-100 text-red-600 font-black rounded-2xl border border-red-100 transition shadow-sm text-base sm:text-lg md:text-xl opacity-50 pointer-events-none cursor-pointer">
-          <i class="fa-solid fa-book-open-reader text-xl sm:text-2xl"></i>
-          <span id="pdfBtnText">교과 준비중</span>
+        <!-- 교과 열기 -->
+        <a id="pdfLessonBtn" onclick="openPdfModal(); return false;" href="#" class="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-3 px-2 sm:px-4 bg-red-50 hover:bg-red-100 text-red-600 font-black rounded-2xl border border-red-100 transition shadow-sm text-sm sm:text-base md:text-xl opacity-50 pointer-events-none cursor-pointer">
+          <i class="fa-solid fa-book-open-reader text-lg sm:text-2xl"></i>
+          <span id="pdfBtnText">교과열기</span>
         </a>
       </div>
 
@@ -252,6 +271,66 @@
     </div>
   </main>
 
+  <!-- 🧩 단어 배열 퍼즐 게임 모달 (3회 완주 미션) -->
+  <div id="puzzleModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-[85] p-3 md:p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg p-5 sm:p-6 shadow-2xl animate-fade-in border border-slate-100 flex flex-col max-h-[90vh]">
+      <!-- 퍼즐 헤더 -->
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-3">
+        <div class="flex items-center space-x-2">
+          <span class="text-2xl">🧩</span>
+          <div>
+            <h3 class="font-black text-lg sm:text-xl text-indigo-950 leading-tight">기억절 단어 퍼즐</h3>
+            <p class="text-xs text-slate-400">단어를 순서대로 눌러 문장을 완성하세요.</p>
+          </div>
+        </div>
+        <!-- 3회 게이지 배지 -->
+        <div class="flex items-center space-x-2">
+          <span id="puzzleProgressBadge" class="bg-amber-100 text-amber-800 border border-amber-300 text-xs sm:text-sm font-black px-2.5 py-1 rounded-full shadow-sm">
+            🎯 1 / 3회
+          </span>
+          <button onclick="closePuzzleModal()" class="text-slate-300 hover:text-slate-600 p-1">
+            <i class="fa-solid fa-xmark text-2xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 퍼즐 본문 영역 -->
+      <div class="flex-1 overflow-y-auto custom-scrollbar space-y-4 py-2">
+        <!-- 1. 완성 중인 슬롯 영역 -->
+        <div>
+          <div class="flex justify-between items-center mb-1 px-1">
+            <span class="text-xs font-bold text-slate-500">내가 맞춘 문장:</span>
+            <button onclick="resetCurrentPuzzleRound()" class="text-xs text-rose-500 hover:underline font-bold flex items-center gap-1">
+              <i class="fa-solid fa-rotate-left text-[10px]"></i> 다시 놓기
+            </button>
+          </div>
+          <div id="puzzleSelectedArea" class="min-h-[100px] p-3.5 bg-slate-50 border-2 border-dashed border-indigo-200 rounded-2xl flex flex-wrap gap-1.5 items-start content-start transition-all">
+            <!-- 선택된 단어 태그가 실시간으로 들어옵니다 -->
+          </div>
+        </div>
+
+        <!-- 2. 선택 가능한 단어 풀 영역 -->
+        <div>
+          <span class="text-xs font-bold text-slate-500 block mb-1 px-1">아래 단어를 순서대로 터치하세요:</span>
+          <div id="puzzlePoolArea" class="min-h-[90px] p-3.5 bg-indigo-50/50 rounded-2xl flex flex-wrap gap-1.5 items-center content-start">
+            <!-- 섞인 단어 버튼들이 동적으로 들어옵니다 -->
+          </div>
+        </div>
+
+        <!-- 3. 결과 피드백 메시지 -->
+        <div id="puzzleFeedbackArea" class="hidden text-center py-2 rounded-xl text-sm font-black transition"></div>
+      </div>
+
+      <!-- 퍼즐 하단 액션 바 -->
+      <div class="pt-3 border-t border-slate-100 flex justify-between items-center text-xs mt-2">
+        <button onclick="showPuzzleHint()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg transition flex items-center gap-1">
+          <i class="fa-regular fa-lightbulb text-amber-500"></i> 힌트보기
+        </button>
+        <button onclick="closePuzzleModal()" class="px-4 py-1.5 bg-indigo-900 hover:bg-indigo-800 text-white font-bold rounded-lg transition">닫기</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 📖 시조사 성경 & 예언의 신 뷰어 모달 (모달 내 원터치 전환) -->
   <div id="bibleModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[75] p-2 md:p-4">
     <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
@@ -261,11 +340,9 @@
           <h3 id="bibleModalTitle" class="font-black text-base sm:text-lg truncate">성경 본문 보기</h3>
         </div>
         <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
-          <!-- 💡 모달 내부에서 성경 ↔ 예언의 신 즉시 토글 버튼 -->
           <button id="btnToggleProphecy" type="button" onclick="toggleBibleOrProphecy()" class="text-xs sm:text-sm bg-amber-400 hover:bg-amber-300 text-indigo-950 font-black px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
             <i class="fa-solid fa-scroll"></i> <span id="toggleBtnText">예언의 신</span>
           </button>
-          <!-- 💡 웹 새창 열기 버튼 -->
           <button type="button" onclick="openBibleNewTab()" class="text-xs sm:text-sm bg-indigo-800 hover:bg-indigo-700 text-indigo-100 font-bold px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
             <i class="fa-solid fa-arrow-up-right-from-square"></i> 새창 열기
           </button>
@@ -494,7 +571,13 @@
     window.currentMaskStep = 1;
     window.currentTargetBibleUrl = "";
     window.currentProphecyUrl = "https://www.adventist.or.kr/channel/bbs/content.php?co_id=egw_writings";
-    window.currentBibleViewMode = "bible"; // 'bible' 또는 'prophecy'
+    window.currentBibleViewMode = "bible";
+
+    // 🧩 퍼즐 게임 상태 변수
+    window.puzzleRound = 1; // 1 ~ 3회
+    window.puzzleTargetWords = [];
+    window.puzzlePoolWords = [];
+    window.puzzleSelectedWords = [];
 
     window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
     window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
@@ -594,92 +677,268 @@
       });
     };
 
+    // 💡 5단계 순환 가림 (초성 퀴즈 포함)
     window.cycleMaskStep = function() {
-      window.currentMaskStep = (window.currentMaskStep % 4) + 1;
+      window.currentMaskStep = (window.currentMaskStep % 5) + 1;
       window.applyVerseMasking();
+    };
+
+    // 💡 한글 초성 추출 알고리즘
+    const HANGUL_CHO_SUNG = [
+      'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 
+      'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
+    ];
+
+    window.convertToChoSung = function(text) {
+      if (!text) return "";
+      let result = "";
+      for (let i = 0; i < text.length; i++) {
+        const code = text.charCodeAt(i);
+        if (code >= 0xAC00 && code <= 0xD7A3) {
+          const choIdx = Math.floor((code - 0xAC00) / 588);
+          result += HANGUL_CHO_SUNG[choIdx];
+        } else {
+          result += text[i];
+        }
+      }
+      return result;
+    };
+
+    // 💡 5단계 가림 텍스트 적용 로직
+    window.applyVerseMasking = function() {
+      const data = window.sheetData[window.currentIndex];
+      if (!data) return;
+
+      const btnText = document.getElementById('maskStepText');
+      const btnIcon = document.getElementById('maskStepIcon');
+      const verseKoElem = document.getElementById('displayVerseKo');
+      const verseEnElem = document.getElementById('displayVerseEn');
+
+      const originalKo = data.verse_ko ? data.verse_ko.trim() : "";
+      const originalEn = data.verse_en ? data.verse_en.trim() : "";
+
+      const stepNames = {
+        1: { text: "1. 전체보기", icon: "fa-regular fa-eye" },
+        2: { text: "2. 빈칸모드", icon: "fa-solid fa-puzzle-piece" },
+        3: { text: "3. 초성모드", icon: "fa-solid fa-font" },
+        4: { text: "4. 첫글자만", icon: "fa-solid fa-circle-dot" },
+        5: { text: "5. 전체가림", icon: "fa-solid fa-eye-slash" }
+      };
+
+      if (btnText && btnIcon) {
+        btnText.innerText = stepNames[window.currentMaskStep].text;
+        btnIcon.className = stepNames[window.currentMaskStep].icon + " mr-1 text-base sm:text-lg text-amber-300";
+      }
+
+      let maskedKo = originalKo;
+      let maskedEn = originalEn;
+
+      if (window.currentMaskStep === 2) {
+        maskedKo = originalKo.split(' ').map((w, idx) => (w.length >= 3 && idx % 2 === 1) ? '[ ___ ]' : w).join(' ');
+        maskedEn = originalEn.split(' ').map((w, idx) => (w.length >= 4 && idx % 2 === 1) ? '[ ___ ]' : w).join(' ');
+      } else if (window.currentMaskStep === 3) {
+        maskedKo = window.convertToChoSung(originalKo);
+        maskedEn = originalEn.split(' ').map(w => w.length <= 1 ? w : w[0] + '•'.repeat(w.length - 1)).join(' ');
+      } else if (window.currentMaskStep === 4) {
+        maskedKo = originalKo.split(' ').map(word => {
+          if (word.length <= 1) return word;
+          return word[0] + '○'.repeat(word.length - 1);
+        }).join(' ');
+        maskedEn = originalEn.split(' ').map(word => {
+          if (word.length <= 1) return word;
+          return word[0] + '•'.repeat(word.length - 1);
+        }).join(' ');
+      } else if (window.currentMaskStep === 5) {
+        maskedKo = "••••••••••••••••••••••••••••••••••••••••";
+        maskedEn = "••••••••••••••••••••••••••••••••••••••••";
+      }
+
+      if (verseKoElem) verseKoElem.innerText = maskedKo ? `"${maskedKo}"` : "";
+      
+      if (verseEnElem) {
+        if (window.currentMaskStep === 1 && originalEn) {
+          verseEnElem.innerHTML = `"${window.formatInteractiveEnglishVerse(originalEn)}"`;
+        } else {
+          verseEnElem.innerText = maskedEn ? `"${maskedEn}"` : "";
+        }
+      }
+    };
+
+    // 🧩 =========================================================
+    // 단어 배열 퍼즐 게임 로직 (3회 완주 미션)
+    // =========================================================
+    window.openPuzzleModal = function() {
+      const data = window.sheetData[window.currentIndex];
+      if (!data || !data.verse_ko) {
+        alert("기억절 데이터가 없습니다.");
+        return;
+      }
+      window.puzzleRound = 1;
+      window.initPuzzleRound();
+      document.getElementById('puzzleModal').classList.remove('hidden');
+    };
+
+    window.closePuzzleModal = function() {
+      document.getElementById('puzzleModal').classList.add('hidden');
+    };
+
+    window.initPuzzleRound = function() {
+      const data = window.sheetData[window.currentIndex];
+      const rawText = data.verse_ko.trim();
+
+      // 단어(어절) 단위 분리 (구두점 보존)
+      window.puzzleTargetWords = rawText.split(/\s+/).filter(w => w.length > 0);
+      window.puzzleSelectedWords = [];
+      
+      // 단어 풀에 ID 부여 및 셔플
+      window.puzzlePoolWords = window.puzzleTargetWords.map((word, idx) => ({
+        id: `pw_${idx}_${Math.random()}`,
+        text: word,
+        originalIndex: idx
+      }));
+
+      // 무작위 셔플 (Fisher-Yates)
+      for (let i = window.puzzlePoolWords.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [window.puzzlePoolWords[i], window.puzzlePoolWords[j]] = [window.puzzlePoolWords[j], window.puzzlePoolWords[i]];
+      }
+
+      // 회차 게이지 업데이트
+      const badge = document.getElementById('puzzleProgressBadge');
+      if (badge) badge.innerText = `🎯 ${window.puzzleRound} / 3회`;
+
+      const feedback = document.getElementById('puzzleFeedbackArea');
+      if (feedback) { feedback.classList.add('hidden'); feedback.innerText = ''; }
+
+      window.renderPuzzleUI();
+    };
+
+    window.renderPuzzleUI = function() {
+      const selectedArea = document.getElementById('puzzleSelectedArea');
+      const poolArea = document.getElementById('puzzlePoolArea');
+
+      // 1. 선택된 단어 슬롯 렌더링
+      if (window.puzzleSelectedWords.length === 0) {
+        selectedArea.innerHTML = `<span class="text-xs text-slate-400 m-auto select-none">터치한 단어가 여기에 채워집니다.</span>`;
+      } else {
+        selectedArea.innerHTML = window.puzzleSelectedWords.map((item, idx) => `
+          <button onclick="window.unpickPuzzleWord(${idx})" class="puzzle-word-btn bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm sm:text-base px-3 py-1.5 rounded-xl shadow-sm flex items-center gap-1">
+            <span>${item.text}</span>
+            <i class="fa-solid fa-xmark text-xs opacity-70"></i>
+          </button>
+        `).join('');
+      }
+
+      // 2. 풀 영역 렌더링
+      poolArea.innerHTML = window.puzzlePoolWords.map((item) => `
+        <button onclick="window.pickPuzzleWord('${item.id}')" class="puzzle-word-btn bg-white hover:bg-slate-100 text-slate-800 font-bold text-sm sm:text-base px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+          ${item.text}
+        </button>
+      `).join('');
+    };
+
+    window.pickPuzzleWord = function(wordId) {
+      const poolIdx = window.puzzlePoolWords.findIndex(w => w.id === wordId);
+      if (poolIdx === -1) return;
+
+      const item = window.puzzlePoolWords.splice(poolIdx, 1)[0];
+      window.puzzleSelectedWords.push(item);
+      window.renderPuzzleUI();
+      window.checkPuzzleComplete();
+    };
+
+    window.unpickPuzzleWord = function(selectedIdx) {
+      const item = window.puzzleSelectedWords.splice(selectedIdx, 1)[0];
+      window.puzzlePoolWords.push(item);
+      window.renderPuzzleUI();
+      
+      const feedback = document.getElementById('puzzleFeedbackArea');
+      if (feedback) feedback.classList.add('hidden');
+    };
+
+    window.resetCurrentPuzzleRound = function() {
+      window.initPuzzleRound();
+    };
+
+    window.checkPuzzleComplete = function() {
+      if (window.puzzleSelectedWords.length !== window.puzzleTargetWords.length) return;
+
+      const userSentence = window.puzzleSelectedWords.map(w => w.text).join(' ');
+      const targetSentence = window.puzzleTargetWords.join(' ');
+      const feedback = document.getElementById('puzzleFeedbackArea');
+
+      if (userSentence === targetSentence) {
+        // 정답!
+        if (window.puzzleRound < 3) {
+          feedback.className = "text-center py-2.5 px-4 rounded-xl text-sm font-black bg-emerald-100 text-emerald-800 border border-emerald-300 block";
+          feedback.innerHTML = `🎉 <strong>${window.puzzleRound}회차 완벽 성공!</strong> 다음 회차로 이어집니다. (0.8초 후 자동 전환)`;
+          
+          setTimeout(() => {
+            window.puzzleRound += 1;
+            window.initPuzzleRound();
+          }, 800);
+        } else {
+          // 3회 완료 축하 폭죽 & 출석체크 자동 완료
+          if (typeof confetti === 'function') {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+          }
+
+          feedback.className = "text-center py-3 px-4 rounded-xl text-sm font-black bg-amber-100 text-amber-900 border border-amber-300 block animate-bounce";
+          feedback.innerHTML = `🏆 <strong>3회 완주 대성공!</strong> 오늘의 암송 실천이 완료되었습니다! 🔥`;
+
+          window.recordDailyRecite(true);
+
+          setTimeout(() => {
+            alert("축하합니다! 3회 퍼즐을 모두 완주하여 오늘의 암송 실천이 인증되었습니다! ✨");
+            window.closePuzzleModal();
+          }, 1200);
+        }
+      } else {
+        // 오답 안내
+        feedback.className = "text-center py-2.5 px-4 rounded-xl text-sm font-black bg-rose-100 text-rose-800 border border-rose-300 block";
+        feedback.innerHTML = `⚠️ 순서가 맞지 않는 단어가 있습니다. 틀린 단어를 눌러 다시 시도해 보세요.`;
+      }
+    };
+
+    window.showPuzzleHint = function() {
+      const data = window.sheetData[window.currentIndex];
+      if (data && data.verse_ko) {
+        alert(`📖 [기억절 힌트]\n"${data.verse_ko}"`);
+      }
     };
 
     // 💡 시조사 성경 66권 전체 영문 코드 매핑 테이블
     const SIJOSA_BIBLE_CODE_MAP = {
-      // 구약 39권
-      "창": "Genesis", "창세기": "Genesis",
-      "출": "Exodus", "출애굽기": "Exodus",
-      "레": "Leviticus", "레위기": "Leviticus",
-      "민": "Numbers", "민수기": "Numbers",
-      "신": "Deuteronomy", "신명기": "Deuteronomy",
-      "수": "Joshua", "여호수아": "Joshua",
-      "삿": "Judges", "사사기": "Judges",
-      "룻": "Ruth", "룻기": "Ruth",
-      "삼상": "1 Samuel", "사무엘상": "1 Samuel",
-      "삼하": "2 Samuel", "사무엘하": "2 Samuel",
-      "왕상": "1 Kings", "열왕기상": "1 Kings",
-      "왕하": "2 Kings", "열왕기하": "2 Kings",
-      "대상": "1 Chronicles", "역대상": "1 Chronicles",
-      "대하": "2 Chronicles", "역대하": "2 Chronicles",
-      "스": "Ezra", "에스라": "Ezra",
-      "느": "Nehemiah", "느헤미야": "Nehemiah",
-      "에": "Esther", "에스더": "Esther",
-      "욥": "Job", "욥기": "Job",
-      "시": "Psalms", "시편": "Psalms",
-      "잠": "Proverbs", "잠언": "Proverbs",
-      "전": "Ecclesiastes", "전도서": "Ecclesiastes",
-      "아": "Song of Songs", "아가": "Song of Songs",
-      "사": "Isaiah", "이사야": "Isaiah",
-      "렘": "Jeremiah", "예레미야": "Jeremiah",
-      "애": "Lamentations", "예레미야애가": "Lamentations",
-      "겔": "Ezekiel", "에스겔": "Ezekiel",
-      "단": "Daniel", "다니엘": "Daniel",
-      "호": "Hosea", "호세아": "Hosea",
-      "욜": "Joel", "요엘": "Joel",
-      "암": "Amos", "아모스": "Amos",
-      "옵": "Obadiah", "오바댜": "Obadiah",
-      "욘": "Jonah", "요나": "Jonah",
-      "미": "Micah", "미가": "Micah",
-      "나": "Nahum", "나훔": "Nahum",
-      "합": "Habakkuk", "하박국": "Habakkuk",
-      "습": "Zephaniah", "스바냐": "Zephaniah",
-      "학": "Haggai", "학개": "Haggai",
-      "슥": "Zechariah", "스가랴": "Zechariah",
-      "말": "Malachi", "말라기": "Malachi",
-
-      // 신약 27권
-      "마": "Matthew", "마태복음": "Matthew",
-      "막": "Mark", "마가복음": "Mark",
-      "눅": "Luke", "누가복음": "Luke",
-      "요": "John", "요한복음": "John",
-      "행": "Acts", "사도행전": "Acts",
-      "롬": "Romans", "로마서": "Romans",
-      "고전": "1 Corinthians", "고린도전서": "1 Corinthians",
-      "고후": "2 Corinthians", "고린도후서": "2 Corinthians",
-      "갈": "Galatians", "갈라디아서": "Galatians",
-      "엡": "Ephesians", "에베소서": "Ephesians",
-      "빌": "Philippians", "빌립보서": "Philippians",
-      "골": "Colossians", "골로새서": "Colossians",
-      "살전": "1 Thessalonians", "데살로니가전서": "1 Thessalonians",
-      "살후": "2 Thessalonians", "데살로니가후서": "2 Thessalonians",
-      "딤전": "1 Timothy", "디모데전서": "1 Timothy",
-      "딤후": "2 Timothy", "디모데후서": "2 Timothy",
-      "딛": "Titus", "디도서": "Titus",
-      "몬": "Philemon", "빌레몬서": "Philemon",
-      "히": "Hebrews", "히브리서": "Hebrews",
-      "약": "James", "야고보서": "James",
-      "벧전": "1 Peter", "베드로전서": "1 Peter",
-      "벧후": "2 Peter", "베드로후서": "2 Peter",
-      "요일": "1 John", "요한일서": "1 John",
-      "요이": "2 John", "요한이서": "2 John",
-      "요삼": "3 John", "요한삼서": "3 John",
-      "유": "Jude", "유다서": "Jude",
-      "계": "Revelation", "요한계시록": "Revelation"
+      "창": "Genesis", "창세기": "Genesis", "출": "Exodus", "출애굽기": "Exodus", "레": "Leviticus", "레위기": "Leviticus",
+      "민": "Numbers", "민수기": "Numbers", "신": "Deuteronomy", "신명기": "Deuteronomy", "수": "Joshua", "여호수아": "Joshua",
+      "삿": "Judges", "사사기": "Judges", "룻": "Ruth", "룻기": "Ruth", "삼상": "1 Samuel", "사무엘상": "1 Samuel",
+      "삼하": "2 Samuel", "사무엘하": "2 Samuel", "왕상": "1 Kings", "열왕기상": "1 Kings", "왕하": "2 Kings", "열왕기하": "2 Kings",
+      "대상": "1 Chronicles", "역대상": "1 Chronicles", "대하": "2 Chronicles", "역대하": "2 Chronicles", "스": "Ezra", "에스라": "Ezra",
+      "느": "Nehemiah", "느헤미야": "Nehemiah", "에": "Esther", "에스더": "Esther", "욥": "Job", "욥기": "Job",
+      "시": "Psalms", "시편": "Psalms", "잠": "Proverbs", "잠언": "Proverbs", "전": "Ecclesiastes", "전도서": "Ecclesiastes",
+      "아": "Song of Songs", "아가": "Song of Songs", "사": "Isaiah", "이사야": "Isaiah", "렘": "Jeremiah", "예레미야": "Jeremiah",
+      "애": "Lamentations", "예레미야애가": "Lamentations", "겔": "Ezekiel", "에스겔": "Ezekiel", "단": "Daniel", "다니엘": "Daniel",
+      "호": "Hosea", "호세아": "Hosea", "욜": "Joel", "요엘": "Joel", "암": "Amos", "아모스": "Amos",
+      "옵": "Obadiah", "오바댜": "Obadiah", "욘": "Jonah", "요나": "Jonah", "미": "Micah", "미가": "Micah",
+      "나": "Nahum", "나훔": "Nahum", "합": "Habakkuk", "하박국": "Habakkuk", "습": "Zephaniah", "스바냐": "Zephaniah",
+      "학": "Haggai", "학개": "Haggai", "슥": "Zechariah", "스가랴": "Zechariah", "말": "Malachi", "말라기": "Malachi",
+      "마": "Matthew", "마태복음": "Matthew", "막": "Mark", "마가복음": "Mark", "눅": "Luke", "누가복음": "Luke",
+      "요": "John", "요한복음": "John", "행": "Acts", "사도행전": "Acts", "롬": "Romans", "로마서": "Romans",
+      "고전": "1 Corinthians", "고린도전서": "1 Corinthians", "고후": "2 Corinthians", "고린도후서": "2 Corinthians", "갈": "Galatians", "갈라디아서": "Galatians",
+      "엡": "Ephesians", "에베소서": "Ephesians", "빌": "Philippians", "빌립보서": "Philippians", "골": "Colossians", "골로새서": "Colossians",
+      "살전": "1 Thessalonians", "데살로니가전서": "1 Thessalonians", "살후": "2 Thessalonians", "데살로니가후서": "2 Thessalonians", "딤전": "1 Timothy", "디모데전서": "1 Timothy",
+      "딤후": "2 Timothy", "디모데후서": "2 Timothy", "딛": "Titus", "디도서": "Titus", "몬": "Philemon", "빌레몬서": "Philemon",
+      "히": "Hebrews", "히브리서": "Hebrews", "약": "James", "야고보서": "James", "벧전": "1 Peter", "베드로전서": "1 Peter",
+      "벧후": "2 Peter", "베드로후서": "2 Peter", "요일": "1 John", "요한일서": "1 John", "요이": "2 John", "요한이서": "2 John",
+      "요삼": "3 John", "요한삼서": "3 John", "유": "Jude", "유다서": "Jude", "계": "Revelation", "요한계시록": "Revelation"
     };
 
-    // 💡 구절 텍스트 파싱 및 시조사 성경 URL 생성 함수
     window.parseBibleTextToUrl = function(bibleText) {
       if (!bibleText) return "https://www.sijosa.com/ch21/bible.php?book_idx=451";
       const cleanText = bibleText.replace(/[\(\)]/g, '').trim();
       const match = cleanText.match(/^([가-힣]+)\s*(\d+)(?:[:장\s]+(\d+))?/);
       
       if (!match) {
-        console.error("올바르지 않은 구절 형식:", bibleText);
         return "https://www.sijosa.com/ch21/bible.php?book_idx=451";
       }
 
@@ -689,7 +948,6 @@
 
       const code = SIJOSA_BIBLE_CODE_MAP[bookName];
       if (!code) {
-        console.error("매핑되는 성경 코드가 없습니다:", bookName);
         return "https://www.sijosa.com/ch21/bible.php?book_idx=451";
       }
 
@@ -697,14 +955,12 @@
       return `https://www.sijosa.com/ch21/bible.php?book_idx=451&code=${encodedCode}&chapter=${chapter}&verse=${verse}`;
     };
 
-    // 💡 시조사 성경 본문 뷰어 모달 열기 함수
     window.openBibleModal = function() {
       const data = window.sheetData[window.currentIndex];
       const rawText = (data?.bible_ko || "").trim();
       const displayTitle = rawText ? rawText.replace(/[\(\)]/g, '') : "성경";
 
       window.currentTargetBibleUrl = window.parseBibleTextToUrl(rawText);
-      // 💡 한국연합회 공식 예언의 신 저작물 주소 연결
       window.currentProphecyUrl = "https://www.adventist.or.kr/channel/bbs/content.php?co_id=egw_writings";
       window.currentBibleViewMode = "bible";
 
@@ -724,7 +980,6 @@
       if (modalEl) modalEl.classList.remove("hidden");
     };
 
-    // 💡 모달 내부에서 성경 ↔ 예언의 신 즉시 토글
     window.toggleBibleOrProphecy = function() {
       const iframeEl = document.getElementById("bibleIframe");
       const titleEl = document.getElementById("bibleModalTitle");
@@ -757,7 +1012,6 @@
       if (modalEl) modalEl.classList.add("hidden");
     };
 
-    // 💡 웹 새창 열기 (현재 모드에 맞춰 성경/예언의 신 열기)
     window.openBibleNewTab = function() {
       const target = (window.currentBibleViewMode === "prophecy") ? window.currentProphecyUrl : window.currentTargetBibleUrl;
       if (target) {
@@ -767,7 +1021,6 @@
       }
     };
 
-    // 💡 구글 영한 사전 엔진
     window.lookupDictWord = async function(cleanWord) {
       if (!cleanWord) return;
       const lower = cleanWord.toLowerCase();
@@ -860,62 +1113,8 @@
       }).join(' ');
     };
 
-    window.applyVerseMasking = function() {
-      const data = window.sheetData[window.currentIndex];
-      if (!data) return;
-
-      const btnText = document.getElementById('maskStepText');
-      const btnIcon = document.getElementById('maskStepIcon');
-      const verseKoElem = document.getElementById('displayVerseKo');
-      const verseEnElem = document.getElementById('displayVerseEn');
-
-      const originalKo = data.verse_ko ? data.verse_ko.trim() : "";
-      const originalEn = data.verse_en ? data.verse_en.trim() : "";
-
-      const stepNames = {
-        1: { text: "1. 전체보기", icon: "fa-regular fa-eye" },
-        2: { text: "2. 빈칸모드", icon: "fa-solid fa-puzzle-piece" },
-        3: { text: "3. 첫글자만", icon: "fa-solid fa-font" },
-        4: { text: "4. 전체가림", icon: "fa-solid fa-eye-slash" }
-      };
-
-      if (btnText && btnIcon) {
-        btnText.innerText = stepNames[window.currentMaskStep].text;
-        btnIcon.className = stepNames[window.currentMaskStep].icon + " mr-1 text-base sm:text-lg text-amber-300";
-      }
-
-      let maskedKo = originalKo;
-      let maskedEn = originalEn;
-
-      if (window.currentMaskStep === 2) {
-        maskedKo = originalKo.split(' ').map((w, idx) => (w.length >= 3 && idx % 2 === 1) ? '[ ___ ]' : w).join(' ');
-        maskedEn = originalEn.split(' ').map((w, idx) => (w.length >= 4 && idx % 2 === 1) ? '[ ___ ]' : w).join(' ');
-      } else if (window.currentMaskStep === 3) {
-        maskedKo = originalKo.split(' ').map(word => {
-          if (word.length <= 1) return word;
-          return word[0] + '○'.repeat(word.length - 1);
-        }).join(' ');
-        maskedEn = originalEn.split(' ').map(word => {
-          if (word.length <= 1) return word;
-          return word[0] + '•'.repeat(word.length - 1);
-        }).join(' ');
-      } else if (window.currentMaskStep === 4) {
-        maskedKo = "••••••••••••••••••••••••••••••••••••••••";
-        maskedEn = "••••••••••••••••••••••••••••••••••••••••";
-      }
-
-      if (verseKoElem) verseKoElem.innerText = maskedKo ? `"${maskedKo}"` : "";
-      
-      if (verseEnElem) {
-        if (window.currentMaskStep === 1 && originalEn) {
-          verseEnElem.innerHTML = `"${window.formatInteractiveEnglishVerse(originalEn)}"`;
-        } else {
-          verseEnElem.innerText = maskedEn ? `"${maskedEn}"` : "";
-        }
-      }
-    };
-
-    window.recordDailyRecite = async function() {
+    // 💡 일일 암송 실천 기록 (퍼즐 3회 완료 시 자동 호출 가능)
+    window.recordDailyRecite = async function(isFromPuzzle = false) {
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
 
@@ -926,7 +1125,9 @@
       localStorage.setItem('recited_weeks', JSON.stringify(window.recitedWeeks));
 
       if (window.streakData.lastDate === todayStr) {
-        alert("오늘 암송 실천을 이미 완료하셨습니다! 🔥 (" + window.streakData.count + "일 연속 달성 중)");
+        if (!isFromPuzzle) {
+          alert("오늘 암송 실천을 이미 완료하셨습니다! 🔥 (" + window.streakData.count + "일 연속 달성 중)");
+        }
         return;
       }
 
@@ -1106,10 +1307,10 @@
 
       if (hasDiscussion) {
         discBtn.classList.remove('opacity-50', 'pointer-events-none');
-        discBtnText.innerText = "교과토의 자료";
+        discBtnText.innerText = "교과토의";
       } else {
         discBtn.classList.add('opacity-50', 'pointer-events-none');
-        discBtnText.innerText = "교과토의 준비중";
+        discBtnText.innerText = "토의준비중";
       }
 
       const pdfBtn = document.getElementById('pdfLessonBtn');
@@ -1123,11 +1324,11 @@
       if (hasText || hasImage || hasSourceUrl || hasPdfUrl) {
         window.currentPdfUrl = (hasSourceUrl ? data.source_url.trim() : (hasPdfUrl ? data.pdf_url.trim() : ""));
         pdfBtn.classList.remove('opacity-50', 'pointer-events-none');
-        pdfBtnText.innerHTML = `교과 열기`;
+        pdfBtnText.innerHTML = `교과열기`;
       } else {
         window.currentPdfUrl = "";
         pdfBtn.classList.add('opacity-50', 'pointer-events-none');
-        pdfBtnText.innerText = "교과 준비중";
+        pdfBtnText.innerText = "교과준비중";
       }
       
       if (!skipVideo) { window.updateVideoPlayer(); }
@@ -1669,7 +1870,8 @@
         { id: 'pdfModal', closeFunc: window.closePdfModal },
         { id: 'verseListModal', closeFunc: window.closeListModal },
         { id: 'dictModal', closeFunc: window.closeDictModal },
-        { id: 'bibleModal', closeFunc: window.closeBibleModal }
+        { id: 'bibleModal', closeFunc: window.closeBibleModal },
+        { id: 'puzzleModal', closeFunc: window.closePuzzleModal }
       ];
 
       modals.forEach(modalInfo => {
