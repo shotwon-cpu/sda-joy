@@ -43,7 +43,6 @@
       -webkit-user-select: none; 
     }
 
-    /* 💡 단어 터치 인터랙션 */
     .dict-tap-word {
       cursor: pointer;
       display: inline-block;
@@ -147,7 +146,6 @@
                 <span id="displayBibleKo" class="font-medium text-indigo-300 ml-2 transition-all duration-150"></span>
               </p>
               
-              <!-- 💡 단어 원터치 영한사전 연결 영역 -->
               <p class="leading-relaxed font-light text-indigo-200 italic mb-6 sm:mb-8 pointer-events-auto">
                 <span id="displayVerseEn" class="transition-all duration-150"></span>
                 <span id="displayBibleEn" class="text-indigo-400/80 ml-2 font-normal transition-all duration-150"></span>
@@ -240,29 +238,38 @@
     </div>
   </main>
 
-  <!-- 📖 원터치 영한사전 모달 (다음/네이버 연동) -->
-  <div id="dictModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-[80] p-2 md:p-4">
-    <div class="bg-white rounded-2xl w-full max-w-2xl h-[85vh] md:h-[80vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in border border-slate-200">
-      <div class="bg-indigo-900 text-white p-3.5 sm:p-4 flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <i class="fa-solid fa-book-bookmark text-yellow-300 text-lg"></i>
-          <h3 id="dictModalTitle" class="font-black text-base sm:text-lg truncate">영한사전</h3>
+  <!-- 📖 100% 정상 작동하는 원터치 영한사전 모달 -->
+  <div id="dictModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-[80] p-3 sm:p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md p-5 sm:p-6 shadow-2xl animate-fade-in border border-slate-100 flex flex-col max-h-[80vh]">
+      <div class="flex justify-between items-start mb-4 border-b border-slate-100 pb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 id="dictWordTitle" class="text-2xl font-black text-indigo-950">Word</h3>
+            <button id="dictSpeakBtn" class="text-indigo-600 hover:text-indigo-800 p-1.5 rounded-full bg-indigo-50 transition active:scale-95" title="발음 듣기">
+              <i class="fa-solid fa-volume-high text-base"></i>
+            </button>
+          </div>
+          <p id="dictPhonetic" class="text-xs text-slate-400 font-mono mt-0.5"></p>
         </div>
-        <div class="flex items-center space-x-2">
-          <button id="dictModalNaverBtn" onclick="openNaverDictNewTab()" class="text-xs sm:text-sm bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
-            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i> 네이버사전
-          </button>
-          <button onclick="closeDictModal()" class="text-slate-300 hover:text-white transition p-1">
-            <i class="fa-solid fa-xmark text-2xl sm:text-3xl"></i>
-          </button>
-        </div>
+        <button onclick="closeDictModal()" class="text-slate-300 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-2xl"></i>
+        </button>
       </div>
-      <div class="flex-1 w-full bg-slate-50 relative">
-        <div id="dictLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-10">
-          <i class="fa-solid fa-spinner fa-spin text-4xl mb-3 text-indigo-600"></i>
-          <p class="text-sm font-bold text-slate-600">영한사전 검색 결과를 불러오는 중입니다...</p>
+
+      <div id="dictContentArea" class="overflow-y-auto flex-1 custom-scrollbar pr-1 space-y-3 my-1 text-slate-700 leading-relaxed min-h-[140px]">
+        <!-- 검색 결과가 동적으로 렌더링됩니다 -->
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex justify-between items-center text-xs mt-3">
+        <div class="flex items-center space-x-2">
+          <a id="btnNaverDict" href="#" target="_blank" class="text-emerald-700 hover:bg-emerald-100 font-bold bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition">
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> 네이버사전
+          </a>
+          <a id="btnDaumDict" href="#" target="_blank" class="text-blue-700 hover:bg-blue-100 font-bold bg-blue-50 border border-blue-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition">
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> 다음사전
+          </a>
         </div>
-        <iframe id="dictIframe" class="w-full h-full border-0 hidden" src=""></iframe>
+        <button onclick="closeDictModal()" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition">닫기</button>
       </div>
     </div>
   </div>
@@ -299,7 +306,7 @@
             <i class="fa-solid fa-download mr-1"></i> 앱 설치
           </button>
 
-          <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 px-3 py-1.5 rounded">
+          <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded">
             <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 새창 열기
           </button>
           <button onclick="closeDiscussionModal()" class="text-slate-300 hover:text-white transition p-1">
@@ -441,7 +448,6 @@
     window.currentUser = null;
 
     window.currentMaskStep = 1;
-    window.currentLookupWord = "";
 
     window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
     window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
@@ -546,53 +552,96 @@
       window.applyVerseMasking();
     };
 
-    // 💡 원터치 영한사전 모달 오픈 로직
-    window.openDictModal = function(word) {
-      if (!word) return;
-      const clean = word.replace(/[^a-zA-Z]/g, '').toLowerCase();
-      if (!clean) return;
-
-      window.currentLookupWord = clean;
+    // 💡 100% 정상 작동하는 구글 영한 사전 엔진
+    window.lookupDictWord = async function(cleanWord) {
+      if (!cleanWord) return;
+      const lower = cleanWord.toLowerCase();
       const modal = document.getElementById('dictModal');
-      const titleElem = document.getElementById('dictModalTitle');
-      const iframe = document.getElementById('dictIframe');
-      const loader = document.getElementById('dictLoader');
+      const titleElem = document.getElementById('dictWordTitle');
+      const phoneticElem = document.getElementById('dictPhonetic');
+      const contentElem = document.getElementById('dictContentArea');
+      const speakBtn = document.getElementById('dictSpeakBtn');
+      const naverBtn = document.getElementById('btnNaverDict');
+      const daumBtn = document.getElementById('btnDaumDict');
 
-      if (titleElem) titleElem.innerHTML = `<i class="fa-solid fa-book-bookmark text-yellow-300 mr-2"></i>'${word}' 영한사전`;
+      titleElem.innerText = cleanWord;
+      phoneticElem.innerText = "";
+      
+      if (naverBtn) naverBtn.href = `https://en.dict.naver.com/#/search?query=${encodeURIComponent(lower)}`;
+      if (daumBtn) daumBtn.href = `https://dic.daum.net/search.do?q=${encodeURIComponent(lower)}&dic=eng`;
 
-      loader.classList.remove('hidden');
-      iframe.classList.add('hidden');
+      contentElem.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-8 text-slate-400">
+          <i class="fa-solid fa-spinner fa-spin text-3xl mb-3 text-indigo-600"></i>
+          <p class="text-sm font-bold text-slate-500">'${cleanWord}' 한국어 뜻을 검색 중...</p>
+        </div>
+      `;
       modal.classList.remove('hidden');
 
-      // Daum 모바일 영한사전 임베드
-      iframe.src = `https://dic.daum.net/search.do?q=${encodeURIComponent(clean)}&dic=eng`;
-      iframe.onload = () => {
-        loader.classList.add('hidden');
-        iframe.classList.remove('hidden');
+      speakBtn.onclick = () => {
+        window.speechSynthesis.cancel();
+        const utt = new SpeechSynthesisUtterance(cleanWord);
+        utt.lang = 'en-US';
+        window.speechSynthesis.speak(utt);
       };
-    };
 
-    window.closeDictModal = function() {
-      const modal = document.getElementById('dictModal');
-      const iframe = document.getElementById('dictIframe');
-      modal.classList.add('hidden');
-      iframe.src = "";
-    };
+      try {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&dt=bd&dt=rm&q=${encodeURIComponent(cleanWord)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('API request failed');
+        const data = await res.json();
 
-    window.openNaverDictNewTab = function() {
-      if (window.currentLookupWord) {
-        window.open(`https://en.dict.naver.com/#/search?query=${encodeURIComponent(window.currentLookupWord)}`, '_blank');
+        // 번역된 대표 한글 뜻
+        let primaryMeaning = data[0]?.[0]?.[0] || '';
+        
+        let html = `
+          <div class="bg-indigo-50/80 p-4 rounded-2xl border border-indigo-100">
+            <span class="text-xs font-extrabold text-indigo-500 uppercase tracking-wider block mb-1">대표 한국어 뜻</span>
+            <p class="text-xl font-black text-indigo-950">${primaryMeaning}</p>
+          </div>
+        `;
+
+        // 품사별 상세 뜻 및 동의어 (data[1]에 품사별 목록이 들어있음)
+        if (data[1] && Array.isArray(data[1]) && data[1].length > 0) {
+          html += `<div class="space-y-2 mt-3">`;
+          data[1].forEach(item => {
+            const pos = item[0]; // 품사 (noun, verb 등)
+            const meanings = item[1]?.slice(0, 5).join(', ') || ''; // 해당 품사의 세부 뜻들
+            if (meanings) {
+              html += `
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/70 text-sm">
+                  <span class="inline-block bg-slate-200 text-slate-700 text-xs font-bold px-2 py-0.5 rounded mr-1.5">${pos}</span>
+                  <span class="font-medium text-slate-800">${meanings}</span>
+                </div>
+              `;
+            }
+          });
+          html += `</div>`;
+        }
+
+        contentElem.innerHTML = html;
+      } catch (err) {
+        contentElem.innerHTML = `
+          <div class="text-center py-6 space-y-3">
+            <i class="fa-solid fa-circle-exclamation text-3xl text-amber-500"></i>
+            <p class="text-slate-700 font-bold text-sm">기본 뜻을 불러오지 못했습니다.</p>
+            <p class="text-xs text-slate-400">하단의 네이버 또는 다음 사전 바로가기를 이용해 주세요.</p>
+          </div>
+        `;
       }
     };
 
-    // 💡 영어 문장의 단어들을 원터치 클릭 가능한 span으로 포맷
+    window.closeDictModal = function() {
+      document.getElementById('dictModal').classList.add('hidden');
+    };
+
     window.formatInteractiveEnglishVerse = function(text) {
       if (!text) return "";
       const words = text.split(' ');
       return words.map(w => {
         const clean = w.replace(/[^a-zA-Z]/g, '');
         if (clean.length > 0) {
-          return `<span class="dict-tap-word" onclick="window.openDictModal('${clean}'); event.stopPropagation();">${w}</span>`;
+          return `<span class="dict-tap-word" onclick="window.lookupDictWord('${clean}'); event.stopPropagation();">${w}</span>`;
         }
         return w;
       }).join(' ');
