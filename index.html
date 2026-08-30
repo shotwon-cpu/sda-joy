@@ -1389,15 +1389,29 @@
 
     window.autoSelectCurrentWeek = function() {
       const today = new Date();
-      let closestIndex = 0, minDiff = Infinity;
-      window.sheetData.forEach((item, index) => {
-        const d = window.getValidDate(item.date);
+      today.setHours(0, 0, 0, 0); // 오늘 00:00 기준
+
+      let targetIndex = -1;
+
+      // 1. 오늘 이후(당일 포함)에 오는 가장 첫 번째 안식일(토요일) 과수 찾기
+      for (let i = 0; i < window.sheetData.length; i++) {
+        const d = window.getValidDate(window.sheetData[i].date);
         if (d) {
-          const diff = Math.abs(today - d);
-          if (diff < minDiff) { minDiff = diff; closestIndex = index; }
+          d.setHours(0, 0, 0, 0);
+          // 토요일(안식일) 당일까지는 해당 과, 토요일 밤 12시가 지나 일요일이 되면 다음 과 선택
+          if (d >= today) {
+            targetIndex = i;
+            break;
+          }
         }
-      });
-      window.currentIndex = closestIndex;
+      }
+
+      // 2. 52주차가 모두 지난 연말인 경우 마지막 주차 선택
+      if (targetIndex === -1 && window.sheetData.length > 0) {
+        targetIndex = window.sheetData.length - 1;
+      }
+
+      window.currentIndex = (targetIndex !== -1) ? targetIndex : 0;
     };
 
     window.goToCurrentWeek = function() {
