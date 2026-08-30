@@ -803,6 +803,35 @@
       });
     };
 
+    // 💡 [여기서부터 추가] 화면 복귀 시 자동 주차 갱신 ==================
+    window.handleAppResume = function() {
+      if (window.sheetData && window.sheetData.length > 0) {
+        const prevIndex = window.currentIndex;
+        window.autoSelectCurrentWeek();
+        
+        if (prevIndex !== window.currentIndex) {
+          window.currentMaskStep = 1;
+          window.updateUI();
+          console.log("📅 새 주간 감지: 과수 자동 갱신 완료");
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        window.handleAppResume();
+      }
+    });
+
+    window.addEventListener("pageshow", () => {
+      window.handleAppResume();
+    });
+
+    window.addEventListener("focus", () => {
+      window.handleAppResume();
+    });
+    // ================================================================
+    
     // 💡 5단계 순환 가림 (초성 퀴즈 포함)
     window.cycleMaskStep = function() {
       window.currentMaskStep = (window.currentMaskStep % 5) + 1;
