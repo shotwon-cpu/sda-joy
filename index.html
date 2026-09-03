@@ -674,6 +674,31 @@
       return html;
     };
 
+    // 💡 교과토의 본문 글자 크기 조절 시스템
+    let currentDiscussionFontSize = 18; // 기본 시작 크기 (px)
+
+    window.changeDiscussionFontSize = function(direction) {
+      const textContainer = document.getElementById('discussionTextContainer');
+      if (!textContainer) return;
+
+      // 방향에 따라 크기 조절 (최소 14px ~ 최대 28px 제한)
+      currentDiscussionFontSize += (direction * 2);
+      if (currentDiscussionFontSize < 14) currentDiscussionFontSize = 14;
+      if (currentDiscussionFontSize > 28) currentDiscussionFontSize = 28;
+
+      // 본문 안의 모든 단락(<p>)과 질문 박스 등의 폰트 크기를 실시간으로 변경
+      textContainer.style.fontSize = currentDiscussionFontSize + 'px';
+      
+      // 제목이나 본문 내부 요소들도 비율에 맞게 크기가 살짝 조절되도록 클래스 관리
+      const paragraphs = textContainer.querySelectorAll('p, span');
+      paragraphs.forEach(p => {
+        // 단락별로 어울리는 글자 크기 적용
+        if (p.classList.contains('text-base') || p.classList.contains('text-lg')) {
+          p.style.fontSize = currentDiscussionFontSize + 'px';
+        }
+      });
+    };
+
     const firebaseConfig = {
       apiKey: "AIzaSyBXM-QBYDZuOKpZXFXtwK5fpTGTL2uFHCE",
       authDomain: "sabbathschool-8586d.firebaseapp.com",
