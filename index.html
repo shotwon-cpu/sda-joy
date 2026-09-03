@@ -1573,10 +1573,26 @@
     };
 
     window.extractYouTubeId = function(url) {
-      if (!url) return null;
-      const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
-      return (match && match[2].length === 11) ? match[2] : null;
-    };
+  if (!url) return null;
+  
+  // 1. 주소 맨 앞, 맨 뒤에 실수로 들어간 공백(띄어쓰기) 제거
+  let cleanUrl = url.trim(); 
+  
+  const match = cleanUrl.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+  
+  if (match && match[2]) {
+    // 2. 정규식으로 뽑아낸 ID에서도 불순물(공백)을 한 번 더 닦아냅니다.
+    let videoId = match[2].trim();
+    
+    // 3. 유튜브 아이디는 무조건 11글자이므로, 혹시 더 길게 딸려왔다면 앞에서부터 딱 11글자만 잘라냅니다.
+    videoId = videoId.substring(0, 11); 
+    
+    if (videoId.length === 11) {
+      return videoId;
+    }
+  }
+  return null;
+};
 
     window.changeVideoTab = function(tabName) {
       if(window.currentTab === tabName) return; 
