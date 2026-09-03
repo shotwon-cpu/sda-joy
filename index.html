@@ -571,6 +571,8 @@
       onSnapshot 
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    // 👇 새롭게 추가할 부분 (App Check 및 reCAPTCHA Enterprise 모듈)
+    import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBXM-QBYDZuOKpZXFXtwK5fpTGTL2uFHCE",
@@ -582,6 +584,13 @@
     };
 
     const app = initializeApp(firebaseConfig);
+
+    // 👇 파이어베이스 DB를 켜기 전에 App Check 먼저 세팅!
+    const appCheck = initializeAppCheck(app, {
+      // ⚠️ 주의: 아래 키 값을 리더님의 실제 reCAPTCHA Enterprise 키(6Lcte...)로 꼭 변경해 주세요!
+      provider: new ReCaptchaEnterpriseProvider('6Lcte6YtAAAAAIbjANUdJ7eAp5yv_dYDCNyk59l9'),
+      isTokenAutoRefreshEnabled: true
+    });
 
     const db = initializeFirestore(app, {
       localCache: persistentLocalCache({
