@@ -457,6 +457,13 @@
             <i class="fa-solid fa-download mr-1"></i> 앱 설치
           </button>
 
+          <!-- 👇 새창 열기 버튼과 닫기 버튼 사이에 쏙 추가된 글자 크기 조절 버튼 그룹 -->
+          <div class="flex items-center bg-slate-700 rounded p-0.5 border border-slate-600">
+            <button onclick="changeDiscussionFontSize(-1)" class="px-2 py-1 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-600 rounded transition" title="글자 작게">A-</button>
+            <span class="w-[1px] h-3.5 bg-slate-600 mx-0.5"></span>
+            <button onclick="changeDiscussionFontSize(1)" class="px-2 py-1 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-600 rounded transition" title="글자 크게">A+</button>
+          </div>
+
           <button onclick="openDiscussionNewTab()" class="text-indigo-200 hover:text-white transition flex items-center text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded">
             <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 새창 열기
           </button>
@@ -583,70 +590,81 @@
     // 👇 새롭게 추가할 부분 (App Check 및 reCAPTCHA Enterprise 모듈)
     import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js";
 
-    // 💡 김성진 목사님 교과토의 텍스트를 예쁜 HTML로 자동 변환하는 함수
+    // 💡 김성진 목사님 교과토의 텍스트를 예쁜 HTML로 자동 변환하는 함수 (UI 개선판)
     window.formatDiscussionText = function(rawText) {
       if (!rawText) return "";
       
       let lines = rawText.split('\n');
       let html = '<div class="space-y-1.5 pb-10">';
-      let inList = false; // 목록(박스) 안에 있는지 추적
+      let inList = false; 
 
       lines.forEach((line, index) => {
         let t = line.trim();
-        if (t === "") return; // 빈 줄 무시
+        if (t === "") return; 
 
-        // 1. 대제목 (■) -> 파란색 굵은 줄 제목
+        // 1. 대제목 (■) -> flex 충돌을 없애고 inline 방식을 써서 아이콘과 글자가 무조건 한 줄에 예쁘게 정렬됩니다.
         if (t.startsWith('■')) {
           if (inList) { html += '</div>'; inList = false; }
           let title = t.substring(1).trim();
-          html += `<h3 class="text-[18px] md:text-[22px] font-black text-indigo-900 mt-8 mb-3 flex items-center border-b-2 border-indigo-100 pb-2">
-                     <i class="fa-solid fa-square-poll-vertical text-indigo-500 mr-2 text-xl"></i>${title}
+          html += `<h3 class="text-[18px] md:text-[21px] font-black text-indigo-900 mt-8 mb-3 border-b-2 border-indigo-100 pb-2 leading-snug break-keep">
+                     <i class="fa-solid fa-square-poll-vertical text-indigo-500 mr-2 text-xl align-middle"></i><span class="align-middle">${title}</span>
                    </h3>`;
         }
-        // 2. 토의 질문 -> 노란색 눈에 띄는 박스
+        // 2. 토의 질문 -> 다중 공백을 하나로 압축하고 레이아웃을 다듬어서 붕 뜨는 여백을 완벽히 제거했습니다.
         else if (t.startsWith('토의 질문:')) {
           if (inList) { html += '</div>'; inList = false; }
-          let q = t.replace('토의 질문:', '').trim();
-          html += `<div class="bg-amber-50 border-l-4 border-amber-500 p-3 md:p-4 my-4 rounded-r-xl shadow-sm">
-                     <span class="font-black text-amber-800 text-sm md:text-base block mb-1">토의 질문</span>
-                     <span class="font-bold text-amber-950 text-base md:text-lg">${q}</span>
+          let q = t.replace('토의 질문:', '').trim().replace(/\s+/g, ' '); // 뭉친 띄어쓰기 압축
+          html += `<div class="bg-amber-50 border-l-4 border-amber-500 p-3 md:p-4 my-4 rounded-r-xl shadow-sm flex flex-col gap-1.5">
+                     <span class="inline-block px-2 py-1 bg-amber-200 text-amber-900 text-xs md:text-sm font-black rounded w-max">토의 질문</span>
+                     <span class="font-bold text-amber-950 text-base md:text-lg break-keep">${q}</span>
                    </div>`;
         }
-        // 3. 진행 팁 (☞) -> 초록색 안내 문구
+        // 3. 진행 팁 (☞) 
         else if (t.startsWith('☞')) {
           if (inList) { html += '</div>'; inList = false; }
-          html += `<p class="text-emerald-700 font-bold text-sm md:text-base ml-2 mb-3 flex items-center">
+          html += `<p class="text-emerald-700 font-bold text-sm md:text-base ml-2 mb-3">
                      <i class="fa-solid fa-comments mr-1.5"></i>${t.substring(1).trim()}
                    </p>`;
         }
-        // 4. 핵심 대답 (@) -> 하얀색 둥근 박스 안의 체크리스트
+        // 4. 핵심 대답 (@) -> 체크 아이콘이 찌그러지지 않도록 shrink-0 추가
         else if (t.startsWith('@')) {
           if (!inList) { 
             html += '<div class="space-y-2 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mx-1 my-3">'; 
             inList = true; 
           }
           html += `<div class="flex items-start text-slate-700 font-bold text-base md:text-lg">
-                     <i class="fa-solid fa-check text-emerald-500 mt-1 mr-2 text-sm md:text-base"></i>
-                     <span class="flex-1">${t.substring(1).trim()}</span>
+                     <i class="fa-solid fa-check text-emerald-500 mt-1 mr-2 text-sm md:text-base shrink-0"></i>
+                     <span class="flex-1 break-keep">${t.substring(1).trim()}</span>
                    </div>`;
         }
-        // 5. 기타 주석 (♥, ※) -> 회색 안내 박스
+        // 5. 기타 주석 (♥, ※) 
         else if (t.startsWith('♥') || t.startsWith('※')) {
           if (inList) { html += '</div>'; inList = false; }
           let icon = t.startsWith('♥') ? 'fa-heart text-rose-400' : 'fa-circle-info text-slate-400';
-          html += `<p class="text-sm md:text-base text-slate-600 font-medium mt-6 bg-slate-100 p-3 rounded-xl flex items-center">
+          html += `<p class="text-sm md:text-base text-slate-600 font-medium mt-6 bg-slate-100 p-3 rounded-xl">
                      <i class="fa-solid ${icon} mr-2"></i>${t.substring(1).trim()}
                    </p>`;
         }
-        // 6. 맨 위 기본 제목 및 일반 텍스트
+        // 6. 맨 위 메인 제목 및 일반 텍스트
         else {
-          if (index < 5 && !html.includes('■')) {
-             if (index === 0) html += `<p class="text-indigo-600 font-black text-sm md:text-base tracking-tight mb-1">${t}</p>`;
-             else if (t.includes('과 ')) html += `<h2 class="text-2xl md:text-3xl font-black text-slate-900 my-2">${t}</h2>`;
-             else html += `<p class="text-slate-500 font-bold text-sm md:text-base">${t}</p>`;
-          } else {
+          // '교과토의 인도하기' 글자가 포함되면 무조건 부제목으로 확대
+          if (t.includes('교과토의 인도하기')) {
              if (inList) { html += '</div>'; inList = false; }
-             html += `<p class="text-slate-700 leading-relaxed font-medium mb-1 text-base md:text-lg">${t}</p>`;
+             html += `<p class="text-indigo-600 font-black text-lg md:text-xl tracking-tight mb-1 mt-4 break-keep">${t}</p>`;
+          } 
+          // '10과 ~' 처럼 숫자+'과 ' 로 시작하면 무조건 가장 큰 메인 제목으로 확대
+          else if (t.match(/^\d+과\s/)) { 
+             if (inList) { html += '</div>'; inList = false; }
+             html += `<h2 class="text-2xl md:text-3xl font-black text-slate-900 mb-6 border-b-4 border-indigo-500 inline-block pb-1 break-keep">${t}</h2>`;
+          }
+          // 첫 3줄 안의 쓸데없는 텍스트(핵심파이브 등)는 흐릿하게 축소
+          else if (index < 3 && !html.includes('■')) {
+             html += `<p class="text-slate-400 font-medium text-xs md:text-sm">${t}</p>`;
+          } 
+          // 나머지 일반 텍스트
+          else {
+             if (inList) { html += '</div>'; inList = false; }
+             html += `<p class="text-slate-700 leading-relaxed font-medium mb-1 text-base md:text-lg break-keep">${t}</p>`;
           }
         }
       });
@@ -1771,6 +1789,8 @@
       if (data && data.discussion_text && data.discussion_text.trim() !== '') {
         textContainer.innerHTML = window.formatDiscussionText(data.discussion_text.trim()); 
         textContainer.classList.remove('hidden');
+        // 👇 모달을 열 때 사용자가 설정했던 글자 크기 유지 적용
+        textContainer.style.fontSize = currentDiscussionFontSize + 'px';
       } 
       // [2순위] 텍스트는 아직 없고 링크만 있으면 ➔ 기존처럼 iframe 창 띄우기 (인터넷 필요)
       else if (data && data.discussion_link && data.discussion_link.trim() !== '') {
