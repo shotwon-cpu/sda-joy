@@ -465,13 +465,22 @@
           </button>
         </div>
       </div>
-      <div class="flex-1 w-full bg-slate-50 relative">
-        <iframe id="discussionIframe" class="w-full h-full border-0 hidden" src=""></iframe>
-        <div id="noDiscussionMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white hidden">
-          <i class="fa-regular fa-folder-open text-6xl mb-4 text-slate-300"></i>
-          <p class="text-lg">등록된 토의 자료 링크가 없습니다.</p>
-        </div>
-      </div>
+      <!-- 교과토의 모달 본문 영역 -->
+<div class="flex-1 w-full bg-slate-50 relative overflow-y-auto custom-scrollbar">
+  
+  <!-- 1. 기존 iframe (비상용으로 숨김 처리) -->
+  <iframe id="discussionIframe" class="w-full h-full border-0 hidden" src=""></iframe>
+  
+  <!-- 2. 새로 추가! 파이어베이스에서 받은 예쁜 글자가 띄워질 공간 -->
+  <div id="discussionTextContainer" class="p-5 md:p-8 text-[17px] md:text-[20px] leading-[1.8] text-slate-800 font-medium whitespace-pre-wrap typography-optimized hidden">
+  </div>
+  
+  <!-- 내용이 없을 때 안내 메시지 -->
+  <div id="noDiscussionMsg" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white hidden">
+    <i class="fa-regular fa-folder-open text-6xl mb-4 text-slate-300"></i>
+    <p class="text-lg">등록된 토의 자료가 없습니다.</p>
+  </div>
+</div>
     </div>
   </div>
 
@@ -573,6 +582,79 @@
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     // 👇 새롭게 추가할 부분 (App Check 및 reCAPTCHA Enterprise 모듈)
     import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js";
+
+    // 💡 김성진 목사님 교과토의 텍스트를 예쁜 HTML로 자동 변환하는 함수
+    window.formatDiscussionText = function(rawText) {
+      if (!rawText) return "";
+      
+      let lines = rawText.split('\n');
+      let html = '<div class="space-y-1.5 pb-10">';
+      let inList = false; // 목록(박스) 안에 있는지 추적
+
+      lines.forEach((line, index) => {
+        let t = line.trim();
+        if (t === "") return; // 빈 줄 무시
+
+        // 1. 대제목 (■) -> 파란색 굵은 줄 제목
+        if (t.startsWith('■')) {
+          if (inList) { html += '</div>'; inList = false; }
+          let title = t.substring(1).trim();
+          html += `<h3 class="text-[18px] md:text-[22px] font-black text-indigo-900 mt-8 mb-3 flex items-center border-b-2 border-indigo-100 pb-2">
+                     <i class="fa-solid fa-square-poll-vertical text-indigo-500 mr-2 text-xl"></i>${title}
+                   </h3>`;
+        }
+        // 2. 토의 질문 -> 노란색 눈에 띄는 박스
+        else if (t.startsWith('토의 질문:')) {
+          if (inList) { html += '</div>'; inList = false; }
+          let q = t.replace('토의 질문:', '').trim();
+          html += `<div class="bg-amber-50 border-l-4 border-amber-500 p-3 md:p-4 my-4 rounded-r-xl shadow-sm">
+                     <span class="font-black text-amber-800 text-sm md:text-base block mb-1">토의 질문</span>
+                     <span class="font-bold text-amber-950 text-base md:text-lg">${q}</span>
+                   </div>`;
+        }
+        // 3. 진행 팁 (☞) -> 초록색 안내 문구
+        else if (t.startsWith('☞')) {
+          if (inList) { html += '</div>'; inList = false; }
+          html += `<p class="text-emerald-700 font-bold text-sm md:text-base ml-2 mb-3 flex items-center">
+                     <i class="fa-solid fa-comments mr-1.5"></i>${t.substring(1).trim()}
+                   </p>`;
+        }
+        // 4. 핵심 대답 (@) -> 하얀색 둥근 박스 안의 체크리스트
+        else if (t.startsWith('@')) {
+          if (!inList) { 
+            html += '<div class="space-y-2 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mx-1 my-3">'; 
+            inList = true; 
+          }
+          html += `<div class="flex items-start text-slate-700 font-bold text-base md:text-lg">
+                     <i class="fa-solid fa-check text-emerald-500 mt-1 mr-2 text-sm md:text-base"></i>
+                     <span class="flex-1">${t.substring(1).trim()}</span>
+                   </div>`;
+        }
+        // 5. 기타 주석 (♥, ※) -> 회색 안내 박스
+        else if (t.startsWith('♥') || t.startsWith('※')) {
+          if (inList) { html += '</div>'; inList = false; }
+          let icon = t.startsWith('♥') ? 'fa-heart text-rose-400' : 'fa-circle-info text-slate-400';
+          html += `<p class="text-sm md:text-base text-slate-600 font-medium mt-6 bg-slate-100 p-3 rounded-xl flex items-center">
+                     <i class="fa-solid ${icon} mr-2"></i>${t.substring(1).trim()}
+                   </p>`;
+        }
+        // 6. 맨 위 기본 제목 및 일반 텍스트
+        else {
+          if (index < 5 && !html.includes('■')) {
+             if (index === 0) html += `<p class="text-indigo-600 font-black text-sm md:text-base tracking-tight mb-1">${t}</p>`;
+             else if (t.includes('과 ')) html += `<h2 class="text-2xl md:text-3xl font-black text-slate-900 my-2">${t}</h2>`;
+             else html += `<p class="text-slate-500 font-bold text-sm md:text-base">${t}</p>`;
+          } else {
+             if (inList) { html += '</div>'; inList = false; }
+             html += `<p class="text-slate-700 leading-relaxed font-medium mb-1 text-base md:text-lg">${t}</p>`;
+          }
+        }
+      });
+      
+      if (inList) { html += '</div>'; }
+      html += '</div>';
+      return html;
+    };
 
     const firebaseConfig = {
       apiKey: "AIzaSyBXM-QBYDZuOKpZXFXtwK5fpTGTL2uFHCE",
@@ -1665,24 +1747,42 @@
     window.openDiscussionModal = function() {
       const data = window.sheetData[window.currentIndex];
       const iframe = document.getElementById('discussionIframe');
+      // 👇 새로 추가된 텍스트 컨테이너 변수
+      const textContainer = document.getElementById('discussionTextContainer'); 
       const noMsg = document.getElementById('noDiscussionMsg');
       const titleElem = document.getElementById('discussionModalTitle');
 
+      // 모달 제목 설정 (기존과 동일)
       if (titleElem && data && data.quarter) {
         titleElem.innerHTML = `<i class="fa-solid fa-comments mr-2"></i>${data.quarter} 토의 자료`;
       } else if (titleElem) {
         titleElem.innerHTML = `<i class="fa-solid fa-comments mr-2"></i>이번 주 교과토의 자료`;
       }
 
-      if (data && data.discussion_link && data.discussion_link.trim() !== '') {
+      // 👇 1. 일단 모든 화면(iframe, 텍스트, 안내메시지)을 숨기고 초기화합니다.
+      iframe.classList.add('hidden');
+      textContainer.classList.add('hidden');
+      noMsg.classList.add('hidden');
+      iframe.src = "";
+
+      // 👇 2. 데이터 유무에 따라 하나만 골라서 보여줍니다!
+      
+      // [1순위] 본문 텍스트가 있으면 ➔ 예쁘게 포장해서 텍스트 화면 띄우기 (오프라인 완벽 지원)
+      if (data && data.discussion_text && data.discussion_text.trim() !== '') {
+        textContainer.innerHTML = window.formatDiscussionText(data.discussion_text.trim()); 
+        textContainer.classList.remove('hidden');
+      } 
+      // [2순위] 텍스트는 아직 없고 링크만 있으면 ➔ 기존처럼 iframe 창 띄우기 (인터넷 필요)
+      else if (data && data.discussion_link && data.discussion_link.trim() !== '') {
         iframe.src = data.discussion_link.trim();
         iframe.classList.remove('hidden');
-        noMsg.classList.add('hidden');
-      } else {
-        iframe.src = "";
-        iframe.classList.add('hidden');
+      } 
+      // [3순위] 둘 다 없으면 ➔ "등록된 자료가 없습니다" 메시지 띄우기
+      else {
         noMsg.classList.remove('hidden');
       }
+
+      // 모달창 짠! 열기
       document.getElementById('discussionModal').classList.remove('hidden');
     };
 
