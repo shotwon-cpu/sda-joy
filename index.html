@@ -107,15 +107,29 @@
       filter: none !important;
       background-color: #ffffff !important;
     }
-    /* 📱 초소형 구형 폰(화면폭 375px 이하) 대응 */
-    @media (max-width: 375px) {
+    /* 📱 초소형 구형 폰(화면폭 380px 이하) 자동 감지 및 글자 최적화 */
+    @media (max-width: 380px) {
       .nav-header { padding-left: 6px !important; padding-right: 6px !important; }
       .nav-header h1 { font-size: 15px !important; }
       .nav-header p { font-size: 9px !important; padding-left: 16px !important; }
       .nav-header button { padding: 3px 2px !important; font-size: 11px !important; }
       .nav-header button i { font-size: 11px !important; }
-      .action-btn-row button, .action-btn-row a { font-size: 14px !important; padding-top: 8px !important; padding-bottom: 8px !important; }
-      .action-btn-row i { font-size: 15px !important; }
+      .action-btn-row button, .action-btn-row a { font-size: 15px !important; padding-top: 10px !important; padding-bottom: 10px !important; }
+      .action-btn-row i { font-size: 16px !important; }
+
+      /* 👇 작은 폰에서 '1. 전체보기', '오늘 외웠어요' 글자 잘림 완전 차단 */
+      #btnReciteToggle, #btnMaskStep {
+        font-size: 13.5px !important;
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+      }
+      #btnReciteToggle i, #btnMaskStep i {
+        font-size: 14px !important;
+        margin-right: 2px !important;
+      }
+      #reciteText, #maskStepText {
+        letter-spacing: -0.04em !important; /* 미세 자간 축소로 글자 공간 완벽 확보 */
+      }
     }
   </style>
   
@@ -245,15 +259,15 @@
                   <!-- 오늘 외웠어요 -->
                   <button id="btnReciteToggle" onclick="window.recordDailyRecite(); event.stopPropagation();" class="flex-1 py-2.5 sm:py-3.5 px-0.5 sm:px-2 rounded-xl text-[16px] sm:text-xl md:text-2xl font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap min-w-0">
                     <i id="reciteIcon" class="fa-regular fa-circle-check mr-1 text-[17px] sm:text-2xl flex-shrink-0"></i>
-                    <span id="reciteText" class="whitespace-nowrap font-black tracking-tight truncate">오늘 외웠어요</span>
+                    <span id="reciteText" class="whitespace-nowrap font-black tracking-tight">오늘 외웠어요</span>
                   </button>
 
                   <!-- 1. 전체보기 -->
                   <button id="btnMaskStep" onclick="window.cycleMaskStep(); event.stopPropagation();" class="flex-1 py-2.5 sm:py-3.5 px-0.5 sm:px-2 rounded-xl text-[16px] sm:text-xl md:text-2xl font-black transition shadow-md flex items-center justify-center bg-indigo-900/90 hover:bg-indigo-800 text-amber-300 border border-amber-400/40 active:scale-95 whitespace-nowrap min-w-0">
                     <i id="maskStepIcon" class="fa-regular fa-eye mr-1 text-[17px] sm:text-2xl text-amber-300 flex-shrink-0"></i>
-                    <span id="maskStepText" class="whitespace-nowrap font-black tracking-tight truncate">1. 전체보기</span>
+                    <span id="maskStepText" class="whitespace-nowrap font-black tracking-tight">1. 전체보기</span>
                   </button>
-
+                  
                   <!-- A+ A- 글자조절 -->
                   <div class="flex items-center space-x-0.5 bg-indigo-950/80 p-0.5 rounded-xl border border-indigo-900/80 flex-shrink-0">
                     <button onclick="window.adjustMainVerseTextSize(2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-black px-2 sm:px-3.5 py-2 rounded-lg text-sm sm:text-lg md:text-xl shadow-sm transition active:scale-95">A +</button>
