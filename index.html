@@ -2299,6 +2299,20 @@
           </span>
         ` : '';
         
+        // 🧒 모드에 따른 텍스트 선택 (어린이 모드 시 어린이 데이터 우선 참조)
+        const itemTitleKo = window.isChildMode ? (item.title_ko_child || "어린이 교과") : (item.title_ko || '제목 없음');
+        const itemTitleEn = window.isChildMode ? (item.title_en_child || '') : (item.title_en || '');
+        const itemBibleKo = window.isChildMode ? (item.bible_ko_child || '') : (item.bible_ko || '');
+        const itemBibleEn = window.isChildMode ? (item.bible_en_child || '') : (item.bible_en || '');
+        const itemVerseKo = window.isChildMode ? (item.verse_ko_child || '어린이 기억절 준비 중입니다.') : (item.verse_ko || '');
+        const itemVerseEn = window.isChildMode ? (item.verse_en_child || '') : (item.verse_en || '');
+
+        const bibleRowHtml = (itemBibleKo || itemBibleEn) ? `
+          <p class="font-semibold text-slate-500 mb-2" style="font-size: ${bibleSize};">
+            <i class="fa-solid fa-book-open text-sm mr-1.5"></i>${itemBibleKo} ${itemBibleEn ? `<span class="font-normal text-slate-400">/ ${itemBibleEn}</span>` : ''}
+          </p>
+        ` : '';
+
         div.innerHTML = `
           <div class="flex justify-between items-center mb-2">
             <div class="flex items-center">
@@ -2307,11 +2321,11 @@
             </div>
             <span class="text-sm text-slate-400">${dateStr}</span>
           </div>
-          <h4 class="font-bold text-slate-800 leading-snug typography-optimized" style="font-size: ${titleKoSize};">${item.title_ko || '제목 없음'}</h4>
-          <p class="text-slate-400 mb-3 italic" style="font-size: ${titleEnSize};">${item.title_en || ''}</p>
-          <p class="font-semibold text-slate-500 mb-2" style="font-size: ${bibleSize};"><i class="fa-solid fa-book-open text-sm mr-1.5"></i>${item.bible_ko || ''} <span class="font-normal text-slate-400">/ ${item.bible_en || ''}</span></p>
-          <p class="text-slate-800 leading-relaxed font-medium mt-1 typography-optimized" style="font-size: ${verseKoSize};">"${item.verse_ko || ''}"</p>
-          <p class="text-slate-500 leading-relaxed font-light italic mt-2 typography-optimized" style="font-size: ${verseEnSize};">"${item.verse_en || ''}"</p>
+          <h4 class="font-bold text-slate-800 leading-snug typography-optimized" style="font-size: ${titleKoSize};">${itemTitleKo}</h4>
+          ${itemTitleEn ? `<p class="text-slate-400 mb-3 italic" style="font-size: ${titleEnSize};">${itemTitleEn}</p>` : ''}
+          ${bibleRowHtml}
+          <p class="text-slate-800 leading-relaxed font-medium mt-1 typography-optimized" style="font-size: ${verseKoSize};">"${itemVerseKo}"</p>
+          ${itemVerseEn ? `<p class="text-slate-500 leading-relaxed font-light italic mt-2 typography-optimized" style="font-size: ${verseEnSize};">"${itemVerseEn}"</p>` : ''}
         `;
         container.appendChild(div);
       });
