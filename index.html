@@ -155,11 +155,15 @@
 
   <!-- 상단 네비게이션 -->
   <header class="nav-header text-white px-2.5 py-2.5 sm:px-5 sm:py-3.5 flex justify-between items-center shadow-lg gap-1.5 sm:gap-4 overflow-hidden flex-shrink-0 w-full">
-    <div class="flex flex-col justify-center min-w-0 flex-1 pr-1">
+    <div onclick="window.toggleChildMode()" class="flex flex-col justify-center min-w-0 flex-1 pr-1 cursor-pointer select-none active:opacity-80 transition" title="터치하여 장년/어린이 모드 전환">
       <h1 class="text-[20px] sm:text-3xl md:text-4xl lg:text-5xl font-black flex items-center tracking-tight truncate">
-        <i class="fa-solid fa-book-bible mr-1.5 sm:mr-3 text-[18px] sm:text-2xl md:text-3xl text-yellow-300"></i>세종 행복 교회
+        <i id="headerLogoIcon" class="fa-solid fa-book-bible mr-1.5 sm:mr-3 text-[18px] sm:text-2xl md:text-3xl text-yellow-300"></i>
+        <span id="headerTitleText">세종 행복 교회</span>
+        <span id="modeBadge" class="ml-1.5 px-1.5 py-0.5 text-[10px] sm:text-xs font-bold rounded-full bg-amber-400 text-indigo-950 flex items-center gap-0.5">
+          <i class="fa-solid fa-user"></i> 장년
+        </span>
       </h1>
-      <p class="text-[10px] sm:text-sm md:text-base text-indigo-200 mt-0.5 truncate pl-3.5 sm:pl-4">기억절 & 교과방송 by 고은아빠</p>
+      <p id="headerSubText" class="text-[10px] sm:text-sm md:text-base text-indigo-200 mt-0.5 truncate pl-3.5 sm:pl-4">기억절 & 교과방송 by 고은아빠</p>
     </div>
     
     <div class="grid grid-cols-4 gap-0.5 sm:gap-2 flex-shrink-0">
@@ -760,6 +764,42 @@
     window.currentModalMode = 'pdf';
     window.currentUser = null;
 
+    // 🧒 어린이/장년 모드 상태 및 토글 함수
+    window.isChildMode = false;
+    window.toggleChildMode = function() {
+      window.isChildMode = !window.isChildMode;
+
+      const badge = document.getElementById("modeBadge");
+      const logoIcon = document.getElementById("headerLogoIcon");
+      const subText = document.getElementById("headerSubText");
+
+      if (window.isChildMode) {
+        if (badge) {
+          badge.className = "ml-1.5 px-1.5 py-0.5 text-[10px] sm:text-xs font-bold rounded-full bg-pink-500 text-white flex items-center gap-0.5 shadow-sm";
+          badge.innerHTML = '<i class="fa-solid fa-child-reaching"></i> 어린이';
+        }
+        if (logoIcon) {
+          logoIcon.className = "fa-solid fa-seedling mr-1.5 sm:mr-3 text-[18px] sm:text-2xl md:text-3xl text-emerald-300";
+        }
+        if (subText) {
+          subText.innerText = "어린이 기억절 & 말씀 암송";
+        }
+      } else {
+        if (badge) {
+          badge.className = "ml-1.5 px-1.5 py-0.5 text-[10px] sm:text-xs font-bold rounded-full bg-amber-400 text-indigo-950 flex items-center gap-0.5";
+          badge.innerHTML = '<i class="fa-solid fa-user"></i> 장년';
+        }
+        if (logoIcon) {
+          logoIcon.className = "fa-solid fa-book-bible mr-1.5 sm:mr-3 text-[18px] sm:text-2xl md:text-3xl text-yellow-300";
+        }
+        if (subText) {
+          subText.innerText = "기억절 & 교과방송 by 고은아빠";
+        }
+      }
+
+      window.currentMaskStep = 1;
+      window.updateUI(true);
+    };
     window.currentMaskStep = 1;
     window.currentTargetBibleUrl = "";
     window.currentProphecyUrl = "https://www.adventist.or.kr/channel/bbs/content.php?co_id=egw_writings";
@@ -1032,8 +1072,12 @@
       const verseKoElem = document.getElementById('displayVerseKo');
       const verseEnElem = document.getElementById('displayVerseEn');
 
-      const originalKo = data.verse_ko ? data.verse_ko.trim() : "";
-      const originalEn = data.verse_en ? data.verse_en.trim() : "";
+      // 🧒 모드에 따라 어린이 기억절 우선 참조
+      const targetVerseKo = window.isChildMode ? (data.verse_ko_child || data.verse_ko || "") : (data.verse_ko || "");
+      const targetVerseEn = window.isChildMode ? (data.verse_en_child || data.verse_en || "") : (data.verse_en || "");
+
+      const originalKo = targetVerseKo ? targetVerseKo.trim() : "";
+      const originalEn = targetVerseEn ? targetVerseEn.trim() : "";
 
       const stepNames = {
         1: { text: "1. 전체보기", icon: "fa-regular fa-eye" },
@@ -1092,7 +1136,8 @@
 
     window.openPuzzleModal = function() {
       const data = window.sheetData[window.currentIndex];
-      if (!data || !data.verse_ko) {
+      const targetVerse = window.isChildMode ? (data?.verse_ko_child || data?.verse_ko) : data?.verse_ko;
+      if (!data || !targetVerse) {
         alert("기억절 데이터가 없습니다.");
         return;
       }
@@ -1123,7 +1168,9 @@
 
     window.initPuzzleRound = function(round = 1) {
       const data = window.sheetData[window.currentIndex];
-      const rawText = data.verse_ko.trim();
+      const targetVerse = window.isChildMode ? (data.verse_ko_child || data.verse_ko || "") : (data.verse_ko || "");
+      const targetBible = window.isChildMode ? (data.bible_ko_child || data.bible_ko || "") : (data.bible_ko || "");
+      const rawText = targetVerse.trim();
       const weekKey = window.getCurrentWeekKey();
 
       window.currentPuzzleRound = round;
@@ -1131,7 +1178,7 @@
       localStorage.setItem('puzzle_progress_map', JSON.stringify(window.puzzleProgressMap));
 
       const bibleRefEl = document.getElementById('puzzleBibleRef');
-      if (bibleRefEl) bibleRefEl.innerText = data.bible_ko ? `📖 ${data.bible_ko.replace(/[\(\)]/g, '')}` : '📖 성경 말씀';
+      if (bibleRefEl) bibleRefEl.innerText = targetBible ? `📖 ${targetBible.replace(/[\(\)]/g, '')}` : '📖 성경 말씀';
 
       const words = rawText.split(/\s+/).filter(w => w.length > 0);
       const chunkSize = window.getChunkSizeForRound(words.length, round);
@@ -1673,12 +1720,19 @@
       if (window.sheetData.length === 0) return;
       const data = window.sheetData[window.currentIndex];
       
-      document.getElementById('displayQuarter').innerText = data.quarter || '정보 없음';
-      document.getElementById('displayTitleKo').innerText = data.title_ko || '제목 없음';
-      document.getElementById('displayTitleEn').innerText = data.title_en || '';
+      // 🧒 어린이/장년 모드에 따른 텍스트 선택
+      const titleKo = window.isChildMode ? (data.title_ko_child || data.title_ko || '제목 없음') : (data.title_ko || '제목 없음');
+      const titleEn = window.isChildMode ? (data.title_en_child || data.title_en || '') : (data.title_en || '');
       
-      const bibleKo = data.bible_ko ? `(${data.bible_ko})` : '';
-      const bibleEn = data.bible_en ? `(${data.bible_en})` : '';
+      const rawBibleKo = window.isChildMode ? (data.bible_ko_child || data.bible_ko || '') : (data.bible_ko || '');
+      const rawBibleEn = window.isChildMode ? (data.bible_en_child || data.bible_en || '') : (data.bible_en || '');
+
+      document.getElementById('displayQuarter').innerText = data.quarter || '정보 없음';
+      document.getElementById('displayTitleKo').innerText = titleKo;
+      document.getElementById('displayTitleEn').innerText = titleEn;
+      
+      const bibleKo = rawBibleKo ? `(${rawBibleKo})` : '';
+      const bibleEn = rawBibleEn ? `(${rawBibleEn})` : '';
       
       document.getElementById('displayBibleKo').innerText = bibleKo;
       document.getElementById('displayBibleEn').innerText = bibleEn;
