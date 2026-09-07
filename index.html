@@ -99,6 +99,14 @@
     .puzzle-word-btn:active {
       transform: scale(0.95);
     }
+     /* 👇 찬미가 모달 및 악보 iframe 다크 모드 강제 반전 차단 */
+    #hymnModal, #hymnModal iframe {
+      color-scheme: light !important;
+      forced-color-adjust: none !important;
+      -webkit-filter: none !important;
+      filter: none !important;
+      background-color: #ffffff !important;
+    }
   </style>
 </head>
 <body class="flex flex-col min-h-screen w-full">
@@ -439,8 +447,9 @@
           </button>
         </div>
       </div>
-      <div class="flex-1 w-full bg-slate-50 relative">
-        <iframe id="hymnIframe" class="w-full h-full border-0" src=""></iframe>
+      <!-- 👇 bg-white 유지 및 color-scheme 지정 -->
+      <div class="flex-1 w-full bg-white relative" style="color-scheme: light; forced-color-adjust: none;">
+        <iframe id="hymnIframe" class="w-full h-full border-0 bg-white" style="color-scheme: light; forced-color-adjust: none;" src=""></iframe>
       </div>
     </div>
   </div>
