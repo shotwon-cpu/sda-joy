@@ -238,35 +238,35 @@
                 
                 <!-- 1행: 오늘 외웠어요 | 1. 전체보기 | A+ A- -->
                 <div class="flex items-center justify-between gap-1 sm:gap-2 w-full flex-nowrap">
-                  <button id="btnReciteToggle" onclick="window.recordDailyRecite(); event.stopPropagation();" class="flex-1 px-1 sm:px-2.5 py-2.5 sm:py-3 rounded-xl text-[15px] sm:text-lg md:text-xl font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap">
-                    <i id="reciteIcon" class="fa-regular fa-circle-check mr-1 text-base sm:text-xl"></i>
-                    <span id="reciteText" class="whitespace-nowrap font-black">오늘 외웠어요</span>
+                  <button id="btnReciteToggle" onclick="window.recordDailyRecite(); event.stopPropagation();" class="flex-1 px-1 sm:px-2.5 py-2.5 sm:py-3 rounded-xl text-[13px] sm:text-lg md:text-xl font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap min-w-0">
+                    <i id="reciteIcon" class="fa-regular fa-circle-check mr-0.5 sm:mr-1 text-sm sm:text-xl flex-shrink-0"></i>
+                    <span id="reciteText" class="whitespace-nowrap font-black truncate">오늘 외웠어요</span>
                   </button>
 
-                  <button id="btnMaskStep" onclick="window.cycleMaskStep(); event.stopPropagation();" class="flex-1 px-1 sm:px-2.5 py-2.5 sm:py-3 rounded-xl text-[15px] sm:text-lg md:text-xl font-black transition shadow-md flex items-center justify-center bg-indigo-900/90 hover:bg-indigo-800 text-amber-300 border border-amber-400/40 active:scale-95 whitespace-nowrap">
-                    <i id="maskStepIcon" class="fa-regular fa-eye mr-1 text-base sm:text-xl text-amber-300"></i>
-                    <span id="maskStepText" class="whitespace-nowrap font-black">1. 전체보기</span>
+                  <button id="btnMaskStep" onclick="window.cycleMaskStep(); event.stopPropagation();" class="flex-1 px-1 sm:px-2.5 py-2.5 sm:py-3 rounded-xl text-[13px] sm:text-lg md:text-xl font-black transition shadow-md flex items-center justify-center bg-indigo-900/90 hover:bg-indigo-800 text-amber-300 border border-amber-400/40 active:scale-95 whitespace-nowrap min-w-0">
+                    <i id="maskStepIcon" class="fa-regular fa-eye mr-0.5 sm:mr-1 text-sm sm:text-xl text-amber-300 flex-shrink-0"></i>
+                    <span id="maskStepText" class="whitespace-nowrap font-black truncate">1. 전체보기</span>
                   </button>
 
                   <div class="flex items-center space-x-0.5 bg-indigo-950/80 p-0.5 rounded-xl border border-indigo-900/80 flex-shrink-0">
-                    <button onclick="window.adjustMainVerseTextSize(2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-black px-2 sm:px-3.5 py-2 rounded-lg text-sm sm:text-lg md:text-xl shadow-sm transition active:scale-95">A +</button>
-                    <button onclick="window.adjustMainVerseTextSize(-2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-black px-2 sm:px-3.5 py-2 rounded-lg text-sm sm:text-lg md:text-xl shadow-sm transition active:scale-95">A -</button>
+                    <button onclick="window.adjustMainVerseTextSize(2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-black px-1.5 sm:px-3.5 py-2 rounded-lg text-xs sm:text-lg md:text-xl shadow-sm transition active:scale-95">A +</button>
+                    <button onclick="window.adjustMainVerseTextSize(-2); event.stopPropagation();" class="bg-indigo-900/80 hover:bg-indigo-800 text-indigo-100 font-black px-1.5 sm:px-3.5 py-2 rounded-lg text-xs sm:text-lg md:text-xl shadow-sm transition active:scale-95">A -</button>
                   </div>
                 </div>
 
                 <!-- 2행 (한글 | 영어 | 복사 | 공유) -->
-                <div class="grid grid-cols-4 gap-1 sm:gap-2 w-full">
-                  <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="w-full py-2.5 sm:py-3 bg-indigo-950/80 hover:bg-indigo-900 rounded-xl text-[15px] sm:text-lg md:text-xl font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap active:scale-95">
-                    <i class="fa-solid fa-volume-high mr-1 text-sm sm:text-lg"></i> 한글
+                <div class="grid grid-cols-4 gap-1 sm:gap-2 w-full mt-1 sm:mt-2">
+                  <button onclick="window.speakVerse('ko'); event.stopPropagation();" class="w-full py-2 sm:py-3 bg-indigo-950/80 hover:bg-indigo-900 rounded-xl text-[13px] sm:text-lg md:text-xl font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap active:scale-95 px-0.5">
+                    <i class="fa-solid fa-volume-high mr-0.5 sm:mr-1 text-xs sm:text-lg"></i> 한글
                   </button>
-                  <button onclick="window.speakVerse('en'); event.stopPropagation();" class="w-full py-2.5 sm:py-3 bg-indigo-950/80 hover:bg-indigo-900 rounded-xl text-[15px] sm:text-lg md:text-xl font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap active:scale-95">
-                    <i class="fa-solid fa-volume-high mr-1 text-sm sm:text-lg text-blue-400"></i> 영어
+                  <button onclick="window.speakVerse('en'); event.stopPropagation();" class="w-full py-2 sm:py-3 bg-indigo-950/80 hover:bg-indigo-900 rounded-xl text-[13px] sm:text-lg md:text-xl font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap active:scale-95 px-0.5">
+                    <i class="fa-solid fa-volume-high mr-0.5 sm:mr-1 text-xs sm:text-lg text-blue-400"></i> 영어
                   </button>
-                  <button onclick="window.copyVerse(); event.stopPropagation();" class="w-full py-2.5 sm:py-3 bg-indigo-950/80 hover:bg-indigo-900 rounded-xl text-[15px] sm:text-lg md:text-xl font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap active:scale-95">
-                    <i class="fa-solid fa-copy mr-1 text-sm sm:text-lg"></i> 복사
+                  <button onclick="window.copyVerse(); event.stopPropagation();" class="w-full py-2 sm:py-3 bg-indigo-950/80 hover:bg-indigo-900 rounded-xl text-[13px] sm:text-lg md:text-xl font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap active:scale-95 px-0.5">
+                    <i class="fa-solid fa-copy mr-0.5 sm:mr-1 text-xs sm:text-lg"></i> 복사
                   </button>
-                  <button onclick="window.shareVerse(); event.stopPropagation();" class="w-full py-2.5 sm:py-3 bg-indigo-950/80 hover:bg-indigo-900 rounded-xl text-[15px] sm:text-lg md:text-xl font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap active:scale-95">
-                    <i class="fa-solid fa-share-nodes mr-1 text-sm sm:text-lg text-emerald-400"></i> 공유
+                  <button onclick="window.shareVerse(); event.stopPropagation();" class="w-full py-2 sm:py-3 bg-indigo-950/80 hover:bg-indigo-900 rounded-xl text-[13px] sm:text-lg md:text-xl font-black text-indigo-100 transition flex items-center justify-center shadow-sm tracking-tight whitespace-nowrap active:scale-95 px-0.5">
+                    <i class="fa-solid fa-share-nodes mr-0.5 sm:mr-1 text-xs sm:text-lg text-emerald-400"></i> 공유
                   </button>
                 </div>
 
@@ -276,23 +276,23 @@
         </div>
       </div>
 
-      <!-- 3분할 비대칭 버튼 바 (action-btn-row 추가 및 초소형 화면 최적화) -->
-      <div class="action-btn-row flex gap-1 sm:gap-2.5 my-2 sm:my-3 items-stretch w-full overflow-hidden">
+      <!-- 3분할 비대칭 버튼 바 (원격 잠금 인터셉트 적용) -->
+      <div class="flex gap-1 sm:gap-2.5 my-2 sm:my-3 items-stretch w-full overflow-hidden">
         <!-- 1. 퍼즐 -->
-        <button onclick="window.requestProtectedAction('puzzle', window.openPuzzleModal)" class="flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 px-1 bg-amber-50 hover:bg-amber-100 text-amber-900 font-black rounded-2xl border border-amber-200 shadow-sm transition active:scale-95 text-[15px] sm:text-xl md:text-2xl">
-          <i class="fa-solid fa-puzzle-piece text-base sm:text-2xl text-amber-600 flex-shrink-0"></i>
+        <button onclick="window.requestProtectedAction('puzzle', window.openPuzzleModal)" class="flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 sm:py-3 px-1 bg-amber-50 hover:bg-amber-100 text-amber-900 font-black rounded-2xl border border-amber-200 shadow-sm transition active:scale-95 text-[14px] sm:text-xl md:text-2xl">
+          <i class="fa-solid fa-puzzle-piece text-sm sm:text-2xl text-amber-600 flex-shrink-0"></i>
           <span class="truncate">퍼즐</span>
         </button>
 
         <!-- 2. 교과토의 -->
-        <a id="discussionBtn" onclick="window.requestProtectedAction('discussion', window.openDiscussionModal); return false;" href="#" class="flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 px-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-black rounded-2xl border border-emerald-100 transition shadow-sm text-[15px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer active:scale-95">
-          <i class="fa-solid fa-comments text-base sm:text-2xl flex-shrink-0"></i>
+        <a id="discussionBtn" onclick="window.requestProtectedAction('discussion', window.openDiscussionModal); return false;" href="#" class="flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 sm:py-3 px-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-black rounded-2xl border border-emerald-100 transition shadow-sm text-[14px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer active:scale-95">
+          <i class="fa-solid fa-comments text-sm sm:text-2xl flex-shrink-0"></i>
           <span id="discussionBtnText" class="truncate">교과토의</span>
         </a>
 
         <!-- 3. 교 과 -->
-        <a id="pdfLessonBtn" onclick="window.requestProtectedAction('lesson_pdf', window.openPdfModal); return false;" href="#" class="flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 px-1 bg-red-50 hover:bg-red-100 text-red-700 font-black rounded-2xl border border-red-100 transition shadow-sm text-[15px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer active:scale-95">
-          <i class="fa-solid fa-book-open-reader text-base sm:text-2xl flex-shrink-0"></i>
+        <a id="pdfLessonBtn" onclick="window.requestProtectedAction('lesson_pdf', window.openPdfModal); return false;" href="#" class="flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 sm:py-3 px-1 bg-red-50 hover:bg-red-100 text-red-700 font-black rounded-2xl border border-red-100 transition shadow-sm text-[14px] sm:text-xl md:text-2xl opacity-50 pointer-events-none cursor-pointer active:scale-95">
+          <i class="fa-solid fa-book-open-reader text-sm sm:text-2xl flex-shrink-0"></i>
           <span id="pdfBtnText" class="truncate">교 과</span>
         </a>
       </div>
