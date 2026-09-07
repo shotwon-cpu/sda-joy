@@ -1132,11 +1132,7 @@
       if (verseKoElem) verseKoElem.innerText = maskedKo ? `"${maskedKo}"` : "";
       
       if (verseEnElem) {
-        if (step === 1 && originalEn) {
-          verseEnElem.innerHTML = `"${window.formatInteractiveEnglishVerse(originalEn)}"`;
-        } else {
-          verseEnElem.innerText = maskedEn ? `"${maskedEn}"` : "";
-        }
+        verseEnElem.innerText = maskedEn ? `"${maskedEn}"` : "";
       }
     };
 
