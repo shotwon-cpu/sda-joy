@@ -780,9 +780,13 @@
 
     window.getTodayLocalDateString = function() {
       const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const kst = new Date(utc + (3600000 * 9)); 
+      
+      const year = kst.getFullYear();
+      const month = String(kst.getMonth() + 1).padStart(2, '0');
+      const day = String(kst.getDate()).padStart(2, '0');
+      
       return `${year}-${month}-${day}`;
     };
 
@@ -1475,16 +1479,23 @@
       }
 
       if (window.streakData.lastDate) {
-        const lastDateObj = new Date(window.streakData.lastDate + 'T00:00:00');
-        const todayDateObj = new Date(todayStr + 'T00:00:00');
-        const diffDays = Math.round((todayDateObj - lastDateObj) / (1000 * 60 * 60 * 24));
+        const parseDateString = (dateStr) => {
+          const parts = dateStr.split('-');
+          return Date.UTC(parts[0], parts[1] - 1, parts[2]); 
+        };
+        const lastDateObj = parseDateString(window.streakData.lastDate);
+        const todayDateObj = parseDateString(todayStr);
+        const diffDays = Math.round((todayDateObj - lastDateObj) / 86400000);
 
         if (diffDays === 1) {
+          // 어제 외우고 오늘 외웠으니 +1
           window.streakData.count = (window.streakData.count || 0) + 1;
-        } else {
+        } else if (diffDays > 1) {
+          // 어제 건너뛰고 오늘 외웠으니 1일부터 다시 시작
           window.streakData.count = 1;
         }
       } else {
+        // 생전 처음 누른 경우
         window.streakData.count = 1;
       }
 
@@ -1526,6 +1537,27 @@
     };
 
     window.updateStreakUI = function() {
+      if (window.streakData && window.streakData.lastDate) {
+        const todayStr = window.getTodayLocalDateString();
+        
+        // 날짜 차이 계산을 위한 내부 함수
+        const parseDateString = (dateStr) => {
+          const parts = dateStr.split('-');
+          return Date.UTC(parts[0], parts[1] - 1, parts[2]); 
+        };
+        
+        const lastDateObj = parseDateString(window.streakData.lastDate);
+        const todayDateObj = parseDateString(todayStr);
+        const diffDays = Math.round((todayDateObj - lastDateObj) / 86400000);
+
+        // 마지막으로 외운 날이 어제(1)도 아니고 오늘(0)도 아니라면 (즉, 이틀 이상 지났다면)
+        if (diffDays > 1) {
+          window.streakData.count = 0; // 가차 없이 0일로 초기화!
+          localStorage.setItem('streak_data', JSON.stringify(window.streakData));
+        }
+      }
+
+      // 검사가 끝난 진짜 연속 기록을 화면에 표시
       const streakElem = document.getElementById('streakCount');
       if (streakElem) {
         streakElem.innerText = window.streakData.count || 0;
