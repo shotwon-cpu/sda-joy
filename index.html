@@ -1072,9 +1072,9 @@
       const verseKoElem = document.getElementById('displayVerseKo');
       const verseEnElem = document.getElementById('displayVerseEn');
 
-      // 🧒 모드에 따라 어린이 기억절 우선 참조
-      const targetVerseKo = window.isChildMode ? (data.verse_ko_child || data.verse_ko || "") : (data.verse_ko || "");
-      const targetVerseEn = window.isChildMode ? (data.verse_en_child || data.verse_en || "") : (data.verse_en || "");
+      // 🧒 어린이 모드일 때 비어있으면 준비 중 안내 문구 출력
+      const targetVerseKo = window.isChildMode ? (data.verse_ko_child || "어린이 기억절 준비 중입니다.") : (data.verse_ko || "");
+      const targetVerseEn = window.isChildMode ? (data.verse_en_child || "") : (data.verse_en || "");
 
       const originalKo = targetVerseKo ? targetVerseKo.trim() : "";
       const originalEn = targetVerseEn ? targetVerseEn.trim() : "";
@@ -1720,12 +1720,12 @@
       if (window.sheetData.length === 0) return;
       const data = window.sheetData[window.currentIndex];
       
-      // 🧒 어린이/장년 모드에 따른 텍스트 선택
-      const titleKo = window.isChildMode ? (data.title_ko_child || data.title_ko || '제목 없음') : (data.title_ko || '제목 없음');
-      const titleEn = window.isChildMode ? (data.title_en_child || data.title_en || '') : (data.title_en || '');
+      // 🧒 어린이 모드일 때 제목/성경절도 독립 처리 (장년 데이터로 넘어가지 않음)
+      const titleKo = window.isChildMode ? (data.title_ko_child || "어린이 교과") : (data.title_ko || '제목 없음');
+      const titleEn = window.isChildMode ? (data.title_en_child || '') : (data.title_en || '');
       
-      const rawBibleKo = window.isChildMode ? (data.bible_ko_child || data.bible_ko || '') : (data.bible_ko || '');
-      const rawBibleEn = window.isChildMode ? (data.bible_en_child || data.bible_en || '') : (data.bible_en || '');
+      const rawBibleKo = window.isChildMode ? (data.bible_ko_child || '') : (data.bible_ko || '');
+      const rawBibleEn = window.isChildMode ? (data.bible_en_child || '') : (data.bible_en || '');
 
       document.getElementById('displayQuarter').innerText = data.quarter || '정보 없음';
       document.getElementById('displayTitleKo').innerText = titleKo;
