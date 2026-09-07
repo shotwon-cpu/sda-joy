@@ -1037,9 +1037,13 @@
     });
     // ================================================================
     
-    // 💡 5단계 순환 가림 (초성 퀴즈 포함)
+    // 💡 5단계 순환 가림 (안전 루프 및 오류 방어 적용)
     window.cycleMaskStep = function() {
-      window.currentMaskStep = (window.currentMaskStep % 5) + 1;
+      let nextStep = Number(window.currentMaskStep || 1) + 1;
+      if (nextStep > 5 || isNaN(nextStep)) {
+        nextStep = 1;
+      }
+      window.currentMaskStep = nextStep;
       window.applyVerseMasking();
     };
 
@@ -1067,12 +1071,19 @@
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
 
+      // 1~5 범위를 벗어난 경우 무조건 1단계로 안전 초기화
+      let step = Number(window.currentMaskStep) || 1;
+      if (step < 1 || step > 5) {
+        step = 1;
+        window.currentMaskStep = 1;
+      }
+
       const btnText = document.getElementById('maskStepText');
       const btnIcon = document.getElementById('maskStepIcon');
       const verseKoElem = document.getElementById('displayVerseKo');
       const verseEnElem = document.getElementById('displayVerseEn');
 
-      // 🧒 어린이 모드일 때 비어있으면 준비 중 안내 문구 출력
+      // 🧒 어린이/장년 모드에 따른 기억절 선택
       const targetVerseKo = window.isChildMode ? (data.verse_ko_child || "어린이 기억절 준비 중입니다.") : (data.verse_ko || "");
       const targetVerseEn = window.isChildMode ? (data.verse_en_child || "") : (data.verse_en || "");
 
@@ -1087,21 +1098,21 @@
         5: { text: "5. 전체가림", icon: "fa-solid fa-eye-slash" }
       };
 
-      if (btnText && btnIcon) {
-        btnText.innerText = stepNames[window.currentMaskStep].text;
-        btnIcon.className = stepNames[window.currentMaskStep].icon + " mr-1 text-base sm:text-xl text-amber-300";
+      if (btnText && btnIcon && stepNames[step]) {
+        btnText.innerText = stepNames[step].text;
+        btnIcon.className = stepNames[step].icon + " mr-1 text-base sm:text-xl text-amber-300";
       }
 
       let maskedKo = originalKo;
       let maskedEn = originalEn;
 
-      if (window.currentMaskStep === 2) {
+      if (step === 2) {
         maskedKo = originalKo.split(' ').map((w, idx) => (w.length >= 3 && idx % 2 === 1) ? '[ ___ ]' : w).join(' ');
         maskedEn = originalEn.split(' ').map((w, idx) => (w.length >= 4 && idx % 2 === 1) ? '[ ___ ]' : w).join(' ');
-      } else if (window.currentMaskStep === 3) {
+      } else if (step === 3) {
         maskedKo = window.convertToChoSung(originalKo);
         maskedEn = originalEn.split(' ').map(w => w.length <= 1 ? w : w[0] + '•'.repeat(w.length - 1)).join(' ');
-      } else if (window.currentMaskStep === 4) {
+      } else if (step === 4) {
         maskedKo = originalKo.split(' ').map(word => {
           if (word.length <= 1) return word;
           return word[0] + '○'.repeat(word.length - 1);
@@ -1110,7 +1121,7 @@
           if (word.length <= 1) return word;
           return word[0] + '•'.repeat(word.length - 1);
         }).join(' ');
-      } else if (window.currentMaskStep === 5) {
+      } else if (step === 5) {
         maskedKo = "••••••••••••••••••••••••••••••••••••••••";
         maskedEn = "••••••••••••••••••••••••••••••••••••••••";
       }
@@ -1118,7 +1129,7 @@
       if (verseKoElem) verseKoElem.innerText = maskedKo ? `"${maskedKo}"` : "";
       
       if (verseEnElem) {
-        if (window.currentMaskStep === 1 && originalEn) {
+        if (step === 1 && originalEn) {
           verseEnElem.innerHTML = `"${window.formatInteractiveEnglishVerse(originalEn)}"`;
         } else {
           verseEnElem.innerText = maskedEn ? `"${maskedEn}"` : "";
