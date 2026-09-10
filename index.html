@@ -2213,14 +2213,32 @@
     window.copyVerse = function() {
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
-      const textToCopy = `[${data.quarter || ''}]\nKR: ${data.title_ko || ''}\nEN: ${data.title_en || ''}\n\n📖 ${data.bible_ko || ''} / ${data.bible_en || ''}\n"${data.verse_ko || ''}"\n"${data.verse_en || ''}"`;
+
+      // 🧒 어린이 모드 텍스트 추출
+      const titleKo = window.isChildMode ? (data.title_ko_child || '') : (data.title_ko || '');
+      const titleEn = window.isChildMode ? (data.title_en_child || '') : (data.title_en || '');
+      const bibleKo = window.isChildMode ? (data.bible_ko_child || '') : (data.bible_ko || '');
+      const bibleEn = window.isChildMode ? (data.bible_en_child || '') : (data.bible_en || '');
+      const verseKo = window.isChildMode ? (data.verse_ko_child || '') : (data.verse_ko || '');
+      const verseEn = window.isChildMode ? (data.verse_en_child || '') : (data.verse_en || '');
+
+      const textToCopy = `[${data.quarter || ''}]\nKR: ${titleKo}\nEN: ${titleEn}\n\n📖 ${bibleKo} / ${bibleEn}\n"${verseKo}"\n"${verseEn}"`;
       navigator.clipboard.writeText(textToCopy).then(() => { alert('기억절이 클립보드에 복사되었습니다.'); });
     };
 
     window.shareVerse = function() {
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
-      const textToShare = `[${data.quarter || ''}]\nKR: ${data.title_ko || ''}\nEN: ${data.title_en || ''}\n\n📖 ${data.bible_ko || ''} / ${data.bible_en || ''}\n"${data.verse_ko || ''}"\n"${data.verse_en || ''}"`;
+
+      // 🧒 어린이 모드 텍스트 추출
+      const titleKo = window.isChildMode ? (data.title_ko_child || '') : (data.title_ko || '');
+      const titleEn = window.isChildMode ? (data.title_en_child || '') : (data.title_en || '');
+      const bibleKo = window.isChildMode ? (data.bible_ko_child || '') : (data.bible_ko || '');
+      const bibleEn = window.isChildMode ? (data.bible_en_child || '') : (data.bible_en || '');
+      const verseKo = window.isChildMode ? (data.verse_ko_child || '') : (data.verse_ko || '');
+      const verseEn = window.isChildMode ? (data.verse_en_child || '') : (data.verse_en || '');
+
+      const textToShare = `[${data.quarter || ''}]\nKR: ${titleKo}\nEN: ${titleEn}\n\n📖 ${bibleKo} / ${bibleEn}\n"${verseKo}"\n"${verseEn}"`;
       if (navigator.share) {
         navigator.share({ title: '세종행복교회 안식일학교', text: textToShare }).catch(console.error);
       } else {
@@ -2232,7 +2250,15 @@
       if (!('speechSynthesis' in window)) { alert("현재 브라우저에서는 듣기 기능을 지원하지 않습니다."); return; }
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
-      const textToSpeak = lang === 'en' ? data.verse_en : data.verse_ko;
+
+      // 🧒 어린이/장년 모드에 따른 텍스트 선택
+      let textToSpeak = "";
+      if (lang === 'en') {
+        textToSpeak = window.isChildMode ? data.verse_en_child : data.verse_en;
+      } else {
+        textToSpeak = window.isChildMode ? data.verse_ko_child : data.verse_ko;
+      }
+
       if (!textToSpeak) { alert(lang === 'en' ? "영어 기억절이 없습니다." : "한글 기억절이 없습니다."); return; }
       
       window.speechSynthesis.cancel();
