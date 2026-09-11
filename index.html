@@ -1117,15 +1117,43 @@
 
       if (btnText && btnIcon && stepNames[step]) {
         btnText.innerText = stepNames[step].text;
-        btnIcon.className = stepNames[step].icon + " mr-1 text-base sm:text-xl text-amber-300";
+        btnIcon.className = stepNames[step].icon + " mr-1 text-[17px] sm:text-2xl text-amber-300 flex-shrink-0";
       }
 
       let maskedKo = originalKo;
       let maskedEn = originalEn;
 
       if (step === 2) {
-        maskedKo = originalKo.split(' ').map((w, idx) => (w.length >= 3 && idx % 2 === 1) ? '[ ___ ]' : w).join(' ');
-        maskedEn = originalEn.split(' ').map((w, idx) => (w.length >= 4 && idx % 2 === 1) ? '[ ___ ]' : w).join(' ');
+        // 🔥 핵심: 짧은 문장(어린이 교과)에서도 최소 1개의 빈칸은 무조건 보장하는 로직
+        const maskWords = (text, minLength) => {
+          if (!text) return "";
+          let words = text.split(' ');
+          if (words.length === 0) return text;
+          
+          let blankCount = Math.max(1, Math.floor(words.length * 0.35)); 
+          let indices = [];
+          let attempts = 0;
+          
+          while(indices.length < blankCount && attempts < 50) {
+            let r = Math.floor(Math.random() * words.length);
+            // 조건: 아직 선택되지 않았고, 단어 길이가 minLength 이상일 것 (없으면 무한루프 방지)
+            if(!indices.includes(r) && words[r].length >= minLength) {
+              indices.push(r);
+            }
+            attempts++;
+          }
+          
+          // 만약 길이가 긴 단어가 없어서 못 골랐다면, 길이 상관없이 아무거나 1개 강제 선택
+          if (indices.length === 0 && words.length > 0) {
+            indices.push(Math.floor(Math.random() * words.length));
+          }
+          
+          return words.map((w, i) => indices.includes(i) ? "[ ___ ]" : w).join(' ');
+        };
+
+        maskedKo = maskWords(originalKo, 2); // 한글은 최소 2글자 이상 단어를 우선 빈칸
+        maskedEn = maskWords(originalEn, 3); // 영어는 최소 3글자 이상 단어를 우선 빈칸
+
       } else if (step === 3) {
         maskedKo = window.convertToChoSung(originalKo);
         maskedEn = originalEn.split(' ').map(w => w.length <= 1 ? w : w[0] + '•'.repeat(w.length - 1)).join(' ');
@@ -1144,10 +1172,7 @@
       }
 
       if (verseKoElem) verseKoElem.innerText = maskedKo ? `"${maskedKo}"` : "";
-      
-      if (verseEnElem) {
-        verseEnElem.innerText = maskedEn ? `"${maskedEn}"` : "";
-      }
+      if (verseEnElem) verseEnElem.innerText = maskedEn ? `"${maskedEn}"` : "";
     };
 
     // 🧩 =========================================================
