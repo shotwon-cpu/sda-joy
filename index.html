@@ -1124,7 +1124,6 @@
       let maskedEn = originalEn;
 
       if (step === 2) {
-        // 🔥 핵심: 짧은 문장(어린이 교과)에서도 최소 1개의 빈칸은 무조건 보장하는 로직
         const maskWords = (text, minLength) => {
           if (!text) return "";
           let words = text.split(' ');
@@ -1136,14 +1135,18 @@
           
           while(indices.length < blankCount && attempts < 50) {
             let r = Math.floor(Math.random() * words.length);
-            // 조건: 아직 선택되지 않았고, 단어 길이가 minLength 이상일 것 (없으면 무한루프 방지)
-            if(!indices.includes(r) && words[r].length >= minLength) {
+            
+            // 💡 핵심: 뽑힌 번호의 바로 앞(r-1)이나 뒤(r+1)가 이미 빈칸인지 검사 (연속 빈칸 방지)
+            let isConsecutive = indices.includes(r - 1) || indices.includes(r + 1);
+
+            // 조건: 아직 안 뽑혔고, 길이는 충족하며, 연달아 붙어있지 않을 것!
+            if(!indices.includes(r) && words[r].length >= minLength && !isConsecutive) {
               indices.push(r);
             }
             attempts++;
           }
           
-          // 만약 길이가 긴 단어가 없어서 못 골랐다면, 길이 상관없이 아무거나 1개 강제 선택
+          // 만약 조건(길이, 연속방지)이 너무 빡빡해서 1개도 못 골랐다면 아무거나 1개 강제 선택
           if (indices.length === 0 && words.length > 0) {
             indices.push(Math.floor(Math.random() * words.length));
           }
@@ -1151,8 +1154,8 @@
           return words.map((w, i) => indices.includes(i) ? "[ ___ ]" : w).join(' ');
         };
 
-        maskedKo = maskWords(originalKo, 2); // 한글은 최소 2글자 이상 단어를 우선 빈칸
-        maskedEn = maskWords(originalEn, 3); // 영어는 최소 3글자 이상 단어를 우선 빈칸
+        maskedKo = maskWords(originalKo, 2); 
+        maskedEn = maskWords(originalEn, 3); 
 
       } else if (step === 3) {
         maskedKo = window.convertToChoSung(originalKo);
@@ -1219,15 +1222,20 @@
       const data = window.sheetData[window.currentIndex];
       const targetVerse = window.isChildMode ? (data.verse_ko_child || data.verse_ko || "") : (data.verse_ko || "");
       const targetBible = window.isChildMode ? (data.bible_ko_child || data.bible_ko || "") : (data.bible_ko || "");
-      const rawText = targetVerse.trim();
+      
+      // 💡 [수정 1] 성경 출처를 기억절 텍스트 맨 뒤에 한 덩어리로 이어 붙이기
+      const targetBibleStr = targetBible ? `(${targetBible.replace(/[\(\)]/g, '')})` : "";
+      const rawText = (targetVerse.trim() + " " + targetBibleStr).trim();
+      
       const weekKey = window.getCurrentWeekKey();
 
       window.currentPuzzleRound = round;
       window.puzzleProgressMap[weekKey] = round;
       localStorage.setItem('puzzle_progress_map', JSON.stringify(window.puzzleProgressMap));
 
+      // 💡 [수정 2] 상단에 정답(성경절)을 대놓고 보여주는 대신 미션 문구로 변경
       const bibleRefEl = document.getElementById('puzzleBibleRef');
-      if (bibleRefEl) bibleRefEl.innerText = targetBible ? `📖 ${targetBible.replace(/[\(\)]/g, '')}` : '📖 성경 말씀';
+      if (bibleRefEl) bibleRefEl.innerText = '📖 출처까지 완벽하게 맞춰보세요!';
 
       const words = rawText.split(/\s+/).filter(w => w.length > 0);
       const chunkSize = window.getChunkSizeForRound(words.length, round);
@@ -1237,7 +1245,11 @@
         chunks.push(words.slice(i, i + chunkSize).join(' '));
       }
 
-      window.puzzleTargetBlocks = chunks;
+      // 💡 [수정 3] targetBlocks도 객체 배열로 만들어서 checkPuzzleComplete 로직과 통일
+      window.puzzleTargetBlocks = chunks.map((text, index) => ({
+        id: `tb_${index}`,
+        text: text
+      }));
       window.puzzleSelectedBlocks = [];
 
       window.puzzlePoolBlocks = chunks.map((chunkText, idx) => ({
@@ -1309,7 +1321,7 @@
       if (window.puzzleSelectedBlocks.length !== window.puzzleTargetBlocks.length) return;
 
       const userSentence = window.puzzleSelectedBlocks.map(b => b.text).join(' ');
-      const targetSentence = window.puzzleTargetBlocks.join(' ');
+      const targetSentence = window.puzzleTargetBlocks.map(b => b.text).join(' ');
       const feedback = document.getElementById('puzzleFeedbackArea');
 
       if (userSentence === targetSentence) {
@@ -1329,17 +1341,23 @@
             confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
           }
 
+          // 💡 [수정 4] 3단계 완주 시 "1단계로 다시 하기" 버튼과 "암송 완료" 버튼을 나란히 배치 (글자 크기 큼직하게 유지)
           feedback.className = "text-center p-4 rounded-2xl text-sm sm:text-base font-black bg-amber-100 text-amber-950 border-2 border-amber-400 block shadow-md animate-bounce";
           feedback.innerHTML = `
             <div class="space-y-2">
               <p class="text-lg sm:text-xl">🏆 <strong>3회 완주 대성공!</strong></p>
               <p class="text-xs sm:text-sm text-amber-800">오늘의 암송 실천이 완벽하게 인증되었습니다! 🔥</p>
-              <button onclick="window.closePuzzleModal(); event.stopPropagation();" class="mt-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-black rounded-xl text-sm sm:text-base shadow active:scale-95">
-                암송 완료하고 닫기 ✨
-              </button>
+              <div class="flex justify-center gap-2 mt-3">
+                <button onclick="window.initPuzzleRound(1); event.stopPropagation();" class="px-3 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-xl text-sm sm:text-base shadow active:scale-95">
+                  🔄 1단계로 다시
+                </button>
+                <button onclick="window.closePuzzleModal(); event.stopPropagation();" class="px-3 sm:px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-black rounded-xl text-sm sm:text-base shadow active:scale-95">
+                  암송 완료 ✨
+                </button>
+              </div>
             </div>
           `;
-          feedback.onclick = () => window.closePuzzleModal();
+          feedback.onclick = null; // 버튼 클릭을 유도하기 위해 전체 박스 클릭 작동 해제
 
           window.recordDailyRecite(true);
         }
