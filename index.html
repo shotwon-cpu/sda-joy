@@ -229,9 +229,10 @@
           <div class="p-3 sm:p-5 md:p-8 relative z-10 pointer-events-none"> 
             
             <div class="mb-3.5 sm:mb-5 flex justify-end items-center gap-1.5 sm:gap-2 flex-wrap">
-              <div id="streakBadge" class="pointer-events-auto flex items-center bg-amber-50 text-amber-800 border border-amber-300 px-3 py-1.5 sm:py-2 rounded-full text-sm sm:text-base md:text-lg font-black shadow-sm mr-auto sm:mr-0">
-                <span class="mr-1 text-base sm:text-xl">🔥</span><span id="streakCount">0</span>일 연속
-              </div>
+              <button onclick="window.openDevotionalModal(); event.stopPropagation();" class="pointer-events-auto flex items-center bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-300 px-3.5 py-1.5 sm:py-2 rounded-full text-sm sm:text-base md:text-lg font-black shadow-sm mr-auto sm:mr-0 transition active:scale-95">
+                <i class="fa-solid fa-dove text-sky-600 mr-1.5 text-base sm:text-xl"></i>
+                <span class="whitespace-nowrap tracking-tight">오늘의 기도력</span>
+              </button>
 
               <button onclick="window.changeWeek(-1); event.stopPropagation();" class="pointer-events-auto w-10 h-10 sm:w-12 sm:h-12 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-full flex items-center justify-center transition shadow-sm border border-slate-200 active:scale-95">
                 <i class="fa-solid fa-chevron-left text-base sm:text-lg"></i>
@@ -492,6 +493,34 @@
       <!-- 👇 bg-white 유지 및 color-scheme 지정 -->
       <div class="flex-1 w-full bg-white relative" style="color-scheme: light; forced-color-adjust: none;">
         <iframe id="hymnIframe" class="w-full h-full border-0 bg-white" style="color-scheme: light; forced-color-adjust: none;" src=""></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🕊️ 오늘의 기도력 모달 -->
+  <div id="devotionalModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[65] p-2 md:p-4">
+    <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
+      <div class="bg-sky-800 text-white p-3.5 sm:p-4 flex justify-between items-center">
+        <h3 id="devotionalModalTitle" class="font-bold text-base sm:text-lg flex items-center truncate">
+          <i class="fa-solid fa-dove mr-2"></i>매일 기도력
+        </h3>
+        <div class="flex items-center space-x-2 flex-shrink-0">
+          <button onclick="window.openDevotionalNewTab()" class="text-xs sm:text-sm bg-sky-700 hover:bg-sky-600 text-sky-100 font-bold px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> 새창 열기
+          </button>
+          <button onclick="window.closeDevotionalModal()" class="text-sky-200 hover:text-white transition p-1 ml-1">
+            <i class="fa-solid fa-xmark text-2xl sm:text-3xl"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="flex-1 w-full bg-slate-50 relative">
+        <!-- 로딩 스피너 -->
+        <div id="devotionalLoader" class="absolute inset-0 flex items-center justify-center bg-slate-50 z-10">
+          <i class="fa-solid fa-spinner fa-spin text-4xl text-sky-500"></i>
+        </div>
+        <!-- 시조사 홈페이지 연결 iframe -->
+        <iframe id="devotionalIframe" class="w-full h-full border-0 hidden" src="" onload="this.classList.remove('hidden'); document.getElementById('devotionalLoader').classList.add('hidden');"></iframe>
       </div>
     </div>
   </div>
@@ -1992,6 +2021,43 @@
       document.getElementById('hymnIframe').src = "";
     };
 
+    // 🕊️ 기도력 모달 열기 (오늘 날짜 자동 계산 & 어린이/장년 모드 연동)
+    window.openDevotionalModal = function() {
+      const todayStr = window.getTodayLocalDateString(); // 접속한 기기의 오늘 날짜 (YYYY-MM-DD)
+      
+      // 장년 모드면 장년 기도력, 어린이 모드면 어린이 기도력 URL 적용 (시조사 기준 ID)
+      const co_id = window.isChildMode ? "child_devotional" : "daily_devotional"; 
+      
+      const targetUrl = `https://www.adventist.or.kr/channel/bbs/content.php?co_id=${co_id}&date=${todayStr}`;
+      window.currentDevotionalUrl = targetUrl; // 새창 열기를 위해 저장
+      
+      const titleElem = document.getElementById('devotionalModalTitle');
+      if (titleElem) {
+        titleElem.innerHTML = `<i class="fa-solid fa-dove mr-2"></i>${window.isChildMode ? '어린이 기도력' : '장년 기도력'} (${todayStr})`;
+      }
+
+      const iframe = document.getElementById('devotionalIframe');
+      const loader = document.getElementById('devotionalLoader');
+      
+      // 창 열 때 로딩 애니메이션 켜기
+      iframe.classList.add('hidden');
+      loader.classList.remove('hidden');
+      iframe.src = targetUrl;
+      
+      document.getElementById('devotionalModal').classList.remove('hidden');
+    };
+
+    window.closeDevotionalModal = function() {
+      document.getElementById('devotionalModal').classList.add('hidden');
+      document.getElementById('devotionalIframe').src = "";
+    };
+
+    window.openDevotionalNewTab = function() {
+      if (window.currentDevotionalUrl) {
+        window.open(window.currentDevotionalUrl, '_blank');
+      }
+    };
+
     window.openDiscussionModal = function() {
       const data = window.sheetData[window.currentIndex];
       const iframe = document.getElementById('discussionIframe');
@@ -2494,7 +2560,8 @@
         { id: 'dictModal', closeFunc: window.closeDictModal },
         { id: 'bibleModal', closeFunc: window.closeBibleModal },
         { id: 'puzzleModal', closeFunc: window.closePuzzleModal },
-        { id: 'featureLockModal', closeFunc: window.closeFeatureLockModal }
+        { id: 'featureLockModal', closeFunc: window.closeFeatureLockModal },
+        { id: 'devotionalModal', closeFunc: window.closeDevotionalModal }
       ];
 
       modals.forEach(modalInfo => {
