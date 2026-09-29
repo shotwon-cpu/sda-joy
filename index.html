@@ -2342,8 +2342,35 @@
       const data = window.sheetData[window.currentIndex];
       let targetUrl = (window.currentTab === 'a') ? data.youtube_a : (window.currentTab === 'b') ? data.youtube_b : data.youtube_c;
       const videoId = window.extractYouTubeId(targetUrl);
+      
       if (videoId) {
-        window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+        // 1. 브라우저에 '빈 새 창'을 엽니다. (유튜브 주소가 아니므로 앱으로 납치되지 않음!)
+        const newWindow = window.open('', '_blank');
+        
+        if (newWindow) {
+          // 2. 열린 빈 창(브라우저 탭) 안에 유튜브 영상을 꽉 채우는 HTML 코드를 직접 쏴줍니다.
+          newWindow.document.write(`
+            <!DOCTYPE html>
+            <html lang="ko">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+              <title>교과해설 영상</title>
+              <style>
+                /* 여백 없이 검은 배경에 영상만 꽉 차게 설정 */
+                body { margin: 0; padding: 0; background-color: #000; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+                iframe { width: 100vw; height: 100vh; border: none; }
+              </style>
+            </head>
+            <body>
+              <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+            </body>
+            </html>
+          `);
+          newWindow.document.close();
+        } else {
+          alert("팝업 차단이 설정되어 있습니다. 브라우저 설정에서 팝업 차단을 해제해 주세요.");
+        }
       } else {
         alert("현재 선택된 강사의 영상 링크가 없습니다.");
       }
