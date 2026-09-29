@@ -2026,7 +2026,7 @@
       const todayStr = window.getTodayLocalDateString(); // 접속한 기기의 오늘 날짜 (YYYY-MM-DD)
       
       // 장년 모드면 장년 기도력, 어린이 모드면 어린이 기도력 URL 적용 (시조사 기준 ID)
-      const co_id = window.isChildMode ? "child_devotional" : "daily_devotional"; 
+      const co_id = window.isChildMode ? "daily_devotional_01" : "daily_devotional"; 
       
       const targetUrl = `https://www.adventist.or.kr/channel/bbs/content.php?co_id=${co_id}&date=${todayStr}`;
       window.currentDevotionalUrl = targetUrl; // 새창 열기를 위해 저장
