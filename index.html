@@ -2342,9 +2342,21 @@
       const data = window.sheetData[window.currentIndex];
       let targetUrl = (window.currentTab === 'a') ? data.youtube_a : (window.currentTab === 'b') ? data.youtube_b : data.youtube_c;
       const videoId = window.extractYouTubeId(targetUrl);
+      
       if (videoId) {
-        // youtube.com 대신 youtube-nocookie.com을 사용하여 앱 강제 실행을 우회합니다.
-        window.open(`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`, '_blank');
+        // 접속한 기기가 안드로이드(갤럭시 등)인지 확인
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        
+        if (isAndroid) {
+          // 안드로이드: 삼성 인터넷 브라우저를 콕 집어서 강제 실행하는 마법의 명령어 (Intent)
+          const intentUrl = `intent://m.youtube.com/watch?v=${videoId}#Intent;scheme=https;package=com.sec.android.app.sbrowser;end;`;
+          
+          // 새창(window.open) 대신 현재 창에서 명령어를 실행해야 스마트폰이 알아듣습니다.
+          location.href = intentUrl; 
+        } else {
+          // 아이폰(iOS)이나 PC 사용자: 에러 방지를 위해 일반적인 방식으로 연결
+          window.open(`https://m.youtube.com/watch?v=${videoId}`, '_blank');
+        }
       } else {
         alert("현재 선택된 강사의 영상 링크가 없습니다.");
       }
