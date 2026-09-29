@@ -178,53 +178,50 @@
   </div>
 
   <!-- 상단 네비게이션 헤더 전체 -->
-  <!-- 기본은 좁은 여백, sm(큰폰/가로모드) 이상에서는 넓은 여백으로 자동 전환 -->
-  <header class="nav-header text-white px-2 py-2 sm:px-5 sm:py-3.5 flex justify-between items-center shadow-lg gap-2 w-full">
+  <header class="nav-header text-white px-1.5 py-2.5 sm:px-5 sm:py-3.5 flex justify-between items-center shadow-lg gap-1.5 overflow-hidden shrink-0 w-full">
     
     <!-- 1. 좌측 타이틀 영역 -->
-    <!-- shrink-0: 어떤 일이 있어도 이 영역은 찌그러지거나 줄바꿈되지 않도록 방어 -->
-    <div onclick="window.toggleChildMode()" class="flex flex-col justify-center shrink-0 cursor-pointer select-none active:opacity-80 transition" title="터치하여 장년/어린이 모드 전환">
+    <!-- 💡 수정: 영역이 좁아져도 절대 줄바꿈 되지 않도록 방어(shrink-0) -->
+    <div onclick="window.toggleChildMode()" class="flex flex-col justify-center shrink-0 pr-1 cursor-pointer select-none active:opacity-80 transition" title="터치하여 장년/어린이 모드 전환">
       
-      <!-- 글자 크기 자동 조절: 기본(text-base 16px) -> 큰폰(sm:text-xl) -> 태블릿(md:text-3xl) -->
-      <h1 class="text-base sm:text-xl md:text-3xl lg:text-4xl font-black flex items-center tracking-tighter">
-        <i id="headerLogoIcon" class="fa-solid fa-book-bible mr-1 sm:mr-2 text-[14px] sm:text-xl md:text-2xl text-yellow-300"></i>
+      <!-- 💡 수정: 글자 크기 원래대로(20px) 복구, 띄어쓰기는 붙여서 공간 확보 -->
+      <h1 class="text-[20px] sm:text-3xl md:text-4xl font-black flex items-center tracking-tighter whitespace-nowrap">
+        <i id="headerLogoIcon" class="fa-solid fa-book-bible mr-1.5 sm:mr-3 text-[18px] sm:text-2xl text-yellow-300"></i>
         <span id="headerTitleText">세종행복교회</span>
-        <span id="modeBadge" class="ml-1 px-1.5 py-0.5 text-[9px] sm:text-xs font-bold rounded-full bg-amber-400 text-indigo-950 flex items-center gap-0.5">
+        <span id="modeBadge" class="ml-1 px-1.5 py-0.5 text-[10px] sm:text-xs font-bold rounded-full bg-amber-400 text-indigo-950 flex items-center gap-0.5">
           <i class="fa-solid fa-user"></i> 장년
         </span>
       </h1>
       
-      <!-- 부제목 크기 자동 조절 -->
-      <p id="headerSubText" class="text-[9px] sm:text-xs md:text-sm text-indigo-200 mt-0.5 pl-4 sm:pl-6 tracking-tighter">기억절 & 교과방송</p>
+      <!-- 💡 수정: 고은아빠 텍스트 원상 복구 -->
+      <p id="headerSubText" class="text-[10px] sm:text-sm md:text-base text-indigo-200 mt-0.5 truncate pl-5 tracking-tighter">기억절 & 교과방송 by 고은아빠</p>
     </div>
     
     <!-- 2. 우측 4개 버튼 영역 -->
-    <!-- flex-1: 남는 우측 공간을 모두 차지하되, 공간이 부족하면 알아서 버튼 비율을 줄임 -->
-    <div class="flex flex-1 justify-end max-w-[55%] sm:max-w-none">
-      <div class="grid grid-cols-4 gap-1 sm:gap-2 w-full">
-        
-        <!-- 각 버튼: 기본(매우 작은 크기/여백) -> 큰폰(sm:) 이상부터 알아서 커짐 -->
-        <button onclick="window.requestProtectedAction('hymn', window.openHymnModal)" class="bg-rose-600 hover:bg-rose-500 p-1 sm:px-3 sm:py-2 rounded-lg text-[10px] sm:text-sm md:text-lg font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95 w-full">
-          <i class="fa-solid fa-music mb-0.5 text-[12px] sm:text-base md:text-xl"></i>
-          <span class="whitespace-nowrap tracking-tighter">찬미가</span>
-        </button>
-    
-        <button onclick="goToCurrentWeek()" class="bg-indigo-600 hover:bg-indigo-500 p-1 sm:px-3 sm:py-2 rounded-lg text-[10px] sm:text-sm md:text-lg font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95 w-full">
-          <i class="fa-solid fa-calendar-check mb-0.5 text-[12px] sm:text-base md:text-xl"></i>
-          <span class="whitespace-nowrap tracking-tighter">이번 주</span>
-        </button>
-    
-        <button onclick="openListModal('quarter')" class="bg-emerald-600 hover:bg-emerald-500 p-1 sm:px-3 sm:py-2 rounded-lg text-[10px] sm:text-sm md:text-lg font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95 w-full">
-          <i class="fa-solid fa-layer-group mb-0.5 text-[12px] sm:text-base md:text-xl"></i>
-          <span class="whitespace-nowrap tracking-tighter">13기억절</span>
-        </button>
-    
-        <button onclick="openListModal('year')" class="bg-amber-600 hover:bg-amber-500 p-1 sm:px-3 sm:py-2 rounded-lg text-[10px] sm:text-sm md:text-lg font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95 w-full">
-          <i class="fa-solid fa-list-ol mb-0.5 text-[12px] sm:text-base md:text-xl"></i>
-          <span class="whitespace-nowrap tracking-tighter">52기억절</span>
-        </button>
-        
-      </div>
+    <!-- 💡 수정: 버튼들이 차지하는 최대 가로폭을 살짝 제한하여 좌측 타이틀 공간을 보장 -->
+    <div class="grid grid-cols-4 gap-1 w-full max-w-[210px] sm:max-w-none shrink">
+      
+      <!-- 💡 수정: 버튼 상하 여백(py-1.5)을 주어 세로로 길쭉하게 복구, 글자 크기(13px) 복구 -->
+      <button onclick="window.requestProtectedAction('hymn', window.openHymnModal)" class="w-full bg-rose-600 hover:bg-rose-500 py-1.5 px-0.5 rounded-lg text-[13px] sm:text-lg font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95">
+        <i class="fa-solid fa-music mb-0.5 text-[14px] sm:text-xl"></i>
+        <span class="whitespace-nowrap tracking-tighter">찬미가</span>
+      </button>
+  
+      <button onclick="goToCurrentWeek()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-1.5 px-0.5 rounded-lg text-[13px] sm:text-lg font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95">
+        <i class="fa-solid fa-calendar-check mb-0.5 text-[14px] sm:text-xl"></i>
+        <span class="whitespace-nowrap tracking-tighter">이번 주</span>
+      </button>
+  
+      <button onclick="openListModal('quarter')" class="w-full bg-emerald-600 hover:bg-emerald-500 py-1.5 px-0.5 rounded-lg text-[13px] sm:text-lg font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95">
+        <i class="fa-solid fa-layer-group mb-0.5 text-[14px] sm:text-xl"></i>
+        <span class="whitespace-nowrap tracking-tighter">13기억절</span>
+      </button>
+  
+      <button onclick="openListModal('year')" class="w-full bg-amber-600 hover:bg-amber-500 py-1.5 px-0.5 rounded-lg text-[13px] sm:text-lg font-black transition shadow-md flex flex-col justify-center items-center text-white active:scale-95">
+        <i class="fa-solid fa-list-ol mb-0.5 text-[14px] sm:text-xl"></i>
+        <span class="whitespace-nowrap tracking-tighter">52기억절</span>
+      </button>
+      
     </div>
   </header>
 
