@@ -894,7 +894,6 @@
     window.puzzleSelectedBlocks = [];
 
     window.recitedWeeks = JSON.parse(localStorage.getItem('recited_weeks') || '{}');
-    window.streakData = JSON.parse(localStorage.getItem('streak_data') || '{"count": 0, "lastDate": ""}');
     window.puzzleProgressMap = JSON.parse(localStorage.getItem('puzzle_progress_map') || '{}');
 
     window.getTodayLocalDateString = function() {
@@ -1018,8 +1017,7 @@
     window.onload = async () => {
       window.setupSwipeEvents(); 
       window.setupModalBackdropClicks();
-      window.updateStreakUI();
-      
+            
       try {
         const userCred = await signInAnonymously(auth);
         window.currentUser = userCred.user;
