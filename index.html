@@ -282,7 +282,7 @@
                   <!-- 오늘 외웠어요 -->
                   <button id="btnReciteToggle" onclick="window.recordDailyRecite(); event.stopPropagation();" class="flex-1 py-2.5 sm:py-3.5 px-0.5 sm:px-2 rounded-xl text-[16px] sm:text-xl md:text-2xl font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap min-w-0">
                     <i id="reciteIcon" class="fa-regular fa-circle-check mr-1 text-[17px] sm:text-2xl flex-shrink-0"></i>
-                    <span id="reciteText" class="whitespace-nowrap font-black tracking-tight">오늘 외웠어요</span>
+                    <span id="reciteText" class="whitespace-nowrap font-black tracking-tight">외웠어요</span>
                   </button>
 
                   <!-- 1. 전체보기 -->
@@ -1712,11 +1712,11 @@
       if (isDoneToday) {
         btn.className = "flex-1 px-1 sm:px-2.5 py-2.5 sm:py-3 rounded-xl text-[15px] sm:text-lg md:text-xl font-black transition shadow-md flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 active:scale-95 whitespace-nowrap";
         icon.className = "fa-solid fa-circle-check mr-1 text-base sm:text-xl text-yellow-300";
-        text.innerText = "오늘 외웠어요! ✨";
+        text.innerText = "외웠어요! ✨";
       } else {
         btn.className = "flex-1 px-1 sm:px-2.5 py-2.5 sm:py-3 rounded-xl text-[15px] sm:text-lg md:text-xl font-black transition shadow-md flex items-center justify-center bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/50 active:scale-95 whitespace-nowrap";
         icon.className = "fa-regular fa-circle-check mr-1 text-base sm:text-xl";
-        text.innerText = "오늘 외웠어요";
+        text.innerText = "외웠어요";
       }
     };
 
