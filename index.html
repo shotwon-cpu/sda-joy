@@ -1400,25 +1400,25 @@
             confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
           }
 
-          // 💡 [수정 4] 3단계 완주 시 "1단계로 다시 하기" 버튼과 "암송 완료" 버튼을 나란히 배치 (글자 크기 큼직하게 유지)
           feedback.className = "text-center p-4 rounded-2xl text-sm sm:text-base font-black bg-amber-100 text-amber-950 border-2 border-amber-400 block shadow-md animate-bounce";
           feedback.innerHTML = `
             <div class="space-y-2">
-              <p class="text-lg sm:text-xl">🏆 <strong>3회 완주 대성공!</strong></p>
-              <p class="text-xs sm:text-sm text-amber-800">오늘의 암송 실천이 완벽하게 인증되었습니다! 🔥</p>
+              <p class="text-lg sm:text-xl">🏆 <strong>3단계 완주 대성공!</strong></p>
+              <!-- 👇 "오늘의 암송 실천이..."를 "해당 주차 암송이..."로 변경 -->
+              <p class="text-xs sm:text-sm text-amber-800">기억절 암송이 완벽하게 인증되었습니다! 🔥</p>
               <div class="flex justify-center gap-2 mt-3">
                 <button onclick="window.initPuzzleRound(1); event.stopPropagation();" class="px-3 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-xl text-sm sm:text-base shadow active:scale-95">
-                  🔄 1단계로 다시
+                  🔄 다시 하기
                 </button>
                 <button onclick="window.closePuzzleModal(); event.stopPropagation();" class="px-3 sm:px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-black rounded-xl text-sm sm:text-base shadow active:scale-95">
-                  암송 완료 ✨
+                  확인 ✨
                 </button>
               </div>
             </div>
           `;
           feedback.onclick = null; // 버튼 클릭을 유도하기 위해 전체 박스 클릭 작동 해제
 
-          window.recordDailyRecite(true);
+          window.recordDailyRecite(true); // 👈 여기서 true를 보내서 무조건 완료 처리함
         }
       } else {
         feedback.className = "text-center p-3 rounded-2xl text-sm sm:text-base font-black bg-rose-100 text-rose-800 border-2 border-rose-300 block";
@@ -1649,52 +1649,27 @@
       const data = window.sheetData[window.currentIndex];
       if (!data) return;
 
-      const todayStr = window.getTodayLocalDateString();
       const weekKey = String(data.week || (window.currentIndex + 1));
 
-      window.recitedWeeks[weekKey] = true;
+      // 퍼즐 완주로 넘어온 경우 무조건 완료(true) 처리, 직접 버튼을 누른 경우 체크/해제 토글
+      if (isFromPuzzle) {
+        window.recitedWeeks[weekKey] = true;
+      } else {
+        window.recitedWeeks[weekKey] = !window.recitedWeeks[weekKey]; 
+      }
+      
+      // 로컬(스마트폰)에 저장
       localStorage.setItem('recited_weeks', JSON.stringify(window.recitedWeeks));
 
-      if (window.streakData.lastDate === todayStr) {
-        if (!isFromPuzzle) {
-          alert("오늘 암송 실천을 이미 완료하셨습니다! 🔥 (" + window.streakData.count + "일 연속 달성 중)");
-        }
-        return;
-      }
+      // 💡 현재 보고 있는 과의 암송 상태로 즉시 버튼 모양 업데이트
+      window.updateDailyReciteButtonUI(window.recitedWeeks[weekKey]);
 
-      if (window.streakData.lastDate) {
-        const parseDateString = (dateStr) => {
-          const parts = dateStr.split('-');
-          return Date.UTC(parts[0], parts[1] - 1, parts[2]); 
-        };
-        const lastDateObj = parseDateString(window.streakData.lastDate);
-        const todayDateObj = parseDateString(todayStr);
-        const diffDays = Math.round((todayDateObj - lastDateObj) / 86400000);
-
-        if (diffDays === 1) {
-          // 어제 외우고 오늘 외웠으니 +1
-          window.streakData.count = (window.streakData.count || 0) + 1;
-        } else if (diffDays > 1) {
-          // 어제 건너뛰고 오늘 외웠으니 1일부터 다시 시작
-          window.streakData.count = 1;
-        }
-      } else {
-        // 생전 처음 누른 경우
-        window.streakData.count = 1;
-      }
-
-      window.streakData.lastDate = todayStr;
-      localStorage.setItem('streak_data', JSON.stringify(window.streakData));
-
-      window.updateDailyReciteButtonUI(true);
-      window.updateStreakUI();
-
+      // 파이어베이스 클라우드 동기화 (streak_data 전송 부분 삭제)
       if (window.currentUser) {
         try {
           const userDocRef = doc(db, 'user_records', window.currentUser.uid);
           await setDoc(userDocRef, {
             recited_weeks: window.recitedWeeks,
-            streak_data: window.streakData,
             last_updated: new Date().toISOString()
           }, { merge: true });
         } catch (e) {
@@ -1720,52 +1695,26 @@
       }
     };
 
-    window.updateStreakUI = function() {
-      if (window.streakData && window.streakData.lastDate) {
-        const todayStr = window.getTodayLocalDateString();
-        
-        // 날짜 차이 계산을 위한 내부 함수
-        const parseDateString = (dateStr) => {
-          const parts = dateStr.split('-');
-          return Date.UTC(parts[0], parts[1] - 1, parts[2]); 
-        };
-        
-        const lastDateObj = parseDateString(window.streakData.lastDate);
-        const todayDateObj = parseDateString(todayStr);
-        const diffDays = Math.round((todayDateObj - lastDateObj) / 86400000);
-
-        // 마지막으로 외운 날이 어제(1)도 아니고 오늘(0)도 아니라면 (즉, 이틀 이상 지났다면)
-        if (diffDays > 1) {
-          window.streakData.count = 0; // 가차 없이 0일로 초기화!
-          localStorage.setItem('streak_data', JSON.stringify(window.streakData));
-        }
-      }
-
-      // 검사가 끝난 진짜 연속 기록을 화면에 표시
-      const streakElem = document.getElementById('streakCount');
-      if (streakElem) {
-        streakElem.innerText = window.streakData.count || 0;
-      }
-    };
-
+    
     window.loadUserReciteDataFromCloud = async function() {
       if (!window.currentUser) return;
       try {
         const userDocRef = doc(db, 'user_records', window.currentUser.uid);
         const docSnap = await getDoc(userDocRef);
+        
         if (docSnap.exists()) {
           const cloudData = docSnap.data();
           if (cloudData.recited_weeks) {
             window.recitedWeeks = { ...window.recitedWeeks, ...cloudData.recited_weeks };
             localStorage.setItem('recited_weeks', JSON.stringify(window.recitedWeeks));
           }
-          if (cloudData.streak_data) {
-            window.streakData = cloudData.streak_data;
-            localStorage.setItem('streak_data', JSON.stringify(window.streakData));
-            window.updateStreakUI();
+          
+          // 데이터 불러온 후 현재 화면의 버튼 상태 갱신
+          if (window.sheetData && window.sheetData.length > 0) {
+            const data = window.sheetData[window.currentIndex];
+            const weekKey = String(data.week || (window.currentIndex + 1));
+            window.updateDailyReciteButtonUI(!!window.recitedWeeks[weekKey]);
           }
-          const todayStr = window.getTodayLocalDateString();
-          window.updateDailyReciteButtonUI(window.streakData.lastDate === todayStr);
         }
       } catch (e) {
         console.log("Cloud load failed:", e);
@@ -1871,8 +1820,9 @@
       window.applyVerseMasking();
       window.applyMainVerseFontSize();
 
-      const todayStr = window.getTodayLocalDateString();
-      window.updateDailyReciteButtonUI(window.streakData.lastDate === todayStr);
+      // 💡 오늘 날짜(streak)가 아닌, '현재 보고 있는 주차(week)'의 암송 여부를 불러와서 버튼에 표시
+      const weekKey = String(data.week || (window.currentIndex + 1));
+      window.updateDailyReciteButtonUI(!!window.recitedWeeks[weekKey]);
 
       const teacherA = (data && data.teacher_a && data.teacher_a.trim() !== '') ? data.teacher_a.trim() : window.DEFAULT_TEACHERS.a;
       const teacherB = (data && data.teacher_b && data.teacher_b.trim() !== '') ? data.teacher_b.trim() : window.DEFAULT_TEACHERS.b;
